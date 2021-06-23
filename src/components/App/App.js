@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 import './App.css';
 import Dashboard from '../Dashboard/Dashboard';
 import Preferences from '../Preferences/Preferences';
+import Navbar from '../Navbar/Navbar'
 import Login from '../Login/Login';
 import config from '../../config'
 
@@ -16,7 +17,6 @@ class App extends React.Component {
             wsMessage: null
         };
 
-        
         
         this.validateToken = this.validateToken.bind(this);
         this.getToken = this.getToken.bind(this);
@@ -68,7 +68,6 @@ class App extends React.Component {
         })
         .then(response => response.json())
         .then(responseJson => {
-            
             return responseJson.isValidated
         }).catch(err => {
             console.log("Error while fetching validation: ", err)
@@ -83,8 +82,8 @@ class App extends React.Component {
         return new Promise((resolve, reject) => {
             const token = localStorage.getItem("token");
             if (token) {
-                this.validateToken(token).then(data => {
-                    if (data.isValidated) {
+                this.validateToken(token).then(isValidated => {
+                    if (isValidated) {
                         console.log("token is validated")
                         this.setState({ token: token })  //true or false
                         
@@ -122,25 +121,24 @@ class App extends React.Component {
 
         if(!this.state.token) {
             return <Login setToken={this.setToken} />
-        } else {}
-        
-        return (
-            <div className="app_wrapper">
-                <h1>Application</h1>
-                <BrowserRouter>
-                    <Link to="/dashboard">Dashboard</Link>
-                    <Link to="/preferences">preferences</Link>
-                    <Switch>
-                        <Route path="/dashboard">
-                            <Dashboard wsMessage= {this.state.wsMessage} />
-                        </Route>
-                        <Route path="/preferences">
-                            <Preferences />
-                        </Route>
-                    </Switch>
-                </BrowserRouter>
-            </div>
-        );
+        } else {
+            
+            return (
+                <div className="app_wrapper">
+                    <BrowserRouter>
+                        <Navbar />
+                        <Switch>
+                            <Route path="/dashboard">
+                                <Dashboard wsMessage= {this.state.wsMessage} />
+                            </Route>
+                            <Route path="/preferences">
+                                <Preferences />
+                            </Route>
+                        </Switch>
+                    </BrowserRouter>
+                </div>
+            );
+        }
     }
 }
 

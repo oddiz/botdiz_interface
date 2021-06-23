@@ -1,3 +1,7 @@
+#root {
+    height: 100vh;
+}
+
 .App {
   text-align: center;
 }
@@ -28,11 +32,7 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.app_wrapper {
+    background-color: #36393f;
+    height: 100vh;
 }

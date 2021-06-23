@@ -7,7 +7,7 @@ export default class Dashboard extends React.Component {
             data: []
             
         }
-        console.log(this.props)
+        //console.log(this.props)
         //sthis.websocketMessageHandler = this.websocketMessageHandler.bind(this)
     }
 /*
