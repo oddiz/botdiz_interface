@@ -4,11 +4,11 @@ a, a:hover, a:visited, a:active {
 }
 
 .navbar_wrapper {
-    display: flex;
-    flex-direction: column;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
     
-    align-content: center;
-    height: auto;
+    height: 50px;
     width: 100vw;
     background-color: #202225;
 }
@@ -17,21 +17,29 @@ a, a:hover, a:visited, a:active {
     display:flex;
     flex-direction: row;
     
-    margin-top:3px;
-    height: auto;
+    
+    
     width: auto;
     
     
     color: #8d9196;
 }
 
+.navbar_items_wrapper {
+    display:flex;
+    flex-direction: column;
+}
+
+/* 
 .navbar_item{
     display: inline-block;
     margin: 0 20px;
     
-    font-weight: 400;
     font-size: 28px;
-    font: "Ginto Normal","Whitney","Helvetica Neue","Helvetica","Arial",sans-serif;
+    font-family: "Whitney Semibold Regular","Helvetica Neue","Helvetica","Arial",sans-serif; 
+
+    transition: linear all 0.2s;
+    
 }
 
 .navbar_item.active{
@@ -40,17 +48,17 @@ a, a:hover, a:visited, a:active {
 
 .navbar_indicator {
     position: relative;
-
-    height:3px;
+    
+    height:2px;
     width: 50px;
     background-color: white;
     margin-bottom: 4px;
-
+    
     border-radius: 10px;
-
+    
     transition:  cubic-bezier(.47,.17,.23,1.33) left 0.4s, linear width 0.2s;
-    /*transition: cubic-bezier(0.165, 0.84, 0.44, 1) all 0.4s;
-*/
+    
+    
 }
 
 
@@ -63,3 +71,5 @@ a, a:hover, a:visited, a:active {
     left: 12.3em;
     width: 3.6em;
 }
+
+*/

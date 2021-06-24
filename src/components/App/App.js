@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 import Dashboard from '../Dashboard/Dashboard';
 import Preferences from '../Preferences/Preferences';
@@ -29,13 +29,13 @@ class App extends React.Component {
         
         //if there is token stored in local storage get it
         this.getToken()
-            .catch(err => console.log(err, "Error while trying to get token."))
+        //    .catch(err => console.log(err, "Error while trying to get token."))
         this.setupWebsocket()
     }
 
 
     setupWebsocket() {
-        const ws = new WebSocket('ws://localhost:8080')
+        const ws = new WebSocket('ws://78.185.236.56:8080')
         const self = this;
 
         ws.onopen = () => {
