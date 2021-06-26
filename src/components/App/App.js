@@ -6,6 +6,13 @@ import Preferences from '../Preferences/Preferences';
 import Navbar from '../Navbar/Navbar'
 import Login from '../Login/Login';
 import config from '../../config'
+import styled from 'styled-components'
+
+const AppContent = styled.div`
+    width: 100vw;
+    flex-grow: 1;
+    background-color: #36393f;
+`
 
 class App extends React.Component {
     constructor(props) {
@@ -14,7 +21,8 @@ class App extends React.Component {
         
         this.state = {
             token: localStorage.getItem("token"),
-            wsMessage: null
+            wsMessage: null,
+            websocket: null
         };
 
         
@@ -35,21 +43,23 @@ class App extends React.Component {
 
 
     setupWebsocket() {
-        const ws = new WebSocket('ws://78.185.236.56:8080')
+        const ws = new WebSocket('ws://localhost:8080')
         const self = this;
 
         ws.onopen = () => {
             console.log("Connected to websocket")
-            self.setState({ ws: ws})
+            self.setState({ websocket: ws})
+        }
+        
+        ws.onmessage = () => {
+            console.log("this thing on???")
         }
     
         ws.onclose = () => {
             console.log("Socket is closed.")
         }
         
-        ws.onmessage = (message) => {
-            self.setState({ wsMessage: message })
-        }
+        
 
     }
     
@@ -59,6 +69,7 @@ class App extends React.Component {
  * @returns boolean
  */
     async validateToken(token) {
+        return true
         return fetch(config.botdiz_server + "/validate", {
             method: 'POST',
             headers: {
@@ -121,24 +132,39 @@ class App extends React.Component {
 
         if(!this.state.token) {
             return <Login setToken={this.setToken} />
-        } else {
-            
+        }
+        if(!this.state.websocket) {
             return (
-                <div className="app_wrapper">
-                    <BrowserRouter>
-                        <Navbar />
+                <div>
+                    <h2>
+                        Connecting to Websocket
+                    </h2>
+                </div>
+            )
+        }
+            
+        return (
+            <div className="app_wrapper">
+                <BrowserRouter>
+                    <Navbar />
+                    <AppContent>
                         <Switch>
                             <Route path="/dashboard">
-                                <Dashboard wsMessage= {this.state.wsMessage} />
+                                <Dashboard 
+                                    token={this.state.token} 
+                                    websocket={this.state.websocket}
+                                    wsMessage= {this.state.wsMessage} />
                             </Route>
                             <Route path="/preferences">
                                 <Preferences />
                             </Route>
                         </Switch>
-                    </BrowserRouter>
-                </div>
-            );
-        }
+                    </AppContent>
+                </BrowserRouter>
+                
+            </div>
+        );
+        
     }
 }
 

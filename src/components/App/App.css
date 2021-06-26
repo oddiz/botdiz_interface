@@ -1,5 +1,6 @@
 #root {
     height: 100vh;
+    overflow: hidden;
 }
 
 .App {
@@ -33,6 +34,9 @@
 }
 
 .app_wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
     background-color: #36393f;
-    height: 100vh;
+    height: 100%;
 }

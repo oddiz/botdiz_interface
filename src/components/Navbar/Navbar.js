@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from 'react-router-dom';
-import 'styled-components'
+
 import styled from "styled-components";
 import './Navbar.css'
 import {ReactComponent as Logo} from './botdiz.svg'
@@ -111,10 +111,6 @@ export default class Navbar extends React.Component {
             },
             {
                 value: "Item 5",
-                link: "/stats"
-            },
-            {
-                value: "Item 6",
                 link: "/stats"
             },
             {
