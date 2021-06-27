@@ -11,9 +11,10 @@ const Pill = styled.span`
     display: inline-block;
     
     width:4px;
+    margin-top:9px;
     border-radius: 0 4px 4px 0;
     background-color: #808691;
-    height: 50px;
+    height: 38px;
     left:0;
 `
 
@@ -64,7 +65,7 @@ const GuildIconImg = styled.img`
 const GuildIconsBar = styled.div`
     display: flex;
     flex-direction: column;
-
+    flex-shrink: 0;
     align-items: center;
     width: 64px;
     height: 100%;
@@ -98,6 +99,7 @@ export default function GuildBar(props) {
         />
 
     ))
+    
     return(
         <GuildIconsBar> 
             {guildListRender}

@@ -20,6 +20,8 @@ const DashboardContent = styled.div`
     display:flex;
     flex-direction: column;
     height:100%;
+    width:100%;
+    overflow-x: hidden;
 
 `
 const GuildOptionsContent = styled.div`
@@ -41,35 +43,21 @@ export default class Dashboard extends React.Component {
         this.websocket = props.websocket
         this.token = props.token
 
-        this.websocketMessageHandler()
-        //console.log(this.props)
         
         
-        this.websocketMessageHandler = this.websocketMessageHandler.bind(this)
         this.guildOptionsClickHandler = this.guildOptionsClickHandler.bind(this)
         this.GuildBarOnClick = this.GuildBarOnClick.bind(this)
     }
     
     async componentDidMount(){
-        //ask for guilds
-        
-        
-        
+        //ask for guilds 
         this.getGuilds()
-        
     }
-    
-    
-    websocketMessageHandler() {
-         
-        
-        
-    }
-
 
     async getGuilds() {
         
         const message = {
+            type:"get",
             token: this.props.token,
             command: "RPC_getGuilds",
             params: []
@@ -77,7 +65,7 @@ export default class Dashboard extends React.Component {
         
         
         this.websocket.send(JSON.stringify(message))
-        console.log("object")
+        
         
         this.websocket.onmessage = (reply) => {
             //console.log("reply recieved" ,reply)
@@ -112,7 +100,13 @@ export default class Dashboard extends React.Component {
                 
                 
                 return (
-                    <ChatPage onKeyDownFunc={this.chatInputKeyboardEvent} />
+                    <ChatPage
+                        key={this.state.activeGuild}
+                        token={this.token} 
+                        websocket={this.websocket} 
+                        activeGuild={this.state.activeGuild}
+                        onKeyDownFunc={this.chatInputKeyboardEvent} 
+                    />
                 )
                 
             case "Music Player":
@@ -135,19 +129,12 @@ export default class Dashboard extends React.Component {
         
     }
 
-    chatInputKeyboardEvent(event) {
-        if (event.keyCode === 13) {
-            console.log("You pressed enter!!")
-
-            //send a message to channel
-        }
-    }
 
     GuildBarOnClick(event) {
         
         const clickedElement = event.target
         const activeIndex = [...clickedElement.parentElement.parentElement.children].indexOf(clickedElement.parentElement);
-        console.log(activeIndex)
+        
         this.setState({activeGuild: this.state.allGuilds[activeIndex]})
     }
 
@@ -155,7 +142,8 @@ export default class Dashboard extends React.Component {
         
         return (
             <DashboardWrapper>
-                <GuildBar 
+                <GuildBar
+                    key={this.state.activeGuild?.id}
                     allGuilds={this.state.allGuilds} 
                     GuildBarOnClick={this.GuildBarOnClick} 
                     activeGuild={this.state.activeGuild} 
@@ -163,10 +151,9 @@ export default class Dashboard extends React.Component {
 
                 <DashboardContent>
                     <GuildOptions onClickFunc={this.guildOptionsClickHandler} />
-                    <GuildOptionsContent>
+                    <GuildOptionsContent key={this.state.activeGuild?.id}>
                         {this.RenderGuildOptionContent()}
-                        <h2>Dashboard</h2>
-                        <p>{this.props.wsMessage?.data || " "}</p>
+                        
 
                     </GuildOptionsContent>
 

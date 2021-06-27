@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from '../Dashboard/Dashboard';
 import Preferences from '../Preferences/Preferences';
@@ -147,9 +147,12 @@ class App extends React.Component {
             <div className="app_wrapper">
                 <BrowserRouter>
                     <Navbar />
-                    <AppContent>
+                    <AppContent key={Math.floor(Math.random()*10000)}>
                         <Switch>
-                            <Route path="/dashboard">
+                            <Route exact path="/">
+                                <Redirect to="/dashboard" />
+                            </Route>
+                            <Route path={["/dashboard", "/home"]}>
                                 <Dashboard 
                                     token={this.state.token} 
                                     websocket={this.state.websocket}
