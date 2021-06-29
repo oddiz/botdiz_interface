@@ -5,7 +5,7 @@ frontend:
             commands:
                 - echo "registry=https://registry.npmjs.org/" > .npmrc
                 - echo "@dracula:registry=https://npm.pkg.github.com/" >> .npmrc
-                - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+                - echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
                 - echo 'REACT_APP_RECAPTCHA_SITEKEY="${REACT_APP_RECAPTCHA_SITEKEY}"' > .env
                 - cat .npmrc
                 - pwd
