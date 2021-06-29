@@ -56,6 +56,10 @@ export default class Dashboard extends React.Component {
 
     async getGuilds() {
         
+        if(!this.websocket) {
+            return
+        }
+
         const message = {
             type:"get",
             token: this.props.token,

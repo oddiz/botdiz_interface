@@ -29,6 +29,7 @@ a, a:hover, a:visited, a:active {
 .navbar_items_wrapper {
     display:flex;
     flex-direction: column;
+    flex-grow:1;
 }
 
 /* 

@@ -1,9 +1,14 @@
 import React from "react";
 import { Link } from 'react-router-dom';
-
 import styled from "styled-components";
 import './Navbar.css'
-import {ReactComponent as Logo} from './botdiz.svg'
+import { ReactComponent as Logo } from './botdiz.svg'
+import Status from './Status'
+//STATUS SECTION
+
+
+
+//NAVBAR ITEMS SECTION
 function getTextWidth(text, font) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -74,7 +79,6 @@ const NavLink = styled(Link)`
     }
 
 `
-
 const StyledLogo = styled(Logo)`
     height: 20px;
     width: auto;
@@ -82,9 +86,6 @@ const StyledLogo = styled(Logo)`
     padding: 4px 8px;
     
 `
-
-
-
 export default class Navbar extends React.Component {
     constructor (props) {
         super(props)
@@ -141,7 +142,7 @@ export default class Navbar extends React.Component {
                     </div>
                     <NavbarSelectedIndicator activeIndex={this.state.activeIndex} activeName={this.state.active} menuItems = {this.menuItems}/>    
                 </div>
-
+                <Status key={this.props.websocket} websocket={this.props.websocket} setupWebsocket={this.props.setupWebsocket} />
             </div>
 
         )

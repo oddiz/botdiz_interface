@@ -10,6 +10,7 @@ import styled from 'styled-components'
 
 const AppContent = styled.div`
     width: 100vw;
+    height: 100%;
     flex-grow: 1;
     background-color: #36393f;
 `
@@ -44,8 +45,6 @@ class App extends React.Component {
         }
         run()
     }
-
-
     async validateSession() {
         
         const response = await fetch("http://"+config.botdiz_server + "/validate", {
@@ -67,7 +66,7 @@ class App extends React.Component {
 
         ws.onopen = () => {
             console.log("Connected to websocket")
-            self.setState({ websocket: ws})
+            this.setState({ websocket: ws})
         }
         
         ws.onmessage = () => {
@@ -82,8 +81,6 @@ class App extends React.Component {
         
 
     }
-    
-
     //const [token, setToken] = useState();
     render() {
         if (!this.state.sessionValidated) {
@@ -91,15 +88,12 @@ class App extends React.Component {
         }
         
         
-        if(!this.state.websocket) {
-            return <Login />
-        }
             
         return (
             <BrowserRouter>
                 <div className="app_wrapper">
+                        <Navbar setupWebsocket={this.setupWebsocket} websocket={this.state.websocket} />
                         <AppContent key={Math.floor(Math.random()*10000)}>
-                            <Navbar />
                             <Switch>
                                 <Route exact path="/">
                                     <Redirect to="/dashboard" />

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const GuildOptionsWrapper = styled.div`
     height:30px;
     flex-grow: 0;
-
+    flex-shrink: 0;
     display: flex;
     flex-direction: row;
     
