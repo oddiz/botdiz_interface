@@ -4,10 +4,10 @@ import "./Login.css"
 import '@dracula/dracula-ui/styles/dracula-ui.css'
 import { Card, Text, Box, Input, Button, Heading} from '@dracula/dracula-ui'
 import ReCAPTCHA from 'react-google-recaptcha'
-import styled from 'styled-components'
+
 
 async function loginUser(credentials) {
-    return fetch("http://"+config.botdiz_server + '/login', {
+    return fetch("https://"+config.botdiz_server + '/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
