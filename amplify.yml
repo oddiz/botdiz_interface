@@ -7,6 +7,8 @@ frontend:
                 - echo "@dracula:registry=https://npm.pkg.github.com/" >> .npmrc
                 - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
                 - echo 'REACT_APP_RECAPTCHA_SITEKEY="${REACT_APP_RECAPTCHA_SITEKEY}"' > .env
+                - cat .npmrc
+                - pwd
                 - yarn install
         build:
             commands:
