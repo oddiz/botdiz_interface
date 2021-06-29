@@ -7,7 +7,6 @@ import Navbar from '../Navbar/Navbar'
 import Login from '../Login/Login';
 import config from '../../config'
 import styled from 'styled-components'
-
 const AppContent = styled.div`
     width: 100vw;
     height: 100%;
@@ -61,7 +60,7 @@ class App extends React.Component {
 
     }
     setupWebsocket() {
-        const ws = new WebSocket('ws://localhost:8080')
+        const ws = new WebSocket('ws://' + config.botdiz_server)
         const self = this;
 
         ws.onopen = () => {
