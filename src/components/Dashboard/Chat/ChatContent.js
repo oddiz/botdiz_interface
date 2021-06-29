@@ -164,9 +164,9 @@ function ChatRoom(props) {
     }
     const mappedMessages = messages.map((message, index) => {
         return (
-            <MessageWrapper>
+            <MessageWrapper key={"wrapper_" + index}>
                 <MessageSeperator />
-                <Message key={index}>
+                <Message>
                     <MessageAuthor style={{color: message.authorColor || "inherit" }}>
                         {message.author}:
                     </MessageAuthor>

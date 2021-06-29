@@ -70,7 +70,7 @@ export default class Dashboard extends React.Component {
         this.websocket.onmessage = (reply) => {
             //console.log("reply recieved" ,reply)
             let parsedReply;
-            console.log(reply.data, "reply data")
+            
             try {
                 parsedReply = JSON.parse(reply.data)
                 

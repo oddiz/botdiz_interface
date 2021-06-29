@@ -17,31 +17,50 @@ const AppContent = styled.div`
 class App extends React.Component {
     constructor(props) {
         super(props)
-        console.log(config.botdiz_server + "/validate")
+        
         
         this.state = {
-            token: localStorage.getItem("token"),
+            sessionActive: false,
             wsMessage: null,
             websocket: null
         };
 
         
-        this.validateToken = this.validateToken.bind(this);
-        this.getToken = this.getToken.bind(this);
-        this.setToken = this.setToken.bind(this);
+        this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
+
+        
     }
 
     componentDidMount() {
-        
-        
-        //if there is token stored in local storage get it
-        this.getToken()
-        //    .catch(err => console.log(err, "Error while trying to get token."))
-        this.setupWebsocket()
+        const self = this
+        async function run() {
+            await self.validateSession()
+            //    .catch(err => console.log(err, "Error while trying to get token."))
+            
+            if(self.state.sessionValidated){
+                self.setupWebsocket()
+            }
+        }
+        run()
     }
 
 
+    async validateSession() {
+        
+        const response = await fetch("http://"+config.botdiz_server + "/validate", {
+            method: 'GET',
+            credentials: 'include'
+        }).then(data=>data)
+
+        const responseBody = await response.json() 
+        console.log(responseBody)
+
+        if (responseBody.isValidated) {
+            this.setState({sessionValidated: true})
+        }
+
+    }
     setupWebsocket() {
         const ws = new WebSocket('ws://localhost:8080')
         const self = this;
@@ -57,115 +76,48 @@ class App extends React.Component {
     
         ws.onclose = () => {
             console.log("Socket is closed.")
+            self.setState( { websocket: null })
         }
         
         
 
     }
     
-/**
- * Validates the token on server and returns if validated or not.
- * @param {string} token 
- * @returns boolean
- */
-    async validateToken(token) {
-        return true
-        return fetch(config.botdiz_server + "/validate", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ token: token })
-        })
-        .then(response => response.json())
-        .then(responseJson => {
-            return responseJson.isValidated
-        }).catch(err => {
-            console.log("Error while fetching validation: ", err)
-            return false
-        })
 
-        
-    }
-
-    getToken() {
-        
-        return new Promise((resolve, reject) => {
-            const token = localStorage.getItem("token");
-            if (token) {
-                this.validateToken(token).then(isValidated => {
-                    if (isValidated) {
-                        console.log("token is validated")
-                        this.setState({ token: token })  //true or false
-                        
-                        resolve(token) 
-                    } else {
-                        console.log("token is not validated")
-                        this.setState({ token: false })
-                        
-                        resolve(false)
-                    }
-
-                })
-                .catch(err => {
-                    reject("Error while trying to validate token: " + err)
-                })
-            
-            }
-            resolve(false)
-        })
-    }
-
-    async setToken(token) {
-        const isValidated = await this.validateToken(token)
-        console.log(isValidated, "result from validate token")
-        if (isValidated) {
-            this.setState({token: token})
-            localStorage.setItem("token", token)
-            console.log("token updated", this.state)
-        } else {
-            this.setState({token: false})
-        }
-    }
     //const [token, setToken] = useState();
     render() {
-
-        if(!this.state.token) {
-            return <Login setToken={this.setToken} />
+        if (!this.state.sessionValidated) {
+            return <Login />
         }
+        
+        
         if(!this.state.websocket) {
-            return (
-                <div>
-                    <h2>
-                        Connecting to Websocket
-                    </h2>
-                </div>
-            )
+            return <Login />
         }
             
         return (
-            <div className="app_wrapper">
-                <BrowserRouter>
-                    <Navbar />
-                    <AppContent key={Math.floor(Math.random()*10000)}>
-                        <Switch>
-                            <Route exact path="/">
-                                <Redirect to="/dashboard" />
-                            </Route>
-                            <Route path={["/dashboard", "/home"]}>
-                                <Dashboard 
-                                    token={this.state.token} 
-                                    websocket={this.state.websocket}
-                                    wsMessage= {this.state.wsMessage} />
-                            </Route>
-                            <Route path="/preferences">
-                                <Preferences />
-                            </Route>
-                        </Switch>
-                    </AppContent>
-                </BrowserRouter>
-                
-            </div>
+            <BrowserRouter>
+                <div className="app_wrapper">
+                        <AppContent key={Math.floor(Math.random()*10000)}>
+                            <Navbar />
+                            <Switch>
+                                <Route exact path="/">
+                                    <Redirect to="/dashboard" />
+                                </Route>
+                                <Route path={["/dashboard", "/home"]}>
+                                    <Dashboard 
+                                        token={this.state.token} 
+                                        websocket={this.state.websocket}
+                                        wsMessage= {this.state.wsMessage} />
+                                </Route>
+                                <Route path="/preferences">
+                                    <Preferences />
+                                </Route>
+                            </Switch>
+                        </AppContent>
+                    
+                </div>
+            </BrowserRouter>
         );
         
     }

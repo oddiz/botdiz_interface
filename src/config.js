@@ -1,6 +1,6 @@
 const config = {
 
-    botdiz_server: "http://localhost:8080"
+    botdiz_server: "localhost:8080"
 
 }
 export default config

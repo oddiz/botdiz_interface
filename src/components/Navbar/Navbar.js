@@ -101,22 +101,6 @@ export default class Navbar extends React.Component {
                 value: "Stats",
                 link: "/stats"
             },
-            {
-                value: "Item 3",
-                link: "/stats"
-            },
-            {
-                value: "Item 4",
-                link: "/stats"
-            },
-            {
-                value: "Item 5",
-                link: "/stats"
-            },
-            {
-                value: "Item 6",
-                link: "/stats"
-            },
         ]
 
         this.handleClick = this.handleClick.bind(this)
