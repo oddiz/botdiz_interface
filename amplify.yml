@@ -8,4 +8,3 @@ backend:
                 - echo 'REACT_APP_RECAPTCHA_SITEKEY="${REACT_APP_RECAPTCHA_SITEKEY}"' > .env
         build:
             commands:
-                - amplifyPush --simple
