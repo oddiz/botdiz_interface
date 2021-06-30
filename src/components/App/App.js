@@ -28,6 +28,7 @@ class App extends React.Component {
         
         this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
+        this.reconnectWebsocket = this.reconnectWebsocket.bind(this);
 
         
     }
@@ -59,11 +60,23 @@ class App extends React.Component {
         }
 
     }
+    reconnectWebsocket() {
+        try {
+            if(this.state.websocket){
+                this.state.websocket.close()
+            }
+            console.log("Closed existing websocket")
+        } catch (error) {
+            //silently fail
+        }
+        new WebSocket('wss://' + config.botdiz_server)
+    }
     setupWebsocket() {
         try {
             if(this.state.websocket){
                 this.state.websocket.close()
                 
+                this.state.websocket.removeEventListener()
             }
             console.log("Closed existing websocket")
         } catch (error) {
@@ -100,7 +113,7 @@ class App extends React.Component {
         return (
             <BrowserRouter>
                 <div className="app_wrapper">
-                        <Navbar setupWebsocket={this.setupWebsocket} websocket={this.state.websocket} />
+                        <Navbar setupWebsocket={this.reconnectWebsocket} websocket={this.state.websocket} />
                         <AppContent key={Math.floor(Math.random()*10000)}>
                             <Switch>
                                 <Route exact path="/">
