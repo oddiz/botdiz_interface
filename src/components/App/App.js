@@ -60,17 +60,7 @@ class App extends React.Component {
         }
 
     }
-    reconnectWebsocket() {
-        try {
-            if(this.state.websocket){
-                this.state.websocket.close()
-            }
-            console.log("Closed existing websocket")
-        } catch (error) {
-            //silently fail
-        }
-        new WebSocket('wss://' + config.botdiz_server)
-    }
+
     setupWebsocket() {
         try {
             if(this.state.websocket){
@@ -80,8 +70,13 @@ class App extends React.Component {
         } catch (error) {
             //silently fail
         }
+        if(this.state.websocket === "connecting") {
+            //already trying to connect
+            return
+        }
         const ws = new WebSocket('wss://' + config.botdiz_server)
         const self = this;
+        this.setState({ websocket: "connecting" })
 
         ws.onopen = () => {
             console.log("Connected to websocket")

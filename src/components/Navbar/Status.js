@@ -48,7 +48,11 @@ const WebsocketStatusText = styled.p`
     font-size:16px;
 `
 function WebsocketStatus(props) {
-    const color = props.websocket? "#8aff80" : "#FF5230"
+    let color = props.websocket? "#8aff80" : "#FF5230"
+    
+    if(props.websocket === "connecting"){
+        color = "#ffff80"
+    }
     
     return(
         <WebsocketStatusWrapper>
