@@ -49,7 +49,7 @@ const WebsocketStatusText = styled.p`
 `
 function WebsocketStatus(props) {
     const color = props.websocket? "#8aff80" : "#FF5230"
-    console.log(props.websocket)
+    
     return(
         <WebsocketStatusWrapper>
             <WebsocketStatusText>Websocket:</WebsocketStatusText>

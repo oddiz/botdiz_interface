@@ -141,7 +141,6 @@ export default class ChatPage extends React.Component{
 
     async getTextChannels() {
         if(!this.props.activeGuild){
-            console.log("No active guilds")
             return
         }
         const message = JSON.stringify({

@@ -75,8 +75,6 @@ class App extends React.Component {
         try {
             if(this.state.websocket){
                 this.state.websocket.close()
-                
-                this.state.websocket.removeEventListener()
             }
             console.log("Closed existing websocket")
         } catch (error) {
@@ -113,7 +111,7 @@ class App extends React.Component {
         return (
             <BrowserRouter>
                 <div className="app_wrapper">
-                        <Navbar setupWebsocket={this.reconnectWebsocket} websocket={this.state.websocket} />
+                        <Navbar setupWebsocket={this.setupWebsocket} websocket={this.state.websocket} />
                         <AppContent key={Math.floor(Math.random()*10000)}>
                             <Switch>
                                 <Route exact path="/">
