@@ -28,7 +28,6 @@ class App extends React.Component {
         
         this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
-        this.reconnectWebsocket = this.reconnectWebsocket.bind(this);
 
         
     }
