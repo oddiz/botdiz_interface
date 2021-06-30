@@ -111,7 +111,6 @@ export default class Status extends React.Component {
                 
                 break;
             case "refresh_button":
-                console.log("refresh clicked")
                 this.setupWebsocket()
 
                 break

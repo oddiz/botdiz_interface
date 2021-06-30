@@ -60,12 +60,21 @@ class App extends React.Component {
 
     }
     setupWebsocket() {
+        try {
+            if(this.state.websocket){
+                this.state.websocket.close()
+                
+            }
+            console.log("Closed existing websocket")
+        } catch (error) {
+            //silently fail
+        }
         const ws = new WebSocket('wss://' + config.botdiz_server)
         const self = this;
 
         ws.onopen = () => {
             console.log("Connected to websocket")
-            this.setState({ websocket: ws})
+            self.setState({ websocket: ws})
         }
         
         ws.onmessage = () => {
