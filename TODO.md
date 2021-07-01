@@ -2,14 +2,17 @@
 
 ## UI
 ## Navbar
-    - Settings, websocket status, refresh websocket buttons
-    - websocket status, reconnect button
+    - Settings, websocket status ✅, refresh websocket ✅
+    
     
 ### Settings
     -Theme?
     -Logout?
 
 ## Dashboard
+
+    -Chat
+        - new messages doesn't show user colors
 
     - music player page
         - playlist

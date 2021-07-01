@@ -46,7 +46,7 @@ class App extends React.Component {
     }
     async validateSession() {
         
-        const response = await fetch("https://"+config.botdiz_server + "/validate", {
+        const response = await fetch(config.botdiz_server + "/validate", {
             method: 'GET',
             credentials: 'include'
         }).then(data=>data)
@@ -73,7 +73,7 @@ class App extends React.Component {
             //already trying to connect
             return
         }
-        const ws = new WebSocket('wss://' + config.botdiz_server)
+        const ws = new WebSocket(config.botdiz_websocket_server)
         const self = this;
         this.setState({ websocket: "connecting" })
 

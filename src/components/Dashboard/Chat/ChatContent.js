@@ -232,6 +232,8 @@ export default class ChatContent extends React.Component {
 
         this.websocket.send(message)
 
+        
+
     }
 
     async getChannelMessages() {

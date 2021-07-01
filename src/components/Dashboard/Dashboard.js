@@ -56,7 +56,7 @@ export default class Dashboard extends React.Component {
 
     async getGuilds() {
         
-        if(!this.websocket) {
+        if(!this.websocket || this.websocket === "connecting") {
             return
         }
 
@@ -116,7 +116,12 @@ export default class Dashboard extends React.Component {
             case "Music Player":
                 
                 return (
-                    <MusicPlayer />
+                    <MusicPlayer 
+                        key={this.state.activeGuild}
+                        token={this.token}
+                        activeGuild={this.state.activeGuild}
+                        websocket={this.websocket}
+                    />
                 )
                 
             default:

@@ -7,7 +7,7 @@ import ReCAPTCHA from 'react-google-recaptcha'
 
 
 async function loginUser(credentials) {
-    return fetch("https://"+config.botdiz_server + '/login', {
+    return fetch(config.botdiz_server + '/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
