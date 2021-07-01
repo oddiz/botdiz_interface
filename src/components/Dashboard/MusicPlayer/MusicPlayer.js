@@ -2,6 +2,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import { SongInfo } from './SongInfo'
+import { PlayerControls } from './PlayerControls'
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
     height:100%;
@@ -56,6 +58,8 @@ const MPControlsWrapper = styled.div`
     height: 70%;
     display:flex;
     flex-direction: row;
+
+    justify-content: center;
 `
 const MPFooterWrapper = styled.div`
     height: 80px;
@@ -67,6 +71,17 @@ const MPFooterWrapper = styled.div`
 
     background-color: #2A2A2A;
 `
+const InvisibleFlexAligner = styled.div`
+
+    height: 100%;
+    width: 250px;
+
+    flex-shrink: 1;
+
+    margin-left: auto;
+`
+
+
 class MusicPlayerFooter extends React.Component {
     constructor(props) {
         super(props)
@@ -76,13 +91,15 @@ class MusicPlayerFooter extends React.Component {
                 currentTitle: "",
                 streamTime: 0,
                 videoLenght: 0,
-                audioPlayerStatus: "",
+                audioPlayerStatus: "idle", //"playing", "paused", "idle",
+                videoThumnailUrl: ""
             }
         }
-        
+        this.token = props.token
         this.websocket = props.websocket
         this.activeGuild = props.activeGuild
         this.setupMusicPlayerListener = this.setupMusicPlayerListener.bind(this)
+        this.formatTime = this.formatTime.bind(this)
     }
     componentDidMount() {
         this.setupMusicPlayerListener()
@@ -94,7 +111,13 @@ class MusicPlayerFooter extends React.Component {
         }))
     }
     async setupMusicPlayerListener() {
-        const guildId = this.activeGuild.id
+        let guildId;
+        try {
+            guildId = this.activeGuild.id
+        } catch{
+            console.log("No idle guilds")
+            return
+        }
         
         const message = JSON.stringify({
             type: 'listenMusicPlayer',
@@ -117,14 +140,12 @@ class MusicPlayerFooter extends React.Component {
                 return
             }
 
-            //console.log("Parsed reply from music player: ", parsedReply.message)
-
             this.setState({ playerInfo: parsedReply.message })
 
         }
     }
 
-    render() {
+    formatTime() {
         const streamTime = this.state.playerInfo.streamTime || 0
         const streamHours = Math.floor(streamTime / (60 * 60) % 60)
         const streamMins = Math.floor(streamTime / (60) % 60)
@@ -138,18 +159,47 @@ class MusicPlayerFooter extends React.Component {
         
         const percentage = ((streamTime * 100) / videoLenght).toFixed(1) || 0
 
+        let formattedStreamTime, formattedVideoLength
+        if (videoHours > 0){
+            
+            formattedStreamTime = `${streamHours}:${streamMins.toString().padStart(2,0)}:${streamSecs.toString().padStart(2, '0')}`
+            formattedVideoLength = `${videoHours}:${videoMins.toString().padStart(2, 0)}:${videoSecs.toString().padStart(2, '0')}`
+
+        } else {
+            
+            formattedStreamTime = `${streamMins}:${streamSecs.toString().padStart(2, '0')}`
+            formattedVideoLength = `${videoMins}:${videoSecs.toString().padStart(2, '0')}`
+            
+        }
+        return {
+            formattedStreamTime: formattedStreamTime,
+            formattedVideoLenght:  formattedVideoLength,
+            percentage: percentage
+        }
+    }
+
+    render() {
+        const formattedTime = this.formatTime()
+        
         return(
             <MPFooterWrapper>
                 <MPControlsWrapper>
-                    
+                    <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
+                    <PlayerControls 
+                        token={this.token} 
+                        guildId={this.activeGuild.id} 
+                        websocket={this.websocket} 
+                        audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
+                    />
+                    <InvisibleFlexAligner />
                 </MPControlsWrapper>
                 <SongSliderWrapper>
                     <CurrentTime>
-                        {`${streamHours}:${streamMins.toString().padStart(2,0)}:${streamSecs.toString().padStart(2, '0')}`}
+                        {formattedTime.formattedStreamTime}
                     </CurrentTime>
-                    <ProgressBar percentage={percentage} />
+                    <ProgressBar percentage={formattedTime.percentage} />
                     <TotalTime>
-                        {`${videoHours}:${videoMins.toString().padStart(2, 0)}:${videoSecs.toString().padStart(2, '0')}`}
+                        {formattedTime.formattedVideoLenght}
                     </TotalTime>
                 </SongSliderWrapper>
             </MPFooterWrapper>
@@ -196,7 +246,7 @@ export default class MusicPlayer extends React.Component {
                 <MusicPlayerContent id= "content"  > 
 
                 </MusicPlayerContent>
-                <MusicPlayerFooter id="footer" websocket={this.websocket} activeGuild={this.activeGuild}  />
+                <MusicPlayerFooter id="footer" token={this.token} websocket={this.websocket} activeGuild={this.activeGuild}  />
             </MusicPlayerWrapper>
         )
     }
