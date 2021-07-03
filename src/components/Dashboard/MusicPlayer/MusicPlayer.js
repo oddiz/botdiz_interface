@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 import { SongInfo } from './Footer/SongInfo'
 import { PlayerControls } from './Footer/PlayerControls'
+import { Queue } from './Queue'
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
     height:100%;
@@ -81,7 +82,12 @@ const InvisibleFlexAligner = styled.div`
     margin-left: auto;
 `
 const MusicPlayerContent = styled.div`
-    flex-grow: 1;   
+    height: 100%;
+    flex: 1 1 50px; 
+
+    overflow-x: hidden;
+    overflow-y: scroll;
+
 `
 const MusicPlayerWrapper = styled.div`
     display: flex;
@@ -110,6 +116,8 @@ export default class MusicPlayer extends React.Component {
         this.activeGuild = props.activeGuild
         this.setupMusicPlayerListener = this.setupMusicPlayerListener.bind(this)
         this.formatTime = this.formatTime.bind(this)
+        this.queueDeleteClicked = this.queueDeleteClicked.bind(this)
+        this.queueSkipClicked = this.queueSkipClicked.bind(this)
     }
     componentDidMount() {
         this.setupMusicPlayerListener()
@@ -188,14 +196,59 @@ export default class MusicPlayer extends React.Component {
         }
     }
 
+    async queueDeleteClicked (event){
+        console.log(event.currentTarget.parentElement)
+
+        const clickedElement = event.currentTarget.parentElement
+        //index of song in queue array
+        const songIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
+
+        const RPCMessage = JSON.stringify({
+            token: this.token,
+            type: "exec",
+            command: "RPC_deleteQueueSong",
+            //should take 2 params: guildid, index of to be deleted song
+            params: [this.activeGuild.id, songIndex]
+        })
+        
+        this.websocket.send(RPCMessage)
+    }
+    async queueSkipClicked (event) {
+        console.log(event.currentTarget.parentElement)
+
+        const clickedElement = event.currentTarget.parentElement
+        //index of song in queue array
+        const activeIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
+
+        const RPCMessage = JSON.stringify({
+            token: this.token,
+            type: "exec",
+            command: "RPC_skipSong",
+            //should take 2 params: guildid, skip amount
+            //skip amount should be +1 accounting the current song
+            params: [this.activeGuild.id, activeIndex + 1]
+        })
+
+        this.websocket.send(RPCMessage)
+    }
     render() {
         const formattedTime = this.formatTime()
         
         return(
-            <MusicPlayerWrapper id="wrapper">          
-                <MusicPlayerContent>
+            <MusicPlayerWrapper id="musicplayer_wrapper">          
+                <MusicPlayerContent id="musicplayer_content">
 
-
+                    <Queue
+                        key={this.state.playerInfo.queue.length}
+                        queue={this.state.playerInfo.queue} 
+                        currentSong={{
+                            title: this.state.playerInfo.currentTitle,
+                            videoThumbnailUrl: this.state.playerInfo.videoThumbnailUrl,
+                            videoLenght: this.state.playerInfo.videoLenght
+                        }}
+                        queueDeleteClicked={this.queueDeleteClicked}
+                        queueSkipClicked={this.queueSkipClicked}
+                    />
 
                 </MusicPlayerContent>
                 <MPFooterWrapper>

@@ -26,6 +26,7 @@ const DashboardContent = styled.div`
 `
 const GuildOptionsContent = styled.div`
     flex-grow: 1;
+    height:calc(100% - var(--guild-options-height))
 `
 export default class Dashboard extends React.Component {
     constructor(props) {
@@ -150,7 +151,7 @@ export default class Dashboard extends React.Component {
     render() {
         
         return (
-            <DashboardWrapper>
+            <DashboardWrapper id="dashboard_wrapper">
                 <GuildBar
                     key={this.state.activeGuild?.id}
                     allGuilds={this.state.allGuilds} 
@@ -159,8 +160,8 @@ export default class Dashboard extends React.Component {
                 />
 
                 <DashboardContent>
-                    <GuildOptions onClickFunc={this.guildOptionsClickHandler} />
-                    <GuildOptionsContent key={this.state.activeGuild?.id}>
+                    {this.state.activeGuild && <GuildOptions onClickFunc={this.guildOptionsClickHandler} />}
+                    <GuildOptionsContent id="guild_options_content" key={this.state.activeGuild?.id}>
                         {this.RenderGuildOptionContent()}
                         
 

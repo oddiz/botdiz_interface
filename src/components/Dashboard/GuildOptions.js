@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components'
 
 const GuildOptionsWrapper = styled.div`
-    height:30px;
+    height:var(--guild-options-height);
     flex-grow: 0;
     flex-shrink: 0;
     display: flex;

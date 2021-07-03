@@ -68,7 +68,7 @@ const GuildIconsBar = styled.div`
     flex-shrink: 0;
     align-items: center;
     width: 64px;
-    height: 100%;
+    
 
     padding-top: 30px;
     background-color: #202225;

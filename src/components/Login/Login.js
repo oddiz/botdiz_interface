@@ -96,7 +96,7 @@ export default class Login extends React.Component {
                         className="drac-black-secondary"
                         p="md"
                         color=""
-                        rounded="md"
+                        rounded="lg"
                         as="div"
                         height="full"
                         width="auto"
