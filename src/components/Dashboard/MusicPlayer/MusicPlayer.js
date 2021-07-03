@@ -2,8 +2,8 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { SongInfo } from './SongInfo'
-import { PlayerControls } from './PlayerControls'
+import { SongInfo } from './Footer/SongInfo'
+import { PlayerControls } from './Footer/PlayerControls'
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
     height:100%;
@@ -80,9 +80,18 @@ const InvisibleFlexAligner = styled.div`
 
     margin-left: auto;
 `
+const MusicPlayerContent = styled.div`
+    flex-grow: 1;   
+`
+const MusicPlayerWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    width: 100%;
+    height: 100%;
 
-
-class MusicPlayerFooter extends React.Component {
+`
+export default class MusicPlayer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -95,6 +104,7 @@ class MusicPlayerFooter extends React.Component {
                 videoThumnailUrl: ""
             }
         }
+
         this.token = props.token
         this.websocket = props.websocket
         this.activeGuild = props.activeGuild
@@ -182,73 +192,67 @@ class MusicPlayerFooter extends React.Component {
         const formattedTime = this.formatTime()
         
         return(
-            <MPFooterWrapper>
-                <MPControlsWrapper>
-                    <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
-                    <PlayerControls 
-                        token={this.token} 
-                        guildId={this.activeGuild.id} 
-                        websocket={this.websocket} 
-                        audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
-                    />
-                    <InvisibleFlexAligner />
-                </MPControlsWrapper>
-                <SongSliderWrapper>
-                    <CurrentTime>
-                        {formattedTime.formattedStreamTime}
-                    </CurrentTime>
-                    <ProgressBar percentage={formattedTime.percentage} />
-                    <TotalTime>
-                        {formattedTime.formattedVideoLenght}
-                    </TotalTime>
-                </SongSliderWrapper>
-            </MPFooterWrapper>
-        )
-    }
-}
-
-const MusicPlayerContent = styled.div`
-    flex-grow: 1;   
-`
-const MusicPlayerWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 1;
-    width: 100%;
-    height: 100%;
-
-`
-export default class MusicPlayer extends React.Component {
-    constructor (props) {
-        super(props)
-        this.state = {
-            audioplayer: {
-                playing: false,
-                volume: 1
-            },
-            
-        }
-        
-        this.activeGuild = props.activeGuild
-        this.token = props.token
-        this.websocket = props.websocket
+            <MusicPlayerWrapper id="wrapper">          
+                <MusicPlayerContent>
 
 
-    }
-
-    
-
-    
-
-    render() {
-        return(
-            <MusicPlayerWrapper id="wrapper">
-                <MusicPlayerContent id= "content"  > 
 
                 </MusicPlayerContent>
-                <MusicPlayerFooter id="footer" token={this.token} websocket={this.websocket} activeGuild={this.activeGuild}  />
+                <MPFooterWrapper>
+                    <MPControlsWrapper>
+                        <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
+                        <PlayerControls 
+                            token={this.token} 
+                            guildId={this.activeGuild.id} 
+                            websocket={this.websocket} 
+                            audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
+                        />
+                        <InvisibleFlexAligner />
+                    </MPControlsWrapper>
+                    <SongSliderWrapper>
+                        <CurrentTime>
+                            {formattedTime.formattedStreamTime}
+                        </CurrentTime>
+                        <ProgressBar percentage={formattedTime.percentage} />
+                        <TotalTime>
+                            {formattedTime.formattedVideoLenght}
+                        </TotalTime>
+                    </SongSliderWrapper>
+                </MPFooterWrapper>
             </MusicPlayerWrapper>
         )
     }
 }
+
+
+// export default class MusicPlayer extends React.Component {
+//     constructor (props) {
+//         super(props)
+//         this.state = {
+//             audioplayer: {
+//                 playing: false,
+//                 volume: 1
+//             },
+            
+//         }
+        
+//         this.activeGuild = props.activeGuild
+//         this.token = props.token
+//         this.websocket = props.websocket
+
+
+//     }
+
+    
+
+    
+
+//     render() {
+//         return(
+//             <MusicPlayerWrapper id="wrapper">
+//                 <MusicPlayerPageContent id="footer" token={this.token} websocket={this.websocket} activeGuild={this.activeGuild}/>
+//             </MusicPlayerWrapper>
+//         )
+//     }
+// }
 
