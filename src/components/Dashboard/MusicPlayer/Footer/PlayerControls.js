@@ -100,9 +100,9 @@ export function PlayerControls (props) {
         const message = JSON.stringify({
             token: token,
             type: "exec",
-            command: "RPC_skipPlayer",
+            command: "RPC_skipSong",
             //should take 3 params: guildid
-            params: [guildId]
+            params: [guildId, 1]
         })
 
         websocket.send(message)

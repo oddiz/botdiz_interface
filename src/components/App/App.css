@@ -2,6 +2,10 @@
 
 #root {
     height: 100vh;
+
+    --navbar-height: 50px;
+    --musicplayer-footer-height: 80px;
+    --guild-options-height: 30px;
 }
 
 .App {
@@ -13,7 +17,8 @@
 .app_wrapper {
     display: flex;
     flex-direction: column;
-    flex: 1 0 auto;
+    
+    flex-grow: 1;
     background-color: #36393f;
     height: 100%;
 }

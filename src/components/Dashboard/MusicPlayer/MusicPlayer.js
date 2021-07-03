@@ -2,8 +2,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { SongInfo } from './SongInfo'
-import { PlayerControls } from './PlayerControls'
+import { SongInfo } from './Footer/SongInfo'
+import { PlayerControls } from './Footer/PlayerControls'
+import { Queue } from './Queue'
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
     height:100%;
@@ -80,9 +81,23 @@ const InvisibleFlexAligner = styled.div`
 
     margin-left: auto;
 `
+const MusicPlayerContent = styled.div`
+    height: 100%;
+    flex: 1 1 50px; 
 
+    overflow-x: hidden;
+    overflow-y: scroll;
 
-class MusicPlayerFooter extends React.Component {
+`
+const MusicPlayerWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    width: 100%;
+    height: 100%;
+
+`
+export default class MusicPlayer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -95,11 +110,14 @@ class MusicPlayerFooter extends React.Component {
                 videoThumnailUrl: ""
             }
         }
+
         this.token = props.token
         this.websocket = props.websocket
         this.activeGuild = props.activeGuild
         this.setupMusicPlayerListener = this.setupMusicPlayerListener.bind(this)
         this.formatTime = this.formatTime.bind(this)
+        this.queueDeleteClicked = this.queueDeleteClicked.bind(this)
+        this.queueSkipClicked = this.queueSkipClicked.bind(this)
     }
     componentDidMount() {
         this.setupMusicPlayerListener()
@@ -178,77 +196,116 @@ class MusicPlayerFooter extends React.Component {
         }
     }
 
+    async queueDeleteClicked (event){
+        console.log(event.currentTarget.parentElement)
+
+        const clickedElement = event.currentTarget.parentElement
+        //index of song in queue array
+        const songIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
+
+        const RPCMessage = JSON.stringify({
+            token: this.token,
+            type: "exec",
+            command: "RPC_deleteQueueSong",
+            //should take 2 params: guildid, index of to be deleted song
+            params: [this.activeGuild.id, songIndex]
+        })
+        
+        this.websocket.send(RPCMessage)
+    }
+    async queueSkipClicked (event) {
+        console.log(event.currentTarget.parentElement)
+
+        const clickedElement = event.currentTarget.parentElement
+        //index of song in queue array
+        const activeIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
+
+        const RPCMessage = JSON.stringify({
+            token: this.token,
+            type: "exec",
+            command: "RPC_skipSong",
+            //should take 2 params: guildid, skip amount
+            //skip amount should be +1 accounting the current song
+            params: [this.activeGuild.id, activeIndex + 1]
+        })
+
+        this.websocket.send(RPCMessage)
+    }
     render() {
         const formattedTime = this.formatTime()
         
         return(
-            <MPFooterWrapper>
-                <MPControlsWrapper>
-                    <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
-                    <PlayerControls 
-                        token={this.token} 
-                        guildId={this.activeGuild.id} 
-                        websocket={this.websocket} 
-                        audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
+            <MusicPlayerWrapper id="musicplayer_wrapper">          
+                <MusicPlayerContent id="musicplayer_content">
+
+                    <Queue
+                        key={this.state.playerInfo.queue.length}
+                        queue={this.state.playerInfo.queue} 
+                        currentSong={{
+                            title: this.state.playerInfo.currentTitle,
+                            videoThumbnailUrl: this.state.playerInfo.videoThumbnailUrl,
+                            videoLenght: this.state.playerInfo.videoLenght
+                        }}
+                        queueDeleteClicked={this.queueDeleteClicked}
+                        queueSkipClicked={this.queueSkipClicked}
                     />
-                    <InvisibleFlexAligner />
-                </MPControlsWrapper>
-                <SongSliderWrapper>
-                    <CurrentTime>
-                        {formattedTime.formattedStreamTime}
-                    </CurrentTime>
-                    <ProgressBar percentage={formattedTime.percentage} />
-                    <TotalTime>
-                        {formattedTime.formattedVideoLenght}
-                    </TotalTime>
-                </SongSliderWrapper>
-            </MPFooterWrapper>
-        )
-    }
-}
-
-const MusicPlayerContent = styled.div`
-    flex-grow: 1;   
-`
-const MusicPlayerWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 1;
-    width: 100%;
-    height: 100%;
-
-`
-export default class MusicPlayer extends React.Component {
-    constructor (props) {
-        super(props)
-        this.state = {
-            audioplayer: {
-                playing: false,
-                volume: 1
-            },
-            
-        }
-        
-        this.activeGuild = props.activeGuild
-        this.token = props.token
-        this.websocket = props.websocket
-
-
-    }
-
-    
-
-    
-
-    render() {
-        return(
-            <MusicPlayerWrapper id="wrapper">
-                <MusicPlayerContent id= "content"  > 
 
                 </MusicPlayerContent>
-                <MusicPlayerFooter id="footer" token={this.token} websocket={this.websocket} activeGuild={this.activeGuild}  />
+                <MPFooterWrapper>
+                    <MPControlsWrapper>
+                        <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
+                        <PlayerControls 
+                            token={this.token} 
+                            guildId={this.activeGuild.id} 
+                            websocket={this.websocket} 
+                            audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
+                        />
+                        <InvisibleFlexAligner />
+                    </MPControlsWrapper>
+                    <SongSliderWrapper>
+                        <CurrentTime>
+                            {formattedTime.formattedStreamTime}
+                        </CurrentTime>
+                        <ProgressBar percentage={formattedTime.percentage} />
+                        <TotalTime>
+                            {formattedTime.formattedVideoLenght}
+                        </TotalTime>
+                    </SongSliderWrapper>
+                </MPFooterWrapper>
             </MusicPlayerWrapper>
         )
     }
 }
+
+
+// export default class MusicPlayer extends React.Component {
+//     constructor (props) {
+//         super(props)
+//         this.state = {
+//             audioplayer: {
+//                 playing: false,
+//                 volume: 1
+//             },
+            
+//         }
+        
+//         this.activeGuild = props.activeGuild
+//         this.token = props.token
+//         this.websocket = props.websocket
+
+
+//     }
+
+    
+
+    
+
+//     render() {
+//         return(
+//             <MusicPlayerWrapper id="wrapper">
+//                 <MusicPlayerPageContent id="footer" token={this.token} websocket={this.websocket} activeGuild={this.activeGuild}/>
+//             </MusicPlayerWrapper>
+//         )
+//     }
+// }
 

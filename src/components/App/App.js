@@ -9,7 +9,7 @@ import config from '../../config'
 import styled from 'styled-components'
 const AppContent = styled.div`
     width: 100vw;
-    height: 100%;
+    height: calc(100% - var(--navbar-height));
     flex-grow: 1;
     background-color: #36393f;
 `
@@ -106,7 +106,7 @@ class App extends React.Component {
             <BrowserRouter>
                 <div className="app_wrapper">
                         <Navbar setupWebsocket={this.setupWebsocket} websocket={this.state.websocket} />
-                        <AppContent key={Math.floor(Math.random()*10000)}>
+                        <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
                             <Switch>
                                 <Route exact path="/">
                                     <Redirect to="/dashboard" />
