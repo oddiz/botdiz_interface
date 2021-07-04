@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from "styled-components";
 import './Navbar.css'
 import { ReactComponent as Logo } from './botdiz.svg'
-import Status from './Status'
+import Status from './Status/Status'
 //STATUS SECTION
 
 
@@ -104,6 +104,8 @@ export default class Navbar extends React.Component {
             },
         ]
 
+        this.account = props.accountInfo
+
         this.handleClick = this.handleClick.bind(this)
     }
     
@@ -142,7 +144,13 @@ export default class Navbar extends React.Component {
                     </div>
                     <NavbarSelectedIndicator activeIndex={this.state.activeIndex} activeName={this.state.active} menuItems = {this.menuItems}/>    
                 </div>
-                <Status key={this.props.websocket} websocket={this.props.websocket} setupWebsocket={this.props.setupWebsocket} />
+                <Status 
+                    key={this.props.websocket} 
+                    token={this.props.token}
+                    account={this.account} 
+                    websocket={this.props.websocket} 
+                    setupWebsocket={this.props.setupWebsocket} 
+                />
             </div>
 
         )

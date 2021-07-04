@@ -11,7 +11,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
     word-wrap: break-word;
     word-break: break-all;
-    
+    box-sizing: border-box;
 }
 
 code {

@@ -1,6 +1,9 @@
 # TODO
 
-## UI
+## General
+
+    -404 page
+
 ## Navbar
     - Settings, websocket status ✅, refresh websocket ✅
     
@@ -15,9 +18,10 @@
         - new messages doesn't show user colors
 
     - music player page
-        - playlist
+        - playlist ✅
         - add music?
-        - player interface
+        - player interface ✅
+        -bug: switching guilds when music player page open mess it up
 
 ## Stats
 
@@ -29,4 +33,4 @@
 ## Footer
 
     - websocket ping
-    - logout button
+

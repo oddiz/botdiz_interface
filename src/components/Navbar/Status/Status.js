@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import {IoRefresh, IoSettings} from 'react-icons/io5'
 
+import AccountSection from './AccountSection'
+
 const SettingsIcon = styled(IoSettings)`
     
     font-size:2.5em;
@@ -104,6 +106,8 @@ export default class Status extends React.Component {
         this.websocket = props.websocket
         this.setupWebsocket = props.setupWebsocket
 
+        this.account = props.account
+
         this.handleClick = this.handleClick.bind(this)
     }
  
@@ -129,7 +133,7 @@ export default class Status extends React.Component {
             <StatusWrapper >
                 <WebsocketStatus id="websocket_status" websocket={this.websocket} />
                 <RefreshButton onClick={this.handleClick} id="refresh_btton" />
-                <SettingsButton onClick={this.handleClick} id="settings_button" />
+                <AccountSection token={this.props.token} onClick={this.handleClick} account={this.account} id="account_section" />
             </StatusWrapper>
         )
     }

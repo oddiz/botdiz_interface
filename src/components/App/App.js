@@ -22,7 +22,9 @@ class App extends React.Component {
         this.state = {
             sessionActive: false,
             wsMessage: null,
-            websocket: null
+            websocket: null,
+            accountInfo: null,
+            token: null
         };
 
         
@@ -55,7 +57,13 @@ class App extends React.Component {
         console.log(responseBody)
 
         if (responseBody.isValidated) {
-            this.setState({sessionValidated: true})
+            this.setState(
+                {
+                    token: responseBody.token,
+                    sessionValidated: true,
+                    accountInfo: responseBody.accountInfo
+                }
+            )
         }
 
     }
@@ -105,7 +113,12 @@ class App extends React.Component {
         return (
             <BrowserRouter>
                 <div className="app_wrapper">
-                        <Navbar setupWebsocket={this.setupWebsocket} websocket={this.state.websocket} />
+                        <Navbar 
+                            accountInfo={this.state.accountInfo} 
+                            token={this.state.token}
+                            setupWebsocket={this.setupWebsocket} 
+                            websocket={this.state.websocket} 
+                        />
                         <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
                             <Switch>
                                 <Route exact path="/">
