@@ -5,6 +5,9 @@ import styled from 'styled-components'
 import { SongInfo } from './Footer/SongInfo'
 import { PlayerControls } from './Footer/PlayerControls'
 import { Queue } from './Queue'
+import AddSong from './Footer/AddSong'
+import { IoAddCircleOutline } from 'react-icons/io5'
+
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
     height:100%;
@@ -73,12 +76,14 @@ const MPFooterWrapper = styled.div`
     background-color: #2A2A2A;
 `
 const InvisibleFlexAligner = styled.div`
-
+    display:flex;
+    flex-direction: row;
     height: 100%;
     width: 250px;
 
     flex-shrink: 1;
 
+    justify-content: flex-end;
     margin-left: auto;
 `
 const MusicPlayerContent = styled.div`
@@ -97,6 +102,23 @@ const MusicPlayerWrapper = styled.div`
     height: 100%;
 
 `
+const AddSongIcon = styled(IoAddCircleOutline)`
+    height: 100%;
+
+    font-size: 60px;
+
+    margin-left: auto;
+    margin-right: 15px;
+    color: #ffffff99;
+
+    cursor: pointer;
+
+    border-radius: 1000px;
+
+    &:hover {
+        color: #ffffff
+    }
+`
 export default class MusicPlayer extends React.Component {
     constructor(props) {
         super(props)
@@ -114,10 +136,13 @@ export default class MusicPlayer extends React.Component {
         this.token = props.token
         this.websocket = props.websocket
         this.activeGuild = props.activeGuild
+        this.addSongVisible = false
+
         this.setupMusicPlayerListener = this.setupMusicPlayerListener.bind(this)
         this.formatTime = this.formatTime.bind(this)
         this.queueDeleteClicked = this.queueDeleteClicked.bind(this)
         this.queueSkipClicked = this.queueSkipClicked.bind(this)
+        this.addSongClicked = this.addSongClicked.bind(this)
     }
     componentDidMount() {
         this.setupMusicPlayerListener()
@@ -231,11 +256,82 @@ export default class MusicPlayer extends React.Component {
 
         this.websocket.send(RPCMessage)
     }
+    async addSongClicked (event) {
+        this.setState({addSongVisible: true})
+        document.querySelector("#root").classList.add("blurred")
+    
+    }
+
+    backdropClicked = async (event) => {
+
+        if (event.target.id ==="search_backdrop") {
+            document.getElementById("music_search_wrapper").classList.remove("visible")
+            document.querySelector("#root").classList.remove("blurred")
+
+            await new Promise(resolve => setTimeout(resolve, 400));
+            this.setState({addSongVisible: false})
+        }
+
+    }
+    searchBoxKeyboardHandler = async (event) => {
+        
+        const pressedKey = event.key;
+        if(pressedKey === "Escape") {
+            document.getElementById("music_search_wrapper").classList.remove("visible")
+            document.querySelector("#root").classList.remove("blurred")
+            await new Promise(resolve => setTimeout(resolve, 200));
+            this.setState({addSongVisible: false})
+        }
+
+        if(pressedKey === "Enter") {
+            if (this.state.queueLock) {
+                
+                return
+            }
+            const searchInput = document.getElementById("music_search_input").value
+
+            const message = JSON.stringify({
+                token: this.token,
+                type: "exec",
+                command: "RPC_playCommand",
+                params: [this.activeGuild.id, searchInput]
+            })
+
+            this.websocket.send(message)
+            const self = this
+            const startTime = new Date().getTime()
+            const cachedQueueLength = this.state.playerInfo.queue.length
+            const cachedCurrentTitle = this.state.playerInfo.currentTitle
+            this.setState({queueLock: true})
+
+            //wait for a song to be added to queue
+            async function waitForSongChange() {
+                const time = new Date().getTime()
+                if (
+                    (cachedQueueLength === self.state.playerInfo.queue.length) &&
+                    (cachedCurrentTitle === self.state.playerInfo.currentTitle) && 
+                    (time < startTime + (1000 * 10))
+                    ) {
+                    setTimeout(waitForSongChange, 250)
+                    return
+                }
+                
+                document.getElementById("music_search_wrapper").classList.remove("visible")
+                document.querySelector("#root").classList.remove("blurred")
+                await new Promise(resolve => setTimeout(resolve, 200));
+                self.setState({addSongVisible: false, queueLock: false})
+
+            }
+
+            waitForSongChange()
+        }
+    }
+
     render() {
         const formattedTime = this.formatTime()
         
         return(
-            <MusicPlayerWrapper id="musicplayer_wrapper">          
+            <MusicPlayerWrapper id="musicplayer_wrapper" >          
                 <MusicPlayerContent id="musicplayer_content">
 
                     <Queue
@@ -260,7 +356,14 @@ export default class MusicPlayer extends React.Component {
                             websocket={this.websocket} 
                             audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
                         />
-                        <InvisibleFlexAligner />
+                        <InvisibleFlexAligner>
+                            <AddSongIcon
+                                key={this.addSongVisible}
+                                onClick={this.addSongClicked}
+                            />
+                            {this.state.addSongVisible && <AddSong searchBoxKeyboardHandler={this.searchBoxKeyboardHandler} backdropClicked={this.backdropClicked} />}
+
+                        </InvisibleFlexAligner>
                     </MPControlsWrapper>
                     <SongSliderWrapper>
                         <CurrentTime>

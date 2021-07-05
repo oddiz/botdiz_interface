@@ -1,29 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import {IoRefresh, IoSettings} from 'react-icons/io5'
+import {IoRefresh} from 'react-icons/io5'
 
 import AccountSection from './AccountSection'
-
-const SettingsIcon = styled(IoSettings)`
-    
-    font-size:2.5em;
-    color: #757C89;
-    margin: 0 5px;
-    transition: linear 0.2s all;
-    &:hover {
-        color: #ffffea
-    }
-`
-const SettingsButtonWrapper = styled.div`
-
-`
-function SettingsButton(props) {
-    return (
-        <SettingsButtonWrapper id="settings_button" onClick={props.onClick}>
-            <SettingsIcon />
-        </SettingsButtonWrapper>
-    )
-}
 
 const WebsocketStatusIcon = styled.span`
     height: 10px;

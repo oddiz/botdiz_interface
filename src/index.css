@@ -12,9 +12,22 @@ body {
     word-wrap: break-word;
     word-break: break-all;
     box-sizing: border-box;
+
+    background-color: #202225;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.blurred {
+    filter: blur(3px);
+}
+
+.visible {
+    opacity: 1;
+}
+#music_search_wrapper.visible {
+    opacity: 1;
 }

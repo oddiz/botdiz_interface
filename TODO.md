@@ -9,8 +9,10 @@
     
     
 ### Settings
-    -Theme?
-    -Logout?
+    - user info
+    - change profile pic
+    - Theme?
+
 
 ## Dashboard
 
@@ -20,8 +22,9 @@
     - music player page
         - playlist ✅
         - add music?
+        - add personal playlist
         - player interface ✅
-        -bug: switching guilds when music player page open mess it up
+        
 
 ## Stats
 
