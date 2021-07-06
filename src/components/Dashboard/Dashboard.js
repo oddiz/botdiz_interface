@@ -4,6 +4,7 @@ import GuildBar from './GuildBar'
 import GuildOptions from './GuildOptions'
 import ChatPage from './Chat/ChatPage'
 import MusicPlayer from './MusicPlayer/MusicPlayer'
+import config from '../../config'
 
 
 const DashboardWrapper = styled.div`
@@ -33,26 +34,85 @@ export default class Dashboard extends React.Component {
         super(props)
         this.state = {
             //activeGuild:
-            allGuilds: [{
-                id: '237628149901426688',
-                icon: '270e4b47e61b25d11ccf21c34aac2e09'
-            },
-            
-            ],
-            activeOption: "Chat"
+            allGuilds: [],
+            activeOption: "Chat",
+            userPlaylists: null
         }
         this.websocket = props.websocket
         this.token = props.token
 
         
         
+        this.setupWebsocketListener = this.setupWebsocketListener.bind(this)
         this.guildOptionsClickHandler = this.guildOptionsClickHandler.bind(this)
         this.GuildBarOnClick = this.GuildBarOnClick.bind(this)
     }
     
     async componentDidMount(){
+        this.setupWebsocketListener()
         //ask for guilds 
         this.getGuilds()
+        //get playlist info if exists and store it in dashboard page
+        this.getPlaylists()
+    }
+    setupWebsocketListener() {
+        
+        this.websocket.onmessage = (reply) => {
+            //console.log("reply recieved" ,reply)
+            let parsedReply;
+            
+            try {
+                parsedReply = JSON.parse(reply.data)
+                
+            } catch (error) {
+                console.log(error)
+                return
+            }
+
+            if(parsedReply.token !== this.token) {
+                console.log("Websocket reply token mismatch.")
+                return
+            }
+
+            if(!parsedReply.result) {
+                console.log("Reply is not valid or empty: ", parsedReply)
+                return
+            }
+
+            //get Guild command
+            if(parsedReply.command === "RPC_getGuilds") {
+                const mappedGuilds = parsedReply.result.map( GuildObj => {
+                    return {
+                        id: GuildObj.id,
+                        icon: GuildObj.icon
+                    }
+                })
+
+                this.setState({allGuilds: mappedGuilds})
+            } else {
+                console.log("Reply is recognized", parsedReply)
+            }
+        }
+    }
+
+    async getPlaylists() {
+        try {
+            const response = await fetch(config.botdiz_server + '/playlists', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(res => res)
+            .catch(err => {
+                console.log(err)
+                return err
+            })
+            
+            const responseBody = await response.json()
+            const playlists = responseBody.savedPlaylists
+            this.setState({userPlaylists: playlists})
+        } catch (error) {
+            console.log("error while trying to get playlist: ", error)
+        }
     }
 
     async getGuilds() {
@@ -72,31 +132,7 @@ export default class Dashboard extends React.Component {
         this.websocket.send(JSON.stringify(message))
         
         
-        this.websocket.onmessage = (reply) => {
-            //console.log("reply recieved" ,reply)
-            let parsedReply;
-            
-            try {
-                parsedReply = JSON.parse(reply.data)
-                
-            } catch (error) {
-                console.log(error)
-                return
-            }
-
-            if(parsedReply.result && parsedReply.token === this.token && parsedReply.command === "RPC_getGuilds") {
-                const mappedGuilds = parsedReply.result.map( GuildObj => {
-                    return {
-                        id: GuildObj.id,
-                        icon: GuildObj.icon
-                    }
-                })
-
-                this.setState({allGuilds: mappedGuilds})
-            } else {
-                console.log("Reply is not valid", reply)
-            }
-        }
+        
 
     }
     RenderGuildOptionContent() {
@@ -122,6 +158,7 @@ export default class Dashboard extends React.Component {
                         token={this.token}
                         activeGuild={this.state.activeGuild}
                         websocket={this.websocket}
+                        playlists={this.state.userPlaylists}
                     />
                 )
                 

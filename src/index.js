@@ -4,12 +4,20 @@ import './index.css';
 import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
 import './fonts/whitney.css'
-
+import { BrowserRouter, Switch, Route} from 'react-router-dom'
+import SpotfiyCallback from './components/SpotifyCallback'
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <BrowserRouter>
+            <Switch>
+                    <Route path="/spotifycallback">
+                        <SpotfiyCallback />
+                    </Route>
+                    <App />
+            </Switch>
+        </BrowserRouter>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

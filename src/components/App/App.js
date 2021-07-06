@@ -54,7 +54,7 @@ class App extends React.Component {
         }).then(data=>data)
 
         const responseBody = await response.json() 
-        console.log(responseBody)
+        
 
         if (responseBody.isValidated) {
             this.setState(
@@ -108,34 +108,39 @@ class App extends React.Component {
             return <Login />
         }
         
+        if(!(this.state.websocket && this.state.websocket !== "connecting")) {
+            return (
+                <div></div>
+            )
+        }
         
             
         return (
             <BrowserRouter>
                 <div className="app_wrapper">
-                        <Navbar 
-                            accountInfo={this.state.accountInfo} 
-                            token={this.state.token}
-                            setupWebsocket={this.setupWebsocket} 
-                            websocket={this.state.websocket} 
+                    <Navbar 
+                        accountInfo={this.state.accountInfo} 
+                        token={this.state.token}
+                        setupWebsocket={this.setupWebsocket} 
+                        websocket={this.state.websocket} 
                         />
-                        <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
-                            <Switch>
-                                <Route exact path="/">
-                                    <Redirect to="/dashboard" />
-                                </Route>
-                                <Route path={["/dashboard", "/home"]}>
-                                    <Dashboard 
-                                        token={this.state.token} 
-                                        websocket={this.state.websocket}
-                                        wsMessage= {this.state.wsMessage} />
-                                </Route>
-                                <Route path="/preferences">
-                                    <Preferences />
-                                </Route>
-                            </Switch>
-                        </AppContent>
-                    
+                    <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
+                        <Switch>
+                            <Route exact path="/">
+                                <Redirect to="/dashboard" />
+                            </Route>
+                            <Route path={["/dashboard", "/home"]}>
+                                <Dashboard 
+                                    token={this.state.token} 
+                                    websocket={this.state.websocket}
+                                    wsMessage= {this.state.wsMessage} />
+                            </Route>
+                            <Route path="/preferences">
+                                <Preferences />
+                            </Route>
+                        </Switch>
+                    </AppContent>
+                        
                 </div>
             </BrowserRouter>
         );

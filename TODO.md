@@ -21,8 +21,9 @@
 
     - music player page
         - playlist ✅
-        - add music?
-        - add personal playlist
+        - add music?✅
+        - check if the bot is in a voice channel if not avoid trying to add music✅
+        - add personal playlists
         - player interface ✅
         
 

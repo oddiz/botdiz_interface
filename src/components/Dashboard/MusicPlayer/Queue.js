@@ -7,9 +7,13 @@ const QueueWrapper = styled.div`
     padding-top: 0px;
     padding-left: 30px;
     padding-right: 30px;
-
+    flex-grow:1;
+    flex-shrink: 1;
     color: white;
    
+    overflow-y: scroll;
+
+    min-width: 300px;
 
     & h4 {
         color: #b3b3b3;
@@ -54,6 +58,7 @@ const SongTitle = styled.div`
     width:400px;
 `
 const ListIndex = styled.span`
+    flex-shrink: 0;
     margin-right: 25px;
     width:24px;
     font-size: 22px;

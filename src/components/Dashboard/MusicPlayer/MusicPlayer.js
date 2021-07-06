@@ -1,12 +1,12 @@
 
 import React from 'react'
 import styled from 'styled-components'
-
+import { IoAddCircleOutline } from 'react-icons/io5'
 import { SongInfo } from './Footer/SongInfo'
 import { PlayerControls } from './Footer/PlayerControls'
 import { Queue } from './Queue'
 import AddSong from './Footer/AddSong'
-import { IoAddCircleOutline } from 'react-icons/io5'
+import Playlist from './PlaylistsSection/Playlist'
 
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
@@ -74,6 +74,8 @@ const MPFooterWrapper = styled.div`
     justify-content: center;
 
     background-color: #2A2A2A;
+
+    border-top: solid 1px #484848;
 `
 const InvisibleFlexAligner = styled.div`
     display:flex;
@@ -90,8 +92,10 @@ const MusicPlayerContent = styled.div`
     height: 100%;
     flex: 1 1 50px; 
 
+    display: flex;
+    flex-direction: row;
+
     overflow-x: hidden;
-    overflow-y: scroll;
 
 `
 const MusicPlayerWrapper = styled.div`
@@ -117,6 +121,11 @@ const AddSongIcon = styled(IoAddCircleOutline)`
 
     &:hover {
         color: #ffffff
+    }
+    &.disabled {
+        cursor: not-allowed;
+
+        color: #ffffff19;
     }
 `
 export default class MusicPlayer extends React.Component {
@@ -146,6 +155,7 @@ export default class MusicPlayer extends React.Component {
     }
     componentDidMount() {
         this.setupMusicPlayerListener()
+
     }
     componentWillUnmount() {
         this.websocket.send(JSON.stringify({
@@ -153,6 +163,7 @@ export default class MusicPlayer extends React.Component {
             token: this.token
         }))
     }
+
     async setupMusicPlayerListener() {
         let guildId;
         try {
@@ -174,6 +185,7 @@ export default class MusicPlayer extends React.Component {
         this.websocket.send(message)
 
         this.websocket.onmessage = (reply) => {
+            
             let parsedReply;
 
             try {
@@ -182,8 +194,10 @@ export default class MusicPlayer extends React.Component {
                 console.log("Unable to parse reply")
                 return
             }
+            if(parsedReply.event === "musicplayer_update"){
+                this.setState({ playerInfo: parsedReply.message })
+            }
 
-            this.setState({ playerInfo: parsedReply.message })
 
         }
     }
@@ -257,6 +271,9 @@ export default class MusicPlayer extends React.Component {
         this.websocket.send(RPCMessage)
     }
     async addSongClicked (event) {
+        if (!this.state.playerInfo.currentTitle) {
+            return
+        }
         this.setState({addSongVisible: true})
         document.querySelector("#root").classList.add("blurred")
     
@@ -333,7 +350,12 @@ export default class MusicPlayer extends React.Component {
         return(
             <MusicPlayerWrapper id="musicplayer_wrapper" >          
                 <MusicPlayerContent id="musicplayer_content">
-
+                    <Playlist 
+                        websocket={this.websocket}
+                        playlists={this.props.playlists}
+                        activeGuild={this.activeGuild}
+                        token={this.token}
+                    />
                     <Queue
                         key={this.state.playerInfo.queue.length}
                         queue={this.state.playerInfo.queue} 
@@ -357,10 +379,12 @@ export default class MusicPlayer extends React.Component {
                             audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
                         />
                         <InvisibleFlexAligner>
-                            <AddSongIcon
-                                key={this.addSongVisible}
-                                onClick={this.addSongClicked}
-                            />
+                                <AddSongIcon
+                                    key={this.addSongVisible}
+                                    id="add_song_icon"
+                                    onClick={this.addSongClicked}
+                                    className={this.state.playerInfo.currentTitle? "":"disabled"}
+                                />
                             {this.state.addSongVisible && <AddSong searchBoxKeyboardHandler={this.searchBoxKeyboardHandler} backdropClicked={this.backdropClicked} />}
 
                         </InvisibleFlexAligner>
