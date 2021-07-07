@@ -10,6 +10,8 @@ const AccountMenuWrapper = styled.div`
     right:5px;
     top:55px;
 
+    z-index:99999;
+
 `
 const Username = styled.div`
     display:flex;
