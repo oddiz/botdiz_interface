@@ -5,6 +5,7 @@ import { IoAddCircleOutline } from 'react-icons/io5'
 import { SongInfo } from './Footer/SongInfo'
 import { PlayerControls } from './Footer/PlayerControls'
 import { Queue } from './Queue'
+import VoiceChannelSection from './VoiceChannelSecition/VoiceChannelSection'
 import AddSong from './Footer/AddSong'
 import Playlist from './PlaylistsSection/Playlist'
 
@@ -154,7 +155,9 @@ export default class MusicPlayer extends React.Component {
         this.addSongClicked = this.addSongClicked.bind(this)
     }
     componentDidMount() {
-        this.setupMusicPlayerListener()
+        if (this.websocket?.readyState === WebSocket.OPEN) {
+            this.setupMusicPlayerListener()
+        }
 
     }
     componentWillUnmount() {
@@ -350,11 +353,8 @@ export default class MusicPlayer extends React.Component {
         return(
             <MusicPlayerWrapper id="musicplayer_wrapper" >          
                 <MusicPlayerContent id="musicplayer_content">
-                    <Playlist 
-                        websocket={this.websocket}
-                        playlists={this.props.playlists}
-                        activeGuild={this.activeGuild}
-                        token={this.token}
+                    <VoiceChannelSection 
+
                     />
                     <Queue
                         key={this.state.playerInfo.queue.length}
@@ -366,6 +366,12 @@ export default class MusicPlayer extends React.Component {
                         }}
                         queueDeleteClicked={this.queueDeleteClicked}
                         queueSkipClicked={this.queueSkipClicked}
+                    />
+                    <Playlist 
+                        websocket={this.websocket}
+                        playlists={this.props.playlists}
+                        activeGuild={this.activeGuild}
+                        token={this.token}
                     />
 
                 </MusicPlayerContent>

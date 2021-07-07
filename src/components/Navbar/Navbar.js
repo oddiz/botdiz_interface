@@ -96,11 +96,11 @@ export default class Navbar extends React.Component {
         this.menuItems = [
             {
                 value: "Dashboard",
-                link: "/dashboard"
+                link: "/app/dashboard"
             },
             {
                 value: "Stats",
-                link: "/stats"
+                link: "/app/stats"
             },
         ]
 
@@ -145,7 +145,7 @@ export default class Navbar extends React.Component {
                     <NavbarSelectedIndicator activeIndex={this.state.activeIndex} activeName={this.state.active} menuItems = {this.menuItems}/>    
                 </div>
                 <Status 
-                    key={this.props.websocket} 
+                    key={this.props.websocket?.readyState} 
                     token={this.props.token}
                     account={this.account} 
                     websocket={this.props.websocket} 

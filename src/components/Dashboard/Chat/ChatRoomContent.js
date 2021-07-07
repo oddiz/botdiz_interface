@@ -278,7 +278,6 @@ export default class ChatContent extends React.Component {
                 
             }
 
-            console.log(parsedReply)
 
         }
     }

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import {IoRefresh} from 'react-icons/io5'
 
 import AccountSection from './AccountSection'
+import { render } from '@testing-library/react'
 
 const WebsocketStatusIcon = styled.span`
     height: 10px;
@@ -28,19 +29,72 @@ const WebsocketStatusText = styled.p`
     color: #ffffea;
     font-size:16px;
 `
-function WebsocketStatus(props) {
-    let color = props.websocket? "#8aff80" : "#FF5230"
-    
-    if(props.websocket === "connecting"){
-        color = "#ffff80"
+class WebsocketStatus extends React.Component {
+    constructor (props) {
+        super(props) 
+        this.state = {
+            lastSentPingTime: 0,
+            latency: 0
+        }
+        this.indicatorColor = props.websocket?.readyState === WebSocket.OPEN? "#8aff80" : "#FF5230"
+        
+        if(this.props.websocket?.readyState === WebSocket.CONNECTING){
+            this.indicatorColor = "#ffff80"
+        }
+
+        this.websocket = props.websocket
+
+        this.pingListener = this.pingListener.bind(this)
+    }
+
+    ping = () => {
+        console.log("ping sent")
+        this.websocket.send(JSON.stringify({
+            type:"ping"
+        }))
+        this.setState({lastSentPingTime: new Date().getTime()})
+    }
+
+    pingListener(reply) {
+        try {
+            const parsedReply = JSON.parse(reply.data)
+
+            if (parsedReply.event === "pong") {
+                const latency = new Date().getTime() - this.state.lastSentPingTime
+                this.setState({latency: latency})
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
     }
     
-    return(
-        <WebsocketStatusWrapper>
-            <WebsocketStatusText>Websocket:</WebsocketStatusText>
-            <WebsocketStatusIcon color={color} />
-        </WebsocketStatusWrapper>
-    )
+    componentDidMount() {
+        if (this.websocket.readyState === WebSocket.OPEN) {
+            this.pingInterval = setInterval(this.ping, 2000)
+            this.websocket.addEventListener("message", this.pingListener)
+        }
+
+    }
+
+    componentWillUnmount() {
+        if (this.websocket) {
+            this.websocket.removeEventListener("message", this.pingListener)
+            clearInterval(this.ping)
+        }
+
+    }
+     
+    
+    render() {
+        return(
+            <WebsocketStatusWrapper>
+                <WebsocketStatusText>{this.state.latency> 1000? "999+" : this.state.latency} ms</WebsocketStatusText>
+                <WebsocketStatusIcon color={this.indicatorColor} />
+            </WebsocketStatusWrapper>
+        )
+
+    }
 }
 
 const RefreshIcon = styled(IoRefresh)`
@@ -110,7 +164,7 @@ export default class Status extends React.Component {
     render() {
         return(
             <StatusWrapper >
-                <WebsocketStatus id="websocket_status" websocket={this.websocket} />
+                <WebsocketStatus key={this.websocket} id="websocket_status" websocket={this.websocket} />
                 <RefreshButton onClick={this.handleClick} id="refresh_btton" />
                 <AccountSection token={this.props.token} onClick={this.handleClick} account={this.account} id="account_section" />
             </StatusWrapper>

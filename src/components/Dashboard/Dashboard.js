@@ -48,51 +48,59 @@ export default class Dashboard extends React.Component {
         this.GuildBarOnClick = this.GuildBarOnClick.bind(this)
     }
     
-    async componentDidMount(){
-        this.setupWebsocketListener()
-        //ask for guilds 
-        this.getGuilds()
-        //get playlist info if exists and store it in dashboard page
-        this.getPlaylists()
+    componentDidMount(){
+        if (this.websocket?.readyState === WebSocket.OPEN) {
+            this.setupWebsocketListener()
+            //ask for guilds 
+            this.getGuilds()
+            //get playlist info if exists and store it in dashboard page
+            this.getPlaylists()
+        }
+    }
+    componentWillUnmount(){
+        if (this.websocket) {
+            this.websocket.removeEventListener("message", this.websocketDashboardListener)
+        }
+    }
+
+    websocketDashboardListener = (reply) => {
+         //console.log("reply recieved" ,reply)
+         let parsedReply;
+         console.log("alo")
+         try {
+             parsedReply = JSON.parse(reply.data)
+             
+         } catch (error) {
+             console.log(error)
+             return
+         }
+         if(parsedReply.token !== this.token) {
+             console.log("Websocket reply token mismatch.")
+             return
+         }
+
+         if(!parsedReply.result) {
+             console.log("Reply is not valid or empty: ", parsedReply)
+             return
+         }
+
+         //get Guild command
+         if(parsedReply.command === "RPC_getGuilds") {
+             const mappedGuilds = parsedReply.result.map( GuildObj => {
+                 return {
+                     id: GuildObj.id,
+                     icon: GuildObj.icon
+                 }
+             })
+
+             this.setState({allGuilds: mappedGuilds})
+         } else {
+             console.log("Reply is recognized", parsedReply)
+         }
     }
     setupWebsocketListener() {
         
-        this.websocket.onmessage = (reply) => {
-            //console.log("reply recieved" ,reply)
-            let parsedReply;
-            
-            try {
-                parsedReply = JSON.parse(reply.data)
-                
-            } catch (error) {
-                console.log(error)
-                return
-            }
-
-            if(parsedReply.token !== this.token) {
-                console.log("Websocket reply token mismatch.")
-                return
-            }
-
-            if(!parsedReply.result) {
-                console.log("Reply is not valid or empty: ", parsedReply)
-                return
-            }
-
-            //get Guild command
-            if(parsedReply.command === "RPC_getGuilds") {
-                const mappedGuilds = parsedReply.result.map( GuildObj => {
-                    return {
-                        id: GuildObj.id,
-                        icon: GuildObj.icon
-                    }
-                })
-
-                this.setState({allGuilds: mappedGuilds})
-            } else {
-                console.log("Reply is recognized", parsedReply)
-            }
-        }
+        this.websocket.addEventListener("message", this.websocketDashboardListener, {once:true})
     }
 
     async getPlaylists() {

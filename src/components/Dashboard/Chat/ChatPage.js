@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import ChatContent from './ChatContent'
+import ChatContent from './ChatRoomContent'
 
 const ChatWrapper = styled.div`
     flex-grow: 1;
@@ -155,7 +155,6 @@ export default class ChatPage extends React.Component{
 
         this.websocket.onmessage = (reply) => {
             let parsedReply;
-            
             try {
                 parsedReply = JSON.parse(reply.data)
             } catch (error) {

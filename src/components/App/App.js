@@ -26,7 +26,7 @@ class App extends React.Component {
             accountInfo: null,
             token: null
         };
-
+        this.retryCounter = 0;
         
         this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
@@ -70,8 +70,10 @@ class App extends React.Component {
 
     setupWebsocket() {
         try {
-            if(this.state.websocket){
+            if(this.state.websocket.readyState === WebSocket.OPEN){
                 this.state.websocket.close()
+
+                return
             }
             console.log("Closed existing websocket")
         } catch (error) {
@@ -83,20 +85,27 @@ class App extends React.Component {
         }
         const ws = new WebSocket(config.botdiz_websocket_server)
         const self = this;
-        this.setState({ websocket: "connecting" })
+        this.setState({ websocket: ws })
+    
+       
 
         ws.onopen = () => {
+            self.retryCounter = 0
             console.log("Connected to websocket")
             self.setState({ websocket: ws})
         }
-        
-        ws.onmessage = () => {
-            console.log("this thing on???")
-        }
     
-        ws.onclose = () => {
-            console.log("Socket is closed.")
-            self.setState( { websocket: null })
+        ws.onclose = (data) => {
+            console.log("Socket is closed. Trying to reconnect")
+            
+            self.setState({ websocket: ws})
+            if (self.retryCounter < 5) {
+                self.retryCounter ++;
+                self.setupWebsocket()
+            } else {
+                console.log("Tried to reconnect 5 times but failed. Reconnect manually.")
+                return
+            }
         }
         
         
@@ -108,7 +117,7 @@ class App extends React.Component {
             return <Login />
         }
         
-        if(!(this.state.websocket && this.state.websocket !== "connecting")) {
+        if(!(this.state.websocket?.readyState === WebSocket.OPEN)) {
             return (
                 <div></div>
             )
@@ -119,6 +128,7 @@ class App extends React.Component {
             <BrowserRouter>
                 <div className="app_wrapper">
                     <Navbar 
+                        key={this.state.websocket?.readyState}
                         accountInfo={this.state.accountInfo} 
                         token={this.state.token}
                         setupWebsocket={this.setupWebsocket} 
@@ -126,17 +136,22 @@ class App extends React.Component {
                         />
                     <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
                         <Switch>
-                            <Route exact path="/">
-                                <Redirect to="/dashboard" />
+                            <Route exact path="/app">
+                                <Redirect to="/app/dashboard" />
                             </Route>
-                            <Route path={["/dashboard", "/home"]}>
+                            <Route exact path={["/app/dashboard", "/app/home"]}>
                                 <Dashboard 
+                                    key={this.state.websocket?.readyState}
                                     token={this.state.token} 
                                     websocket={this.state.websocket}
                                     wsMessage= {this.state.wsMessage} />
                             </Route>
-                            <Route path="/preferences">
+                            <Route exact path="/app/preferences">
                                 <Preferences />
+                            </Route>
+                            {/* IF NO PATH IS FOUND */}
+                            <Route>
+                                <Redirect to='/app/404' />
                             </Route>
                         </Switch>
                     </AppContent>

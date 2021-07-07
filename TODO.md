@@ -2,7 +2,8 @@
 
 ## General
 
-    -404 page
+    - 404 page
+    - discord login
 
 ## Navbar
     - Settings, websocket status ✅, refresh websocket ✅
@@ -23,8 +24,10 @@
         - playlist ✅
         - add music?✅
         - check if the bot is in a voice channel if not avoid trying to add music✅
-        - add personal playlists
+        - add personal playlists ✅
         - player interface ✅
+        - show voice channels
+        - join voice channel
         
 
 ## Stats
