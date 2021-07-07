@@ -48,11 +48,12 @@ class WebsocketStatus extends React.Component {
     }
 
     ping = () => {
-        console.log("ping sent")
         this.websocket.send(JSON.stringify({
             type:"ping"
         }))
-        this.setState({lastSentPingTime: new Date().getTime()})
+        if(this._isMounted) {
+            this.setState({lastSentPingTime: new Date().getTime()})
+        }
     }
 
     pingListener(reply) {
@@ -61,7 +62,9 @@ class WebsocketStatus extends React.Component {
 
             if (parsedReply.event === "pong") {
                 const latency = new Date().getTime() - this.state.lastSentPingTime
-                this.setState({latency: latency})
+                if(this._isMounted) {
+                    this.setState({latency: latency})
+                }
             }
 
         } catch (error) {
@@ -70,6 +73,7 @@ class WebsocketStatus extends React.Component {
     }
     
     componentDidMount() {
+        this._isMounted = true
         if (this.websocket.readyState === WebSocket.OPEN) {
             this.pingInterval = setInterval(this.ping, 2000)
             this.websocket.addEventListener("message", this.pingListener)
@@ -78,6 +82,7 @@ class WebsocketStatus extends React.Component {
     }
 
     componentWillUnmount() {
+        this._isMounted = false
         if (this.websocket) {
             this.websocket.removeEventListener("message", this.pingListener)
             clearInterval(this.ping)

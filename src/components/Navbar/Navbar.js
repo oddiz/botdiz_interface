@@ -20,7 +20,7 @@ function getTextWidth(text, font) {
 
 function calculateIndicator(props) {
     //console.log(props)
-    const font = "28px Whitney Semibold Regular"
+    const font = "20px Whitney Semibold Regular"
     const activeName = props.activeName;
     const activeIndex = props.activeIndex;
     const menuItems = props.menuItems
@@ -68,7 +68,7 @@ const NavLink = styled(Link)`
     display: inline-block;
     margin: 0 20px;
 
-    font-size: 28px;
+    font-size: 20px;
     font-family: "Whitney Semibold Regular","Helvetica Neue","Helvetica","Arial",sans-serif; 
 
     user-select: none;

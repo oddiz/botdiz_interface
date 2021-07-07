@@ -83,6 +83,9 @@ export default class Playlist extends React.Component {
     constructor(props){
         super(props)
 
+        this.state = {
+            processingPlaylist: false,
+        }
         this.websocket = props.websocket
         this.playlists = props.playlists|| {items: []}
 
@@ -99,14 +102,14 @@ export default class Playlist extends React.Component {
 
         const clickedPlaylist = this.playlists.items[parseInt(playlistIndex)]
         clickedElement.classList.add("loading")
-        if (document.getElementById("add_song_icon").classList.contains("disabled")) {
-
-            console.log("nothing playing can't add playlist")
+        if (!this.props.inVoiceChannel) {
+            
+            console.log("Bot is not in a voice channel. Can't add playlist")
             clickedElement.classList.remove("loading")
             if (clickedElement.classList.contains("failed")) {
-                console.log("removed???")
                 clickedElement.classList.remove("failed")
             }
+            //need to delay so animation can register
             await new Promise(resolve => setTimeout(resolve, 5));
             clickedElement.classList.add("failed")
             this.setState({processingPlaylist: false})
@@ -132,7 +135,6 @@ export default class Playlist extends React.Component {
 
         const parsedResponse = await response.json()
 
-        console.log(parsedResponse)
         const self = this
         function listenWebsocketReply(reply){
                 
@@ -145,7 +147,6 @@ export default class Playlist extends React.Component {
                     console.log(error)
                     return
                 }
-                console.log(parsedReply)
                 if (parsedReply.status === "success") {
                     self.setState({processingPlaylist: false})
                     self.clickedElement.classList.remove("loading")
@@ -207,7 +208,7 @@ export default class Playlist extends React.Component {
                 <PlaylistItemsWrapper>
                         {processedPlaylists}
 
-                        <ImportSpotifyButton href={spotifyAuthUrl} target="_blank">
+                        <ImportSpotifyButton href={spotifyAuthUrl}>
                             <SpotifyLogo />
                             <ButtonText>
                                 {this.playlists.items.length > 0 ? "Refresh Playlists": "Import Playlists"}

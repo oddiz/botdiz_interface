@@ -49,6 +49,7 @@ export default class Dashboard extends React.Component {
     }
     
     componentDidMount(){
+        this._isMounted = true
         if (this.websocket?.readyState === WebSocket.OPEN) {
             this.setupWebsocketListener()
             //ask for guilds 
@@ -58,6 +59,7 @@ export default class Dashboard extends React.Component {
         }
     }
     componentWillUnmount(){
+        this._isMounted = false
         if (this.websocket) {
             this.websocket.removeEventListener("message", this.websocketDashboardListener)
         }
@@ -66,7 +68,7 @@ export default class Dashboard extends React.Component {
     websocketDashboardListener = (reply) => {
          //console.log("reply recieved" ,reply)
          let parsedReply;
-         console.log("alo")
+
          try {
              parsedReply = JSON.parse(reply.data)
              
@@ -92,8 +94,9 @@ export default class Dashboard extends React.Component {
                      icon: GuildObj.icon
                  }
              })
-
-             this.setState({allGuilds: mappedGuilds})
+             if (this._isMounted){
+                 this.setState({allGuilds: mappedGuilds})
+             }
          } else {
              console.log("Reply is recognized", parsedReply)
          }
@@ -117,7 +120,9 @@ export default class Dashboard extends React.Component {
             
             const responseBody = await response.json()
             const playlists = responseBody.savedPlaylists
-            this.setState({userPlaylists: playlists})
+            if(this._isMounted) {
+                this.setState({userPlaylists: playlists})
+            }
         } catch (error) {
             console.log("error while trying to get playlist: ", error)
         }
@@ -198,7 +203,6 @@ export default class Dashboard extends React.Component {
     }
 
     render() {
-        
         return (
             <DashboardWrapper id="dashboard_wrapper" key={this.state.activeGuild?.id}>
                 <GuildBar

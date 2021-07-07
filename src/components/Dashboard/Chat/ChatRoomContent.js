@@ -157,7 +157,6 @@ function ChatRoom(props) {
      * }
      */
     if (!messages) {
-        console.log("No active messages")
         return (
             <ChatRoomWrapper />
         )
@@ -222,10 +221,10 @@ export default class ChatContent extends React.Component {
         const listenerId = this.activeChannel.id
 
         const message = JSON.stringify({
-            type: `addListener`,
+            type: `addTextChannelListener`,
             listenerId: listenerId,
             token: this.token,
-            command:`RPC_ListenChannel`,
+            command:`RPC_listenTextChannel`,
             //need guildid, channelid
             params: [this.activeGuild.id, this.activeChannel.id]
         })
@@ -248,7 +247,6 @@ export default class ChatContent extends React.Component {
             params: [this.activeGuild.id, this.activeChannel.id]
         })
 
-        console.log("Message sent: ", message)
         this.websocket.send(message)
 
         this.websocket.onmessage = (reply) => {

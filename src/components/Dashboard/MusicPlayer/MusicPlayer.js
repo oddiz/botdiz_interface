@@ -140,7 +140,8 @@ export default class MusicPlayer extends React.Component {
                 videoLenght: 0,
                 audioPlayerStatus: "idle", //"playing", "paused", "idle",
                 videoThumnailUrl: ""
-            }
+            },
+            inVoiceChannel: false
         }
 
         this.token = props.token
@@ -165,6 +166,10 @@ export default class MusicPlayer extends React.Component {
             type: 'clearListeners',
             token: this.token
         }))
+    }  
+
+    setVoiceChannelStatus = (bool) => {
+        this.setState({inVoiceChannel: bool})
     }
 
     async setupMusicPlayerListener() {
@@ -274,7 +279,7 @@ export default class MusicPlayer extends React.Component {
         this.websocket.send(RPCMessage)
     }
     async addSongClicked (event) {
-        if (!this.state.playerInfo.currentTitle) {
+        if (!this.state.inVoiceChannel) {
             return
         }
         this.setState({addSongVisible: true})
@@ -350,11 +355,16 @@ export default class MusicPlayer extends React.Component {
     render() {
         const formattedTime = this.formatTime()
         
+        
         return(
             <MusicPlayerWrapper id="musicplayer_wrapper" >          
                 <MusicPlayerContent id="musicplayer_content">
                     <VoiceChannelSection 
-
+                        websocket={this.websocket}
+                        token={this.token}
+                        audioPlayerStatus={this.state.playerInfo.audioPlayerStatus}
+                        guildId={this.activeGuild.id}
+                        setVoiceChannelStatus={this.setVoiceChannelStatus}
                     />
                     <Queue
                         key={this.state.playerInfo.queue.length}
@@ -372,6 +382,7 @@ export default class MusicPlayer extends React.Component {
                         playlists={this.props.playlists}
                         activeGuild={this.activeGuild}
                         token={this.token}
+                        inVoiceChannel={this.state.inVoiceChannel}
                     />
 
                 </MusicPlayerContent>
@@ -382,14 +393,16 @@ export default class MusicPlayer extends React.Component {
                             token={this.token} 
                             guildId={this.activeGuild.id} 
                             websocket={this.websocket} 
-                            audioPlayerStatus={this.state.playerInfo.audioPlayerStatus} 
+                            audioPlayerStatus={this.state.playerInfo.audioPlayerStatus}
+                            
                         />
                         <InvisibleFlexAligner>
                                 <AddSongIcon
                                     key={this.addSongVisible}
                                     id="add_song_icon"
                                     onClick={this.addSongClicked}
-                                    className={this.state.playerInfo.currentTitle? "":"disabled"}
+                                    className={this.state.inVoiceChannel? "":"disabled"}
+                                    
                                 />
                             {this.state.addSongVisible && <AddSong searchBoxKeyboardHandler={this.searchBoxKeyboardHandler} backdropClicked={this.backdropClicked} />}
 

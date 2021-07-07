@@ -26,8 +26,10 @@
         - check if the bot is in a voice channel if not avoid trying to add music✅
         - add personal playlists ✅
         - player interface ✅
-        - show voice channels
-        - join voice channel
+        - show voice channels✅
+        - join voice channel✅
+        - leave voice channel
+        - 
         
 
 ## Stats

@@ -56,6 +56,7 @@ const SongTitle = styled.div`
     font-size: 14px;
     margin-left:10px;
     width:400px;
+    flex-grow: 1;
 `
 const ListIndex = styled.span`
     flex-shrink: 0;
@@ -83,7 +84,7 @@ const NextUpWrapper = styled.div`
 const DeleteIcon = styled(RiDeleteBin5Fill)`
     margin: 0 5px;
     font-size: 18px;
-
+    flex-shrink: 0;
     color: #b3b3b3;
     cursor:pointer;
 
@@ -93,7 +94,7 @@ const DeleteIcon = styled(RiDeleteBin5Fill)`
 `
 const SkipIcon = styled(IoPlaySkipForward)`
     font-size: 18px;
-
+    flex-shrink: 0;
     color: #b3b3b3;
     cursor:pointer;
 

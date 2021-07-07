@@ -24,9 +24,9 @@ class App extends React.Component {
             wsMessage: null,
             websocket: null,
             accountInfo: null,
-            token: null
+            token: null,
+            retryCounter: 0
         };
-        this.retryCounter = 0;
         
         this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
@@ -90,7 +90,7 @@ class App extends React.Component {
        
 
         ws.onopen = () => {
-            self.retryCounter = 0
+            self.setState({retryCounter: 0})
             console.log("Connected to websocket")
             self.setState({ websocket: ws})
         }
@@ -99,8 +99,9 @@ class App extends React.Component {
             console.log("Socket is closed. Trying to reconnect")
             
             self.setState({ websocket: ws})
-            if (self.retryCounter < 5) {
-                self.retryCounter ++;
+            if (self.state.retryCounter < 5) {
+                console.log(self.state.retryCounter)
+                self.setState({retryCounter: self.state.retryCounter + 1})
                 self.setupWebsocket()
             } else {
                 console.log("Tried to reconnect 5 times but failed. Reconnect manually.")
