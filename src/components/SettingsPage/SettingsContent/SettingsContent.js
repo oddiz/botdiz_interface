@@ -1,12 +1,15 @@
 import React from 'react'
 import styled from 'styled-components';
-import { Link } from 'react-router-dom'
+import { Link, Switch, Route } from 'react-router-dom'
+
+import AddUser from './AddUser/AddUser'
 
 const SettingsOptions = styled.div`
     flex-grow: 1;
 
     display: flex;
     flex-direction: column;
+    padding: 0 3em;
     
 `;
 const SettingsNavWrapper = styled.div`
@@ -32,7 +35,7 @@ const SettingsContentWrapper = styled.div`
     
     color: white;
 `;
-const SettingsNavItem = styled(Link)`
+const SettingsNavItem = styled.div`
     box-sizing: border-box;
     width: 100%;
     border-bottom: solid 1px #6F7582;
@@ -65,7 +68,8 @@ export default class SettingsContent extends React.Component {
         this.state={
 
         }
-
+        this.token = props.token
+        this.accountInfo = props.accountInfo
     }
 
 
@@ -81,14 +85,20 @@ export default class SettingsContent extends React.Component {
                         <SettingsNavItem>
                             Profile
                         </SettingsNavItem>
-                        <SettingsNavItem>
-                            Add User
-                        </SettingsNavItem>
+                        {this.accountInfo.is_admin && <Link to="/app/settings/adduser">
+                            <SettingsNavItem to="/app/settings/adduser">
+                                Add User
+                            </SettingsNavItem>
+                        </Link>}
                     
                     </SettingsNav>
                 </SettingsNavWrapper>
                 <SettingsOptions>
-
+                        <Switch>
+                            <Route exact path="/app/settings/adduser">
+                                <AddUser token={this.token} />
+                            </Route>
+                        </Switch>
                 </SettingsOptions>
             </SettingsContentWrapper>
         )

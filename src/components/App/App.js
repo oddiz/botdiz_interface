@@ -153,9 +153,10 @@ class App extends React.Component {
                                 wsMessage= {this.state.wsMessage} 
                             />
                         </Route>
-                        <Route exact path="/app/settings">
+                        <Route path="/app/settings">
                             <Settings 
-                                accountInfo={this.state.accountInfo} 
+                                accountInfo={this.state.accountInfo}
+                                token={this.state.token}
                             />
                         </Route>
                         <Route exact path="/404">

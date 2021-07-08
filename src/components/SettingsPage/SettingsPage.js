@@ -56,6 +56,7 @@ export default class SettingsPage extends React.Component {
         }
 
         this.accountInfo = props.accountInfo;
+        this.token = props.token;
     }
 
     render() {
@@ -70,7 +71,10 @@ export default class SettingsPage extends React.Component {
                         </UserName>
                     </AccountInfoHeader>
 
-                    <SettingsContent />
+                    <SettingsContent 
+                        token={this.token}
+                        accountInfo={this.accountInfo}
+                    />
 
                     
                 </SettingsPageContent>
