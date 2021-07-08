@@ -7,6 +7,8 @@ import './fonts/whitney.css'
 import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
 import SpotfiyCallback from './components/SpotifyCallback'
 import NotFoundPage from './404'
+
+
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
@@ -17,11 +19,11 @@ ReactDOM.render(
                 <Route exact path="/spotifycallback">
                     <SpotfiyCallback />
                 </Route>
-                <Route path='/app'>
-                    
+                <Route  path='/app'>
                     <App />
                 </Route>
-                <Route path='/404' component={NotFoundPage} />
+
+                <Route exact path='/404' component={NotFoundPage} />
                 <Route >
                     <Redirect to='/404' />
                 </Route>

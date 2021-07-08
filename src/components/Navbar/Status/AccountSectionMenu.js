@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import onClickOutside from 'react-onclickoutside'
 import { Box, Button } from '@dracula/dracula-ui'
 import config from '../../../config'
-
+import MenuItems from './MenuItems/MenuItems'
 const AccountMenuWrapper = styled.div`
     display: ${props => props.visible? "inline":"none"};
     position: absolute;
@@ -36,7 +36,6 @@ const BoxContent = styled.div`
     display: flex;
     flex-direction: column;
 
-    height:140px;
 `
 const LogoutButton = styled.div`
     display:inline;
@@ -56,6 +55,8 @@ class AccountMenu extends React.Component {
         this.token = props.token
         this.username = props.accountInfo.username
         this.handleOutsideClick = props.outsideClickFunc
+
+        this.AccountRef= React.createRef()
     }
     
     //https://github.com/Pomax/react-onclickoutside
@@ -63,6 +64,11 @@ class AccountMenu extends React.Component {
         
         this.handleOutsideClick(event)
     }
+    setClickOutsideRef = () => {
+   
+        return this.AccountRef.current
+    }
+
 
     handleLogout = async event => {
         console.log("logoutclicked")
@@ -82,7 +88,7 @@ class AccountMenu extends React.Component {
     render() {
 
         return(
-            <AccountMenuWrapper key={this.state.visible} visible={this.state.visible}>
+            <AccountMenuWrapper key={this.state.visible} visible={this.state.visible} ref={this.AccountRef}>
                 <Box
                     color="blackSecondary"
                     rounded="lg"
@@ -96,6 +102,9 @@ class AccountMenu extends React.Component {
                             </UsernameTitle>
                             {this.username}
                         </Username>
+
+                        <MenuItems />
+
                         <LogoutButton onClick={this.handleLogout}>
                             <Button 
                                 color="red"
@@ -111,5 +120,7 @@ class AccountMenu extends React.Component {
         )
     }
 }
+
+
 
 export default onClickOutside(AccountMenu)

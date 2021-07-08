@@ -2,15 +2,19 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from '../Dashboard/Dashboard';
-import Preferences from '../Preferences/Preferences';
+import Settings from '../SettingsPage/SettingsPage';
 import Navbar from '../Navbar/Navbar'
 import Login from '../Login/Login';
 import config from '../../config'
 import styled from 'styled-components'
+import NotFoundPage from '../../404'
+
 const AppContent = styled.div`
     width: 100vw;
-    height: calc(100% - var(--navbar-height));
-    flex-grow: 1;
+    height: 100vh;
+    
+    display:flex;
+    flex-direction: column;
     background-color: #36393f;
 `
 
@@ -127,37 +131,43 @@ class App extends React.Component {
             
         return (
             <BrowserRouter>
-                <div className="app_wrapper">
+                
+                <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
                     <Navbar 
-                        key={this.state.websocket?.readyState}
+                        key={this.state.websocket?.readyState+"_navbar"}
                         accountInfo={this.state.accountInfo} 
                         token={this.state.token}
                         setupWebsocket={this.setupWebsocket} 
-                        websocket={this.state.websocket} 
+                        websocket={this.state.websocket}
+                        location={this.props.location} 
                         />
-                    <AppContent id="appcontent" key={Math.floor(Math.random()*10000)}>
-                        <Switch>
-                            <Route exact path="/app">
-                                <Redirect to="/app/dashboard" />
-                            </Route>
-                            <Route exact path={["/app/dashboard", "/app/home"]}>
-                                <Dashboard 
-                                    key={this.state.websocket?.readyState}
-                                    token={this.state.token} 
-                                    websocket={this.state.websocket}
-                                    wsMessage= {this.state.wsMessage} />
-                            </Route>
-                            <Route exact path="/app/preferences">
-                                <Preferences />
-                            </Route>
-                            {/* IF NO PATH IS FOUND */}
-                            <Route>
-                                <Redirect to='/app/404' />
-                            </Route>
-                        </Switch>
-                    </AppContent>
+                    <Switch>
+                        <Route exact path="/app">
+                            <Redirect to="/app/dashboard" />
+                        </Route>
+                        <Route exact path={["/app/dashboard", "/app/home"]}>
+                            <Dashboard 
+                                key={this.state.websocket?.readyState}
+                                token={this.state.token} 
+                                websocket={this.state.websocket}
+                                wsMessage= {this.state.wsMessage} 
+                            />
+                        </Route>
+                        <Route exact path="/app/settings">
+                            <Settings 
+                                accountInfo={this.state.accountInfo} 
+                            />
+                        </Route>
+                        <Route exact path="/404">
+                            <NotFoundPage />
+                        </Route>
+                        {/* IF NO PATH IS FOUND */}
+                        <Route>
+                            <Redirect to='/404' />
+                        </Route>
+                    </Switch>
+                </AppContent>
                         
-                </div>
             </BrowserRouter>
         );
         

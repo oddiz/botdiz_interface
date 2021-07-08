@@ -76,7 +76,7 @@ export default function AccountSection (props) {
                     accountInfo={accountInfo} 
                     outsideClickFunc={handleOutsideClick} 
                     key={menuVisible} 
-                    isVisible={menuVisible} 
+                    isVisible={menuVisible}
                 />
             }
         </AccountSectionWrapper>

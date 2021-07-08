@@ -15,12 +15,3 @@
 }
 
 
-
-.app_wrapper {
-    display: flex;
-    flex-direction: column;
-    
-    flex-grow: 1;
-    background-color: #36393f;
-    height: 100%;
-}

@@ -119,6 +119,12 @@ export default class Navbar extends React.Component {
             activeIndex: activeIndex
         })
     }
+
+    componentDidUpdate() {
+        const currentPath = this.props.location
+
+        console.log(currentPath)
+    }
     
     render() {
         const navbarItems = this.menuItems.map((item,index) => (
