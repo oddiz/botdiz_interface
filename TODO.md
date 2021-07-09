@@ -2,8 +2,9 @@
 
 ## General
 
-    - 404 page
+    - 404 page ✅
     - discord login
+    - figure out if logged-in in several windows (currently it doesn't get websocket messages, without any error)
 
 ## Navbar
     - Settings, websocket status ✅, refresh websocket ✅
@@ -29,7 +30,8 @@
         - show voice channels✅
         - join voice channel✅
         - leave voice channel
-        - 
+        - lock skip, stop when processing the command
+        
         
 
 ## Stats
@@ -41,5 +43,5 @@
 
 ## Footer
 
-    - websocket ping
+    - websocket ping ✅
 

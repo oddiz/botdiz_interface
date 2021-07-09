@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import config from 'config.js'
 
 const ChannelName = styled.div`
-    font-size: 16px;
+    font-size: 15px;
     padding-bottom:6px;
     margin-left: 6px;
     line-height: 20px;
@@ -84,8 +84,40 @@ const VoiceChannel = (props) => {
             </ChannelMember>
         )
     })
-    
 
+    function getTextWidth(text) {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const element = getComputedStyle(document.getElementById("voice_channels_wrapper"))
+        const font = element.fontSize+ " " + element.fontFamily
+        context.font = font
+        
+        return context.measureText(text).width;
+    }
+
+    let channelName = props.channelName
+    // if (channelName.length > 22) {
+    //     channelName = channelName.substring(0,21) + "..."
+    // }
+
+    const channelNameWidth = getTextWidth(channelName)
+
+    if (channelNameWidth > 150) {
+        let counter = 5;
+
+        let newChannelName = channelName.substring(0,counter) + "..."
+        let newChannelWidth = getTextWidth(newChannelName)
+        
+        while (newChannelWidth < 150) {
+            counter ++
+            newChannelName = channelName.substring(0,counter) + "..."
+            newChannelWidth = getTextWidth(newChannelName)
+            console.log(newChannelWidth, newChannelName)
+        }
+
+        channelName = newChannelName    
+    }
+    
     return (
         <VoiceChannelWrapper onClick={props.onClickFunc}>
             <VoiceChannelTitleWrapper>
@@ -93,7 +125,7 @@ const VoiceChannel = (props) => {
                     {volumeIcon} 
                 </HashtagDiv>
                 <ChannelName>
-                    {props.channelName}
+                    {channelName}
                 </ChannelName>
             </VoiceChannelTitleWrapper>
             <ChannelMembersWrapper>
@@ -252,7 +284,7 @@ export default class VoiceChannelSection extends React.Component{
         }
         
         return(
-            <VoiceChannelSectionWrapper>
+            <VoiceChannelSectionWrapper id="voice_channels_wrapper">
                 {voiceChannelRender}
             </VoiceChannelSectionWrapper>
         )   

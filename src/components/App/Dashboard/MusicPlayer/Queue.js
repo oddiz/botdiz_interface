@@ -74,8 +74,8 @@ const SongTitle = styled.div`
 `
 const ListIndex = styled.span`
     flex-shrink: 0;
-    margin-right: 25px;
-    width:24px;
+    margin-right: 15px;
+    width:36px;
     font-size: 22px;
 `
 function CurrentSong (props) {
