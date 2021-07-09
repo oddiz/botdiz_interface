@@ -171,7 +171,7 @@ export default class Status extends React.Component {
             <StatusWrapper >
                 <WebsocketStatus key={this.websocket} id="websocket_status" websocket={this.websocket} />
                 <RefreshButton onClick={this.handleClick} id="refresh_btton" />
-                <AccountSection token={this.props.token} onClick={this.handleClick} account={this.account} id="account_section" />
+                <AccountSection menuItemClicked={this.props.menuItemClicked} token={this.props.token} onClick={this.handleClick} account={this.account} id="account_section" />
             </StatusWrapper>
         )
     }

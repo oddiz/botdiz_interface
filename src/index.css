@@ -33,6 +33,16 @@ code {
 .visible {
     opacity: 1;
 }
+
+.hide_scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.hide_scrollbar::-webkit-scrollbar {
+    display:none
+}
+
 #music_search_wrapper.visible {
     opacity: 1;
 }

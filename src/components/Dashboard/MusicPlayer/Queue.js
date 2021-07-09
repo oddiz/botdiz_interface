@@ -1,6 +1,7 @@
 import { RiDeleteBin5Fill } from 'react-icons/ri'
 import { IoPlaySkipForward } from 'react-icons/io5'
 import styled from 'styled-components'
+import Scrollbars from 'react-custom-scrollbars'
 
 const QueueWrapper = styled.div`
 
@@ -14,9 +15,16 @@ const QueueWrapper = styled.div`
     overflow-y: scroll;
 
     min-width: 300px;
+    
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 
     & h4 {
         color: #b3b3b3;
+    }
+
+    &::-webkit-scrollbar {
+        display:none
     }
 `
 
@@ -24,17 +32,23 @@ export function Queue(props) {
 
 
     return (
-        <QueueWrapper>
-            <h2>Queue</h2>
-            <h4>Current Song</h4>
-            {props.currentSong.title && <CurrentSong currentSong={props.currentSong} />}
-            <h4>Next Up</h4>
-            <NextUp 
-                queueDeleteClicked={props.queueDeleteClicked} 
-                queue={props.queue} 
-                queueSkipClicked={props.queueSkipClicked}    
-            />
-        </QueueWrapper>
+        <Scrollbars
+            autoHide
+            autoHideTimeout={1500}
+            autoHideDuration={200}
+        >
+            <QueueWrapper>
+                <h2>Queue</h2>
+                <h4>Current Song</h4>
+                {props.currentSong.title && <CurrentSong currentSong={props.currentSong} />}
+                <h4>Next Up</h4>
+                <NextUp 
+                    queueDeleteClicked={props.queueDeleteClicked} 
+                    queue={props.queue} 
+                    queueSkipClicked={props.queueSkipClicked}    
+                />
+            </QueueWrapper>
+        </Scrollbars>
     )
 }
 

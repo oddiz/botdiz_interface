@@ -23,7 +23,8 @@ const PlaylistItemsWrapper = styled.div`
 
     overflow-y: scroll;
     overflow-x: hidden;
-    scrollbar-width: none;
+
+
 `
 const PlaylistItemWrapper = styled.div`
     box-sizing: border-box;
@@ -205,7 +206,7 @@ export default class Playlist extends React.Component {
                         autoHideDuration={200}
                     >
                 <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
-                <PlaylistItemsWrapper>
+                <PlaylistItemsWrapper className="hide_scrollbar">
                         {processedPlaylists}
 
                         <ImportSpotifyButton href={spotifyAuthUrl}>

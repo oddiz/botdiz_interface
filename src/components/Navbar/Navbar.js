@@ -4,6 +4,8 @@ import styled from "styled-components";
 import './Navbar.css'
 import { ReactComponent as Logo } from './botdiz.svg'
 import Status from './Status/Status'
+import { useLocation } from 'react-router-dom'
+
 //STATUS SECTION
 
 
@@ -61,8 +63,11 @@ const NavbarSelectedIndicator = styled.div.attrs(calculateIndicator)`
     
     clip-path: ellipse(${props => props.width/2}px 4px at ${props => props.left}px 0px);
 
-    transition:  cubic-bezier(.47,.17,.23,1.33) clip-path 0.4s, linear width 0.1s;
+    transition:  cubic-bezier(.47,.17,.23,1.33) all 0.4s, linear width 0.1s;
 
+    &.hide {
+        width: 0;
+    }
     `
 const NavLink = styled(Link)`
     display: inline-block;
@@ -121,9 +126,11 @@ export default class Navbar extends React.Component {
     }
 
     componentDidUpdate() {
-        const currentPath = this.props.location
+ 
+    }
 
-        console.log(currentPath)
+    menuItemClicked = (evt) => {
+        this.setState({activeIndex: null})
     }
     
     render() {
@@ -148,14 +155,20 @@ export default class Navbar extends React.Component {
                     <div className="navbar_items" draggable={false}>
                             {navbarItems}
                     </div>
-                    <NavbarSelectedIndicator activeIndex={this.state.activeIndex} activeName={this.state.active} menuItems = {this.menuItems}/>    
+                    <NavbarSelectedIndicator 
+                        className={typeof this.state.activeIndex === "number" ? "" : "hide"} 
+                        activeIndex={this.state.activeIndex} 
+                        activeName={this.state.active} 
+                        menuItems = {this.menuItems}
+                    />
                 </div>
                 <Status 
                     key={this.props.websocket?.readyState} 
                     token={this.props.token}
                     account={this.account} 
                     websocket={this.props.websocket} 
-                    setupWebsocket={this.props.setupWebsocket} 
+                    setupWebsocket={this.props.setupWebsocket}
+                    menuItemClicked={this.menuItemClicked}
                 />
             </div>
 

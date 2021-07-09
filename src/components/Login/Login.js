@@ -4,7 +4,8 @@ import "./Login.css"
 import '@dracula/dracula-ui/styles/dracula-ui.css'
 import { Card, Text, Box, Input, Button, Heading} from '@dracula/dracula-ui'
 import ReCAPTCHA from 'react-google-recaptcha'
-
+import LoadingIcon from './loading.svg'
+import styled from 'styled-components';
 
 async function loginUser(credentials) {
     return fetch(config.botdiz_server + '/login', {
@@ -16,7 +17,9 @@ async function loginUser(credentials) {
         body: JSON.stringify(credentials)
     }).then(data => data)
 }
-
+const LoadingIconWrapper = styled.img`
+    height: 100%;
+`;
 export default class Login extends React.Component {
     constructor(props) {
         super(props);
@@ -24,6 +27,7 @@ export default class Login extends React.Component {
             username: "",
             password: "",
             loggedIn: false,
+            loading: false
         }
         
         this.reCaptchaRef = React.createRef()
@@ -33,6 +37,12 @@ export default class Login extends React.Component {
 
     async handleSubmit(event) {
         event.preventDefault();
+        if(this.state.loading) {
+            console.log("Already trying to log in")
+
+            return
+        }
+        this.setState({loading: true})
 
         const reCaptchaToken = await this.reCaptchaRef.current.executeAsync()
 
@@ -50,14 +60,15 @@ export default class Login extends React.Component {
         const response = await loginUser(credentials);
 
         const responseBody = await response.json()
-
+        console.log(responseBody)
         if (response.status === 200) {
             console.log("Login successful")
             
             this.setState({loggedIn: true})
             window.location.reload()
         } else {
-            this.setState({loginError: {status: response.status, message: responseBody.message }})
+            this.setState({loginError: {status: response.status, message: responseBody.message }, loading: false})
+
         }
 
     }
@@ -151,7 +162,7 @@ export default class Login extends React.Component {
                                 }}
                             >
 
-                                Login
+                                {this.state.loading ? <LoadingIconWrapper src={LoadingIcon} alt="loading_icon" /> : "Login"}
                             </Button>
                         </form>
                     </Box>

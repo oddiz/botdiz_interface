@@ -103,7 +103,7 @@ class AccountMenu extends React.Component {
                             {this.username}
                         </Username>
 
-                        <MenuItems />
+                        <MenuItems menuItemClicked={this.props.menuItemClicked} />
 
                         <LogoutButton onClick={this.handleLogout}>
                             <Button 

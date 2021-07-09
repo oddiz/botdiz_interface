@@ -18,6 +18,7 @@ const AppContent = styled.div`
     background-color: #36393f;
 `
 
+let retryCounter = 0
 class App extends React.Component {
     constructor(props) {
         super(props)
@@ -29,13 +30,11 @@ class App extends React.Component {
             websocket: null,
             accountInfo: null,
             token: null,
-            retryCounter: 0
         };
         
         this.validateSession = this.validateSession.bind(this);
         this.setupWebsocket = this.setupWebsocket.bind(this);
 
-        
     }
 
     componentDidMount() {
@@ -70,6 +69,8 @@ class App extends React.Component {
             )
         }
 
+        return responseBody
+
     }
 
     setupWebsocket() {
@@ -89,12 +90,11 @@ class App extends React.Component {
         }
         const ws = new WebSocket(config.botdiz_websocket_server)
         const self = this;
-        this.setState({ websocket: ws })
     
        
 
         ws.onopen = () => {
-            self.setState({retryCounter: 0})
+            retryCounter = 0
             console.log("Connected to websocket")
             self.setState({ websocket: ws})
         }
@@ -102,11 +102,18 @@ class App extends React.Component {
         ws.onclose = (data) => {
             console.log("Socket is closed. Trying to reconnect")
             
+            //check for validation
+            //if not validated reload the window so login page shows
+
+            const response = this.validateSession()
+
+            if (!response.isValidated) {
+                window.location.reload()
+            }
             self.setState({ websocket: ws})
-            if (self.state.retryCounter < 5) {
-                console.log(self.state.retryCounter)
-                self.setState({retryCounter: self.state.retryCounter + 1})
+            if (retryCounter < 5) {
                 self.setupWebsocket()
+                retryCounter += 1;
             } else {
                 console.log("Tried to reconnect 5 times but failed. Reconnect manually.")
                 return
@@ -139,7 +146,7 @@ class App extends React.Component {
                         token={this.state.token}
                         setupWebsocket={this.setupWebsocket} 
                         websocket={this.state.websocket}
-                        location={this.props.location} 
+                        location={this.state.location} 
                         />
                     <Switch>
                         <Route exact path="/app">

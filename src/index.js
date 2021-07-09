@@ -19,8 +19,7 @@ ReactDOM.render(
                 <Route exact path="/spotifycallback">
                     <SpotfiyCallback />
                 </Route>
-                <Route  path='/app'>
-                    <App />
+                <Route  path='/app' component={App}>
                 </Route>
 
                 <Route exact path='/404' component={NotFoundPage} />

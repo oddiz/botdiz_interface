@@ -74,7 +74,7 @@ const MPFooterWrapper = styled.div`
 
     justify-content: center;
 
-    background-color: #2A2A2A;
+    background-color: #2B2E32;
 
     border-top: solid 1px #484848;
 `
@@ -114,6 +114,7 @@ const AddSongIcon = styled(IoAddCircleOutline)`
 
     margin-left: auto;
     margin-right: 15px;
+    margin-top:12px;
     color: #ffffff99;
 
     cursor: pointer;

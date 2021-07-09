@@ -42,6 +42,7 @@ export default class MenuItems extends React.Component {
             return(
                 <MenuItem key={index}
                     to={item.link}
+                    onClick={this.props.menuItemClicked}
                 >
                     {item.title}
                 </MenuItem>

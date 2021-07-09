@@ -71,8 +71,9 @@ export default class SpotfiyCallback extends React.Component {
             success: false,
             successMessage: "",
         }
+        
     }
-
+    
     async componentDidMount() {
 
         const authCode = new URLSearchParams(window.location.search).get("code")

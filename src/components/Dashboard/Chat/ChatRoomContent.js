@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import Scrollbars from 'react-custom-scrollbars'
 
 const ChatContentWrapper = styled.div`
     flex-grow: 1;
@@ -7,9 +8,6 @@ const ChatContentWrapper = styled.div`
     flex-direction: column;
 
     width:auto;
-    
-
-    
     
     background-color: #36393f;
 `
@@ -86,11 +84,17 @@ function MessageInput(props) {
 const ChatRoomWrapper = styled.div`
     display:flex;
     flex-direction: column;
-    overflow-y: scroll;
-    flex: 1 1 50px;
-    padding: 0px 16px;
-    
 
+    overflow-y: scroll;
+    overflow-x: hidden;
+    flex: 1 1 ;
+    
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display:none
+    }
 `
 
 const MessageWrapper = styled.div`
@@ -103,7 +107,7 @@ const Message = styled.div`
     flex-direction: row;
     
     
-    width: 100%;
+    flex: 1 1 auto;
     font-size: 16px;
     color: white;
 
@@ -177,9 +181,19 @@ function ChatRoom(props) {
         )
     })
     return(
-        <ChatRoomWrapper key={messages.length}>
-            {mappedMessages.reverse()}
-            <AlwaysScrollToBottom />
+        <ChatRoomWrapper className="" key={messages.length}>
+            <Scrollbars
+                autoHide
+                autoHideTimeout={1500}
+                autoHideDuration={200}
+                renderView={({ style, ...props }) =>
+            <div {...props} style={{ ...style, overflowX:"hidden" }}/>
+        }
+                
+            >
+                {mappedMessages.reverse()}
+                <AlwaysScrollToBottom />
+            </Scrollbars>
         </ChatRoomWrapper>
     )
 }
