@@ -3,10 +3,24 @@ import styled from 'styled-components';
 import { Button } from '@dracula/dracula-ui'
 import config from '../../../../../config'
 const AddUserInput = styled.input`
+    box-sizing: border-box;
     width: 50%;
-    height: 30px;
+    height: 40px;
+
+    font-size: 18px;
 
     background-color: #5D626D;
+    color: white;
+    caret-color: white;
+    
+    outline:none;
+    border: none;
+    border-radius: 5px;
+
+    padding-left: 0.5em;
+
+    &:focus {
+    }
 `;
 const InputSection = styled.div`
     display: flex;
@@ -97,7 +111,7 @@ export default class AddUser extends React.Component {
                     style={{width: "10em"}}
                     onClick={this.handleAddUserSubmit}
                 >
-                    Add User
+                    Confirm
                 </Button>
             </AddUserWrapper>
         )

@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 import { Link, Switch, Route } from 'react-router-dom'
-
+import './SettingsContent.css'
 import AddUser from './AddUser/AddUser'
 import Profile from './Profile/Profile'
 
@@ -39,7 +39,7 @@ const SettingsContentWrapper = styled.div`
 const SettingsNavItem = styled.div`
     box-sizing: border-box;
     width: 100%;
-    border-bottom: solid 1px #6F7582;
+    
 
     
     padding: 10px 0;
@@ -60,7 +60,7 @@ const SettingsNavItem = styled.div`
         cursor: default;
     }
     &:last-child {
-        border:none;
+        
     }
 `;
 const OptionTitle = styled.div`
@@ -137,8 +137,8 @@ export default class SettingsContent extends React.Component {
                 return null
             }
             return(
-                <Link key={index} to={"/app/settings/" + item.url}>
-                    <SettingsNavItem onClick={this.navItemClicked}>
+                <Link className="settings_nav_link" key={index} to={"/app/settings/" + item.url}>
+                    <SettingsNavItem key={index} onClick={this.navItemClicked}>
                         {item.title}
                     </SettingsNavItem>
                 </Link>

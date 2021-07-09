@@ -1,0 +1,7 @@
+.settings_nav_link {
+    border-bottom: solid 1px #6F7582;
+}
+
+.settings_nav_link:last-child {
+    border:none;
+}

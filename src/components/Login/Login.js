@@ -15,7 +15,10 @@ async function loginUser(credentials) {
         },
         credentials: 'include',
         body: JSON.stringify(credentials)
-    }).then(data => data)
+    })
+    .then(reply => reply.json())
+    .then(data => data)
+    .catch(err => err)
 }
 const LoadingIconWrapper = styled.img`
     height: 100%;
@@ -42,7 +45,7 @@ export default class Login extends React.Component {
 
             return
         }
-        this.setState({loading: true})
+        this.setState({loading: true, loginError: null})
 
         const reCaptchaToken = await this.reCaptchaRef.current.executeAsync()
 
@@ -58,16 +61,14 @@ export default class Login extends React.Component {
             return
         }
         const response = await loginUser(credentials);
-
-        const responseBody = await response.json()
-        console.log(responseBody)
-        if (response.status === 200) {
+        console.log(response)
+        if (response.result === "OK") {
             console.log("Login successful")
             
             this.setState({loggedIn: true})
             window.location.reload()
         } else {
-            this.setState({loginError: {status: response.status, message: responseBody.message }, loading: false})
+            this.setState({loginError: {status: response.status, message: response.message }, loading: false})
 
         }
 

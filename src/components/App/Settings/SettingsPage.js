@@ -35,7 +35,7 @@ const ProfilePic = styled.img`
 
     border-radius:999px;
 
-    border:solid 2px white; 
+    border:solid 2px #6e7581; 
 `
 const UserName = styled.span`
     display: flex;
