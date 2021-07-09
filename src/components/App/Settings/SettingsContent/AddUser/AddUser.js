@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 import { Button } from '@dracula/dracula-ui'
-import config from '../../../../config'
+import config from '../../../../../config'
 const AddUserInput = styled.input`
     width: 50%;
     height: 30px;
@@ -14,9 +14,7 @@ const InputSection = styled.div`
     margin-top: 1em;
     
 `;
-const AddUserTitle = styled.div`
-    
-`;
+
 const AddUserWrapper = styled.div`
     display: flex;
     flex-direction: column;
@@ -72,9 +70,6 @@ export default class AddUser extends React.Component {
     render() {
         return(
             <AddUserWrapper>
-                <AddUserTitle>
-                    <h2>Add User</h2>
-                </AddUserTitle>
 
                 {this.state.addUserResponse && <h3 style={{color: this.state.addUserResponse.isSuccessful? "var(--green)": "var(--red)"}}> {this.state.addUserResponse.message}</h3>}
 

@@ -9,6 +9,7 @@ const SettingsPageWrapper = styled.div`
     display:block;
 `;
 const SettingsPageContent = styled.div`
+box-sizing: border-box;
     display:flex;
     flex-direction: column;
     height: 100%;
@@ -61,8 +62,8 @@ export default class SettingsPage extends React.Component {
 
     render() {
         return (
-            <SettingsPageWrapper>
-                <SettingsPageContent>
+            <SettingsPageWrapper id="settings_page_wrapper">
+                <SettingsPageContent id="settings_page_content">
                     
                     <AccountInfoHeader>
                         <ProfilePic src={this.accountInfo.avatarURL} alt="Profile Pic" />
@@ -74,6 +75,7 @@ export default class SettingsPage extends React.Component {
                     <SettingsContent 
                         token={this.token}
                         accountInfo={this.accountInfo}
+                        location={this.props.location}
                     />
 
                     

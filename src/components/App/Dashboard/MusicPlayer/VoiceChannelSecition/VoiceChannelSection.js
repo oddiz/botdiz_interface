@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import config from '../../../../config'
+import config from 'config.js'
 
 const ChannelName = styled.div`
     font-size: 16px;

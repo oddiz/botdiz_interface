@@ -4,12 +4,13 @@ import GuildBar from './GuildBar'
 import GuildOptions from './GuildOptions'
 import ChatPage from './Chat/ChatPage'
 import MusicPlayer from './MusicPlayer/MusicPlayer'
-import config from '../../config'
+import config from 'config.js'
 
 
 const DashboardWrapper = styled.div`
     width: 100%;
-
+    height: 100%;
+    
     flex-grow: 1;
     display: flex;
     flex-direction: row;

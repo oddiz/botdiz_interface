@@ -101,7 +101,7 @@ export default function GuildBar(props) {
     ))
     
     return(
-        <GuildIconsBar> 
+        <GuildIconsBar id="guild_bar"> 
             {guildListRender}
         </GuildIconsBar>
     )

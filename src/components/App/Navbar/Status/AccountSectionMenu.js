@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import onClickOutside from 'react-onclickoutside'
 import { Box, Button } from '@dracula/dracula-ui'
-import config from '../../../config'
+import config from '../../../../config'
 import MenuItems from './MenuItems/MenuItems'
 const AccountMenuWrapper = styled.div`
     display: ${props => props.visible? "inline":"none"};

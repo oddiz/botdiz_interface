@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { ImSpotify } from 'react-icons/im'
 import Scrollbars from 'react-custom-scrollbars'
-import config from '../../../../config'
+import config from 'config.js'
 import './Playlist.css'
 
 
