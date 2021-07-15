@@ -208,8 +208,8 @@ export default class Playlist extends React.Component {
                 <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
                 <PlaylistItemsWrapper className="hide_scrollbar">
                         {processedPlaylists}
-
-                        <ImportSpotifyButton href={spotifyAuthUrl}>
+                        
+                        <ImportSpotifyButton href={spotifyAuthUrl} target="_blank">
                             <SpotifyLogo />
                             <ButtonText>
                                 {this.playlists.items.length > 0 ? "Refresh Playlists": "Import Playlists"}

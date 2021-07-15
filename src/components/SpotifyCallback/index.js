@@ -133,11 +133,9 @@ export default class SpotfiyCallback extends React.Component {
             return(
                 <SpotfiyCallbackWrapper>
                     <SuccessText>
-                        {this.state.successMessage} 
+                        {this.state.successMessage} You can now close this window. 
                     </SuccessText>
-                    <SaveMeButton href='/app'>
-                        Continue
-                    </SaveMeButton>
+                    
                 </SpotfiyCallbackWrapper>
             )
         }

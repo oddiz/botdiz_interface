@@ -4,8 +4,8 @@ import './index.css';
 import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
 import './fonts/whitney.css'
-import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
-import SpotfiyCallback from './components/SpotifyCallback'
+import { BrowserRouter, Switch, Route, Redirect, Router} from 'react-router-dom'
+import SpotifyCallback from './components/SpotifyCallback'
 import NotFoundPage from './404'
 
 
@@ -13,19 +13,18 @@ ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
             <Switch>
+                <Route exact path="/spotifycallback">
+                    <SpotifyCallback />
+                </Route>
+                <Route path='/app' component={App} >
+                </Route>
+                <Route exact path='/404'>
+                    <NotFoundPage />
+                </Route>
                 <Route exact path='/'>
                     <Redirect to='/app' />
                 </Route>
-                <Route exact path="/spotifycallback">
-                    <SpotfiyCallback />
-                </Route>
-                <Route  path='/app' component={App}>
-                </Route>
 
-                <Route exact path='/404' component={NotFoundPage} />
-                <Route >
-                    <Redirect to='/404' />
-                </Route>
             </Switch>
         </BrowserRouter>
     </React.StrictMode>,
