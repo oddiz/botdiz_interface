@@ -36,7 +36,7 @@ const MenuItem = styled.span`
 `
 
 export default function GuildOptions(props) {
-    const menuItems = ["Chat", "Music Player"]
+    const menuItems = ["Music Player", "Chat"]
     
     
     const menuItemsRender = menuItems.map(menuItem => (

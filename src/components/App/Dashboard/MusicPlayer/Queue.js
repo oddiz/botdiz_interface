@@ -45,7 +45,8 @@ export function Queue(props) {
                 <NextUp 
                     queueDeleteClicked={props.queueDeleteClicked} 
                     queue={props.queue} 
-                    queueSkipClicked={props.queueSkipClicked}    
+                    queueSkipClicked={props.queueSkipClicked}
+                    controlsDisabled={props.controlsDisabled}
                 />
             </QueueWrapper>
         </Scrollbars>
@@ -105,6 +106,10 @@ const DeleteIcon = styled(RiDeleteBin5Fill)`
     &:hover{
         color: white;
     }
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+    }
 `
 const SkipIcon = styled(IoPlaySkipForward)`
     font-size: 18px;
@@ -114,6 +119,10 @@ const SkipIcon = styled(IoPlaySkipForward)`
 
     &:hover{
         color: white;
+    }
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
     }
 `
 function NextUp(props) {
@@ -128,8 +137,8 @@ function NextUp(props) {
                 <ListIndex>{index+2}</ListIndex>
                 {song.videoId && <StyledThumbnail src={thumbnailUrl} alt="" />}
                 <SongTitle>{song.videoTitle}</SongTitle>
-                <DeleteIcon onClick={props.queueDeleteClicked} />
-                <SkipIcon onClick={props.queueSkipClicked} />
+                <DeleteIcon onClick={props.queueDeleteClicked} className={props.controlsDisabled? "disabled": ""} />
+                <SkipIcon onClick={props.queueSkipClicked} className={props.controlsDisabled? "disabled": ""} />
             </SongWrapper>
         )
     })

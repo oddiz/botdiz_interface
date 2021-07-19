@@ -12,6 +12,11 @@ const SkipButton = styled(IoPlaySkipForward)`
     &:hover {
         color: white;
     }
+
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+    }
 `
 const PauseButton = styled(IoPauseCircle)`
     font-size: 2em;
@@ -21,6 +26,12 @@ const PauseButton = styled(IoPauseCircle)`
 
     cursor: pointer;
 
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+
+    }
+
 `
 const PlayButton = styled(IoPlayCircle)`
     font-size: 2em;
@@ -29,6 +40,12 @@ const PlayButton = styled(IoPlayCircle)`
     transition: linear 0.2s all;
 
     cursor: pointer;
+
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+
+    }
 
 `
 const StopButton = styled(IoStopCircle)`
@@ -42,24 +59,46 @@ const StopButton = styled(IoStopCircle)`
     &:hover {
         color: #ff9580
     }
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+
+    }
 `
 const PlayerControlsWrapper = styled.div`
     height:100%;
     justify-self: center;
     display: flex;
+    position: relative;
 
     flex-direction: row;
     align-items: center;
     justify-content: center;
 `
+const Loading = styled.div`
+    width: 100vw;
+    height: 3px;
+
+    position:absolute;
+    top: 0;
+
+    animation: animatedGradient 3s ease infinite alternate;
+`
+
 export function PlayerControls (props) {
     
     const guildId = props.guildId
     const websocket = props.websocket
     const token = props.token
+    const controlsDisabled = props.controlsDisabled
+    const playerButtonClicked = props.playerButtonClicked
 
     function pauseClicked () {
+        if(controlsDisabled) {
+            return
+        }
         console.log("pause clicked")
+        playerButtonClicked()
         const message = JSON.stringify({
             token: token,
             type: "exec",
@@ -71,7 +110,12 @@ export function PlayerControls (props) {
         websocket.send(message)
     }
     function playClicked () {
+        if(controlsDisabled) {
+            return
+        }
         console.log("play clicked")
+        playerButtonClicked()
+
         const message = JSON.stringify({
             token: token,
             type: "exec",
@@ -84,7 +128,12 @@ export function PlayerControls (props) {
     }
     
     function stopClicked () {
+        if(controlsDisabled) {
+            return
+        }
         console.log("stop clicked")
+        playerButtonClicked()
+
         const message = JSON.stringify({
             token: token,
             type: "exec",
@@ -96,7 +145,12 @@ export function PlayerControls (props) {
         websocket.send(message)
     }
     function skipClicked () {
+        if(controlsDisabled) {
+            return
+        }
         console.log("skip clicked")
+        playerButtonClicked()
+
         const message = JSON.stringify({
             token: token,
             type: "exec",
@@ -110,19 +164,20 @@ export function PlayerControls (props) {
     let PlayPause;
     if (props.audioPlayerStatus === "playing") {
         PlayPause = (
-            <PauseButton onClick={pauseClicked} />
+            <PauseButton onClick={pauseClicked} className={controlsDisabled? "disabled":""} />
             )
         } else {
         PlayPause = (
-            <PlayButton onClick={playClicked} />
+            <PlayButton onClick={playClicked} className={controlsDisabled? "disabled":""} />
         )
     }
 
     return (
         <PlayerControlsWrapper>
-            <StopButton onClick={stopClicked} />
+            {controlsDisabled && <Loading className="drac-bg-animated" />}
+            <StopButton onClick={stopClicked} className={controlsDisabled? "disabled":""} />
             {PlayPause}
-            <SkipButton onClick={skipClicked} />
+            <SkipButton onClick={skipClicked} className={controlsDisabled? "disabled":""} />
             {/* <PlayPauseButton />
             <SkipButton /> */}
         </PlayerControlsWrapper>

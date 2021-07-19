@@ -18,10 +18,10 @@
 
 ## Dashboard
 
-    -Chat
+    - Chat
         - new messages doesn't show user colors
 
-    - music player page
+    - Music Player
         - playlist ✅
         - add music?✅
         - check if the bot is in a voice channel if not avoid trying to add music✅
@@ -30,9 +30,11 @@
         - show voice channels✅
         - join voice channel✅
         - leave voice channel
-        - lock skip, stop when processing the command
+        - lock skip, stop when processing the command✅
         
-        
+    - Subscriptions
+        - Sub to content like epic deal reminder
+        - Select a text channel to post subbed content  
 
 ## Stats
 

@@ -89,20 +89,71 @@ export default class Playlist extends React.Component {
         }
         this.websocket = props.websocket
         this.playlists = props.playlists|| {items: []}
+        this.playerButtonClicked = props.playerButtonClicked
 
         this.token = props.token
         this.activeGuild = props.activeGuild
         this.playlistClicked = this.playlistClicked.bind(this)
     }
 
+    componentDidMount() {
+        this.websocket.addEventListener("message", this.listenWebsocketReply)
+    }
 
+    componentWillUnmount() {
+        this.websocket.removeEventListener("message", this.listenWebsocketReply)
+    }
+
+    listenWebsocketReply = async (reply) => {
+
+                
+        let parsedReply;
+        
+        try {
+            parsedReply = JSON.parse(reply.data)
+            
+        } catch (error) {
+            console.log(error)
+            return
+        }
+
+        if (parsedReply.command !== "RPC_addSpotifyPlaylist") {
+            //only listen to add spotify playlist command replies
+            return
+        }
+
+        console.log(parsedReply)
+
+        if (parsedReply.status === "success") {
+            this.setState({processingPlaylist: false})
+            this.clickedElement.classList.remove("loading")
+            this.clickedElement.classList.add("success")
+
+            console.log("sucesssss")
+        } else if (parsedReply.status === "failed") {
+            this.clickedElement.classList.remove("loading")
+            this.clickedElement.classList.remove("failed")
+            await new Promise(resolve => setTimeout(resolve, 50));
+            this.clickedElement.classList.add("failed")
+            this.setState({processingPlaylist: false})
+        }
+
+    
+}
     async playlistClicked(event) {
         const clickedElement = event.currentTarget
         //index of song in queue array
         const playlistIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
 
+        //signal parent element that playlist is clicked so loading bar can be shown
+        this.playerButtonClicked()
+
         const clickedPlaylist = this.playlists.items[parseInt(playlistIndex)]
+        clickedElement.classList.remove("loading")
+        await new Promise(resolve => setTimeout(resolve, 50));
         clickedElement.classList.add("loading")
+        clickedElement.classList.remove("failed")
+        clickedElement.classList.remove("success")
         if (!this.props.inVoiceChannel) {
             
             console.log("Bot is not in a voice channel. Can't add playlist")
@@ -122,8 +173,9 @@ export default class Playlist extends React.Component {
             if (clickedElement.classList.contains("failed")) {
                 clickedElement.classList.remove("failed")
             }
-            clickedElement.classList.toggle("failed")
-            this.setState({processingPlaylist: false})
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            clickedElement.classList.add("failed")
             return
         }
 
@@ -135,31 +187,8 @@ export default class Playlist extends React.Component {
         })
 
         const parsedResponse = await response.json()
-
         const self = this
-        function listenWebsocketReply(reply){
-                
-                let parsedReply;
-                
-                try {
-                    parsedReply = JSON.parse(reply.data)
-                    
-                } catch (error) {
-                    console.log(error)
-                    return
-                }
-                if (parsedReply.status === "success") {
-                    self.setState({processingPlaylist: false})
-                    self.clickedElement.classList.remove("loading")
-                } else {
-                    self.clickedElement.classList.remove("loading")
-                    self.clickedElement.classList.remove("failed")
-                    self.clickedElement.classList.add("failed")
-                    self.setState({processingPlaylist: false})
-                }
-
-            
-        }
+        
         
         if (parsedResponse.status === "success") {
             const message = JSON.stringify({
@@ -172,10 +201,11 @@ export default class Playlist extends React.Component {
 
             this.clickedElement = clickedElement
             //this.websocket.removeEventListener("message", listenWebsocketReply)
-            this.websocket.addEventListener("message",listenWebsocketReply, {once: true})
+            
         } else {
             clickedElement.classList.remove("loading")
             clickedElement.classList.remove("failed")
+            await new Promise(resolve => setTimeout(resolve, 50));
             clickedElement.classList.add("failed")
             this.setState({processingPlaylist: false})
         }

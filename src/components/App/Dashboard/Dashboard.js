@@ -36,7 +36,7 @@ export default class Dashboard extends React.Component {
         this.state = {
             //activeGuild:
             allGuilds: [],
-            activeOption: "Chat",
+            activeOption: "",
             userPlaylists: null
         }
         this.websocket = props.websocket
@@ -200,7 +200,12 @@ export default class Dashboard extends React.Component {
         const clickedElement = event.target
         const activeIndex = [...clickedElement.parentElement.parentElement.children].indexOf(clickedElement.parentElement);
         
-        this.setState({activeGuild: this.state.allGuilds[activeIndex]})
+        this.setState(
+            {
+                activeGuild: this.state.allGuilds[activeIndex],
+                activeOption: "Music Player"
+            }
+        )
     }
 
     render() {

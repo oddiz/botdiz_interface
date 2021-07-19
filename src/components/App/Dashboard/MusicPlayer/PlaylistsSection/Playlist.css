@@ -19,12 +19,28 @@
     animation: failedReq 1s ease 1
 }
 
+.success {
+    background-color: transparent;
+    animation: successReq 1s ease 1
+}
+
 @keyframes failedReq {
     0% {
         background-color: transparent;
     }
     50% {
         background-color: var(--red);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+@keyframes successReq {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: var(--green);
     }
     100% {
         background-color: transparent;

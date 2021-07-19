@@ -88,7 +88,6 @@ const TextChannel = (props) => {
             counter ++
             newChannelName = channelName.substring(0,counter) + "..."
             newChannelWidth = getTextWidth(newChannelName)
-            console.log(newChannelWidth, newChannelName)
         }
 
         channelName = newChannelName    

@@ -150,6 +150,7 @@ export default class MusicPlayer extends React.Component {
         this.activeGuild = props.activeGuild
         this.addSongVisible = false
 
+
         this.setupMusicPlayerListener = this.setupMusicPlayerListener.bind(this)
         this.formatTime = this.formatTime.bind(this)
         this.queueDeleteClicked = this.queueDeleteClicked.bind(this)
@@ -199,6 +200,9 @@ export default class MusicPlayer extends React.Component {
 
             try {
                 parsedReply = JSON.parse(reply.data)
+                if(parsedReply.status) {
+                    
+                }
             } catch (error) {
                 console.log("Unable to parse reply")
                 return
@@ -207,6 +211,19 @@ export default class MusicPlayer extends React.Component {
                 this.setState({ playerInfo: parsedReply.message })
             }
 
+            const RpcCommands = [
+                "RPC_pausePlayer",
+                "RPC_resumePlayer",
+                "RPC_skipSong",
+                "RPC_stopPlayer",
+                "RPC_deleteQueueSong",
+                "RPC_playCommand",
+                "RPC_addSpotifyPlaylist"
+            ]
+
+            if(RpcCommands.includes(parsedReply.command)) {
+                this.setState({controlsDisabled: false})
+            }
 
         }
     }
@@ -245,7 +262,13 @@ export default class MusicPlayer extends React.Component {
     }
 
     async queueDeleteClicked (event){
-        console.log(event.currentTarget.parentElement)
+
+        if (this.state.controlsDisabled) {
+            //already processing something
+
+            return
+        }
+        this.setState({controlsDisabled: true})
 
         const clickedElement = event.currentTarget.parentElement
         //index of song in queue array
@@ -261,8 +284,14 @@ export default class MusicPlayer extends React.Component {
         
         this.websocket.send(RPCMessage)
     }
+
     async queueSkipClicked (event) {
-        console.log(event.currentTarget.parentElement)
+        if (this.state.controlsDisabled) {
+            //already processing something
+            
+            return
+        }
+        this.setState({controlsDisabled: true})
 
         const clickedElement = event.currentTarget.parentElement
         //index of song in queue array
@@ -353,6 +382,10 @@ export default class MusicPlayer extends React.Component {
         }
     }
 
+    playerButtonClicked = async () => {
+        //disable buttons until success message is recieved
+        this.setState({controlsDisabled: true})
+    }
     render() {
         const formattedTime = this.formatTime()
         
@@ -364,11 +397,11 @@ export default class MusicPlayer extends React.Component {
                         websocket={this.websocket}
                         token={this.token}
                         audioPlayerStatus={this.state.playerInfo.audioPlayerStatus}
-                        guildId={this.activeGuild.id}
+                        guildId={this.activeGuild?.id}
                         setVoiceChannelStatus={this.setVoiceChannelStatus}
                     />
                     <Queue
-                        key={this.state.playerInfo.queue.length}
+                        key={this.state.playerInfo.queue.length+this.state.controlsDisabled}
                         queue={this.state.playerInfo.queue} 
                         currentSong={{
                             title: this.state.playerInfo.currentTitle,
@@ -377,6 +410,7 @@ export default class MusicPlayer extends React.Component {
                         }}
                         queueDeleteClicked={this.queueDeleteClicked}
                         queueSkipClicked={this.queueSkipClicked}
+                        controlsDisabled={this.state.controlsDisabled}
                     />
                     <Playlist 
                         websocket={this.websocket}
@@ -384,18 +418,24 @@ export default class MusicPlayer extends React.Component {
                         activeGuild={this.activeGuild}
                         token={this.token}
                         inVoiceChannel={this.state.inVoiceChannel}
+                        playerButtonClicked={this.playerButtonClicked}
                     />
 
                 </MusicPlayerContent>
                 <MPFooterWrapper>
                     <MPControlsWrapper>
-                        <SongInfo imgUrl={this.state.playerInfo.videoThumbnailUrl} songTitle={this.state.playerInfo.currentTitle} />
-                        <PlayerControls 
+                        <SongInfo 
+                            imgUrl={this.state.playerInfo.videoThumbnailUrl} 
+                            songTitle={this.state.playerInfo.currentTitle} 
+                        />
+                        <PlayerControls
+                            key={this.state.controlsDisabled}
                             token={this.token} 
                             guildId={this.activeGuild.id} 
                             websocket={this.websocket} 
                             audioPlayerStatus={this.state.playerInfo.audioPlayerStatus}
-                            
+                            controlsDisabled={this.state.controlsDisabled}
+                            playerButtonClicked={this.playerButtonClicked}
                         />
                         <InvisibleFlexAligner>
                                 <AddSongIcon
