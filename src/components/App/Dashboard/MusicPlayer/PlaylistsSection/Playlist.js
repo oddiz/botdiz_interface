@@ -122,14 +122,12 @@ export default class Playlist extends React.Component {
             return
         }
 
-        console.log(parsedReply)
 
         if (parsedReply.status === "success") {
             this.setState({processingPlaylist: false})
             this.clickedElement.classList.remove("loading")
             this.clickedElement.classList.add("success")
 
-            console.log("sucesssss")
         } else if (parsedReply.status === "failed") {
             this.clickedElement.classList.remove("loading")
             this.clickedElement.classList.remove("failed")
@@ -218,7 +216,11 @@ export default class Playlist extends React.Component {
 
         console.log(spotifyAuthUrl)
 
-        window.open(spotifyAuthUrl, "_blank")
+        //window.location.href = spotifyAuthUrl
+        //window.location.reload()
+        window.open(spotifyAuthUrl)
+
+        return
     }
 
     render() {

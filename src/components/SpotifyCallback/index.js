@@ -102,7 +102,6 @@ export default class SpotfiyCallback extends React.Component {
         
         const parsedResponse = await response.json()
 
-        console.log(parsedResponse)
         if (parsedResponse.status === "success") {
             this.setState({success: true, successMessage: parsedResponse.message})
         } else if (parsedResponse.status === "error") {
@@ -133,7 +132,7 @@ export default class SpotfiyCallback extends React.Component {
             return(
                 <SpotifyCallbackWrapper>
                     <SuccessText>
-                        {this.state.successMessage} You can now close this window. 
+                        {this.state.successMessage}. Close this window and refresh dashboard 
                     </SuccessText>
                     
                 </SpotifyCallbackWrapper>

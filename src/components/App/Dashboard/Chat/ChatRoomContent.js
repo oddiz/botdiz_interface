@@ -50,9 +50,7 @@ function MessageInput(props) {
 
     const onKeyDownEvent = (event) => {
         if (event.keyCode === 13) {
-            console.log("You pressed enter!!")
 
-            console.log(inputValue)
 
             //send a message to channel
 

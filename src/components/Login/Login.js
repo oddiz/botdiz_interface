@@ -105,7 +105,6 @@ export default class Login extends React.Component {
     }
 
     handleDiscordLogin = async () => {
-        console.log("discord")
         let discordUrl;
         if (process.env.NODE_ENV === "development") {
             discordUrl= "https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds"

@@ -97,7 +97,6 @@ export function PlayerControls (props) {
         if(controlsDisabled) {
             return
         }
-        console.log("pause clicked")
         playerButtonClicked()
         const message = JSON.stringify({
             token: token,
@@ -113,7 +112,6 @@ export function PlayerControls (props) {
         if(controlsDisabled) {
             return
         }
-        console.log("play clicked")
         playerButtonClicked()
 
         const message = JSON.stringify({
@@ -131,7 +129,6 @@ export function PlayerControls (props) {
         if(controlsDisabled) {
             return
         }
-        console.log("stop clicked")
         playerButtonClicked()
 
         const message = JSON.stringify({
@@ -148,7 +145,6 @@ export function PlayerControls (props) {
         if(controlsDisabled) {
             return
         }
-        console.log("skip clicked")
         playerButtonClicked()
 
         const message = JSON.stringify({

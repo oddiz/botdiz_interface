@@ -52,7 +52,6 @@ export default function AccountSection (props) {
 
         setMenuVisible(!menuVisible)
 
-        console.log(menuVisible)
     }
 
     function handleOutsideClick (event) {

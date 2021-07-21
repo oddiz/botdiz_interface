@@ -107,7 +107,6 @@ export default class SettingsContent extends React.Component {
 
     componentDidMount() {
         const initialItem = this.findSelectedOption(this.initialLocation)
-        console.log(initialItem)
         this.setState({activeSetting: initialItem})
         
     }
@@ -126,7 +125,6 @@ export default class SettingsContent extends React.Component {
     }
 
     navItemClicked = (event) => {
-        console.log(event.currentTarget.innerText)
         const selectedItem = this.findSelectedOption(event.currentTarget.innerText)
         this.setState({activeSetting: selectedItem})
     }
