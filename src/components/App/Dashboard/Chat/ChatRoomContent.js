@@ -198,6 +198,20 @@ function ChatRoom(props) {
     )
 }
 
+const Unauthorized = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    height:100%;
+    width:100%;
+
+    font-size: 28px;
+    color: var(--red);
+
+    word-wrap: normal;
+`
 
 export default class ChatContent extends React.Component {
     constructor(props) {
@@ -270,10 +284,23 @@ export default class ChatContent extends React.Component {
                 parsedReply = JSON.parse(reply.data)
             } catch (error) {
                 console.log("Unable to parse reply")
+                return
             }
 
+            
             if(parsedReply.result && parsedReply.token === this.token && parsedReply.command === "RPC_getTextChannelContent") {
+                
+                if(parsedReply.result.status === "unauthorized") {
+                    console.log("Not authorized to see the channel content")
+                    this.setState({activeChannelMessages: "unauthorized"})
 
+                    return
+                }
+
+                if(parsedReply.result.status ==="failed") {
+                    console.log("failed to get channel messages")
+                    return
+                }
                 
 
                 this.setState({activeChannelMessages: parsedReply.result})
@@ -296,6 +323,13 @@ export default class ChatContent extends React.Component {
 
 
     render() {
+        if(this.state.activeChannelMessages === "unauthorized") {
+            return(
+                <Unauthorized>
+                    ⛔ Bot is not authorized to see this channel's content ⛔
+                </Unauthorized>
+            )
+        }
         return(
             <ChatContentWrapper>
                 

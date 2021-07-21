@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import './fonts/whitney.css'
 import { BrowserRouter, Switch, Route, Redirect, Router} from 'react-router-dom'
 import SpotifyCallback from './components/SpotifyCallback'
+import DiscordLogin from './components/DiscordCallback'
 import NotFoundPage from './404'
 
 
@@ -15,6 +16,9 @@ ReactDOM.render(
             <Switch>
                 <Route exact path="/spotifycallback">
                     <SpotifyCallback />
+                </Route>
+                <Route exact path="/discordlogin">
+                    <DiscordLogin />
                 </Route>
                 <Route path='/app' component={App} >
                 </Route>

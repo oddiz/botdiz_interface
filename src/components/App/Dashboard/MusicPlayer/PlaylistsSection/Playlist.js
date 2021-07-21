@@ -46,7 +46,7 @@ const PlaylistItemName = styled.span`
         color: white;
     }
 `
-const ImportSpotifyButton =styled.a`
+const ImportSpotifyButton =styled.div`
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
@@ -187,7 +187,6 @@ export default class Playlist extends React.Component {
         })
 
         const parsedResponse = await response.json()
-        const self = this
         
         
         if (parsedResponse.status === "success") {
@@ -212,6 +211,16 @@ export default class Playlist extends React.Component {
 
     }
 
+    handleSpotifyButton = async () => {
+        const botdizCallbackUrl = config.botdiz_interface+"/spotifycallback"
+        const encodedbotdizCallbackUrl = encodeURIComponent(botdizCallbackUrl)
+        const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`
+
+        console.log(spotifyAuthUrl)
+
+        window.open(spotifyAuthUrl, "_blank")
+    }
+
     render() {
 
         const processedPlaylists = this.playlists.items.map((playlist, index) => {
@@ -223,9 +232,7 @@ export default class Playlist extends React.Component {
                 </PlaylistItemWrapper>
             )
         })
-        const botdizCallbackUrl = config.botdiz_interface+"/spotifycallback"
-        const encodedbotdizCallbackUrl = encodeURIComponent(botdizCallbackUrl)
-        const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`
+        
 
 
         return(
@@ -239,7 +246,7 @@ export default class Playlist extends React.Component {
                 <PlaylistItemsWrapper className="hide_scrollbar">
                         {processedPlaylists}
                         
-                        <ImportSpotifyButton href={spotifyAuthUrl} target="_blank">
+                        <ImportSpotifyButton onClick={this.handleSpotifyButton}>
                             <SpotifyLogo />
                             <ButtonText>
                                 {this.playlists.items.length > 0 ? "Refresh Playlists": "Import Playlists"}

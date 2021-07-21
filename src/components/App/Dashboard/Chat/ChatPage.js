@@ -200,7 +200,6 @@ export default class ChatPage extends React.Component{
             }
 
             if(parsedReply.result && parsedReply.token === this.token && parsedReply.command === "RPC_getTextChannels") {
-
                 this.setState({activeGuildTextChannels: parsedReply.result})
             }
 
@@ -226,7 +225,6 @@ export default class ChatPage extends React.Component{
     render() {
 
         if (this.state.activeChannel && this.state.activeGuild) {
-            console.log(this.state.activeChannel)
             this.ChatContentComponent = (
                 <ChatContent 
                     key={this.state.activeChannel.id}

@@ -5,7 +5,9 @@ import '@dracula/dracula-ui/styles/dracula-ui.css'
 import { Card, Text, Box, Input, Button, Heading} from '@dracula/dracula-ui'
 import ReCAPTCHA from 'react-google-recaptcha'
 import LoadingIcon from './loading.svg'
+import DiscordIcon from './dclogo.svg'
 import styled from 'styled-components';
+
 
 async function loginUser(credentials) {
     return fetch(config.botdiz_server + '/login', {
@@ -23,6 +25,34 @@ async function loginUser(credentials) {
 const LoadingIconWrapper = styled.img`
     height: 100%;
 `;
+const LoginWithDiscord = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    height: 40px;
+    width: 308px;
+
+    margin-top: 0.3em;
+    margin-left: 3px;
+
+    border-radius: 0.5em;
+    background: #5865f2;
+
+    font-weight: 700;
+    color: white;
+
+    cursor: pointer;
+
+    &:hover {
+        background: #7983f5;
+    }
+`
+const LoginWithDiscordIcon = styled.img`
+    height: 70%;
+    margin-right: 0.8em;
+` 
 export default class Login extends React.Component {
     constructor(props) {
         super(props);
@@ -74,6 +104,17 @@ export default class Login extends React.Component {
 
     }
 
+    handleDiscordLogin = async () => {
+        console.log("discord")
+        let discordUrl;
+        if (process.env.NODE_ENV === "development") {
+            discordUrl= "https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds"
+        } else {
+            discordUrl= "https://discord.com/api/oauth2/authorize?client_id=851497395190890518&redirect_uri=https%3A%2F%2Fbotdiz.kaansarkaya.com%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds"
+        }
+        window.open(discordUrl,"_self")
+    }
+
 
     render() {
         function renderError(self){
@@ -97,10 +138,11 @@ export default class Login extends React.Component {
                     as="div"
                     height="auto"
                     width="sm"
-                    p= "xxs"
                     m="md"
                     borderColor="pink"
-                    
+                    style={{
+                        padding:"3px"
+                    }}
                     
                 >
                     <Box
@@ -148,7 +190,6 @@ export default class Login extends React.Component {
                             <Button
                                 type="submit" 
                                 color="animated" 
-
                                 mt="md"
                                 style={
                                     {
@@ -166,6 +207,12 @@ export default class Login extends React.Component {
                                 {this.state.loading ? <LoadingIconWrapper src={LoadingIcon} alt="loading_icon" /> : "Login"}
                             </Button>
                         </form>
+                        <LoginWithDiscord
+                            onClick={this.handleDiscordLogin}
+                        >
+                            <LoginWithDiscordIcon src={DiscordIcon} />
+                            Login With Discord
+                        </LoginWithDiscord>
                     </Box>
                 
                 

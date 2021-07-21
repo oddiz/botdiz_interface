@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import config from '../../config'
 import LoadingGear from './Gear-0.2s-200px.svg'
 
-const SpotifyCallbackWrapper = styled.div`
+const DiscordCallbackWrapper = styled.div`
     height: 100%;
     width: 100%;
 
@@ -22,11 +22,18 @@ const LoadingText = styled.span`
     color: white;
     font-family:"Fira Code";
     font-size: 22px;
+
+    
+    overflow-wrap: break-word;
 `
 const ErrorText = styled.span`
     color: var(--red);
     font-family:"Fira Code";
     font-size: 22px;
+
+    padding: 0 10%;
+
+    text-align: center;
 `
 const SuccessText = styled.span`
     color: #00b85f;
@@ -63,7 +70,7 @@ const SaveMeButton = styled.a`
     }
 
 `
-export default class SpotfiyCallback extends React.Component {
+export default class DiscordCallback extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -84,11 +91,11 @@ export default class SpotfiyCallback extends React.Component {
         if (!authCode){
             console.log("No code available.")
             this.setState({error: {
-                text:"No code provided. Please use the spotify button inside music player."
+                text:"No code provided"
             }})
             return
         }
-        const response = await fetch(config.botdiz_server + '/playlists', {
+        const response = await fetch(config.botdiz_server + '/discordlogin', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -96,15 +103,21 @@ export default class SpotfiyCallback extends React.Component {
             credentials: "include",
             body: JSON.stringify({
                 code: authCode,
-                redirect_uri: redirectURI
             })
         }).then(data => data)
         
         const parsedResponse = await response.json()
 
         console.log(parsedResponse)
-        if (parsedResponse.status === "success") {
-            this.setState({success: true, successMessage: parsedResponse.message})
+        if (parsedResponse.result === "OK") {
+            this.setState({success: true, successMessage: "Login successful"})
+            let botdizUrl;
+            if (process.env.NODE_ENV === "development") {
+                botdizUrl = "http://localhost:3000/app"
+            } else {
+                botdizUrl = "https://botdiz.kaansarkaya.com/app"
+            }
+            window.open(botdizUrl,"_self")
         } else if (parsedResponse.status === "error") {
             this.setState({error: {
                 text: parsedResponse.message
@@ -114,39 +127,51 @@ export default class SpotfiyCallback extends React.Component {
     }
 
 
-   
+    handleSaveMe = async () => {
+        let botdizUrl;
+            if (process.env.NODE_ENV === "development") {
+                botdizUrl = "http://localhost:3000/app"
+            } else {
+                botdizUrl = "https://botdiz.kaansarkaya.com/app"
+            }
+            window.open(botdizUrl,"_self")
+    }
 
     render() {
 
         if(this.state.error) {
             return(
-                <SpotifyCallbackWrapper>
-                    <ErrorText>
-                        {this.state.error.text}
+                <DiscordCallbackWrapper>
+                    <ErrorText style={{"word-break": "keep-all"}}>
+                        Failed to login via Discord. Try again later. 
+                        <br />Contact oddiz if issue persists
                     </ErrorText>
-                </SpotifyCallbackWrapper>
+                    <SaveMeButton onClick={this.handleSaveMe}>
+                        Retry
+                    </SaveMeButton>
+                </DiscordCallbackWrapper>
             )
         }
 
         if(this.state.success) {
 
             return(
-                <SpotifyCallbackWrapper>
+                <DiscordCallbackWrapper>
                     <SuccessText>
                         {this.state.successMessage} You can now close this window. 
                     </SuccessText>
                     
-                </SpotifyCallbackWrapper>
+                </DiscordCallbackWrapper>
             )
         }
 
         return(
-            <SpotifyCallbackWrapper>
+            <DiscordCallbackWrapper>
                 <LoadingGearIcon src={LoadingGear} />
                 <LoadingText>
-                    Getting playlists from Spotify
+                    Logging in with Discord
                 </LoadingText>
-            </SpotifyCallbackWrapper>
+            </DiscordCallbackWrapper>
         )
     }
 }
