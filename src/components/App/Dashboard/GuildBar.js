@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 
-function makeImageUrl(guildID, hash, { format = 'webp', size } = {}) {
+function makeImageUrl(guildID, hash, { format = 'webp', size } = {size:128}) {
     const root = "https://cdn.discordapp.com"
     return `${root}/icons/${guildID}/${hash}.${format}${size ? `?size=${size}` : ''}`;
 }

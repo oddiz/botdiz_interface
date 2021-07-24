@@ -214,7 +214,6 @@ export default class Playlist extends React.Component {
         const encodedbotdizCallbackUrl = encodeURIComponent(botdizCallbackUrl)
         const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`
 
-        console.log(spotifyAuthUrl)
 
         //window.location.href = spotifyAuthUrl
         //window.location.reload()

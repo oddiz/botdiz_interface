@@ -4,7 +4,6 @@ import styled from "styled-components";
 import './Navbar.css'
 import { ReactComponent as Logo } from './botdiz.svg'
 import Status from './Status/Status'
-import { useLocation } from 'react-router-dom'
 
 //STATUS SECTION
 
@@ -104,8 +103,8 @@ export default class Navbar extends React.Component {
                 link: "/app/dashboard"
             },
             {
-                value: "Stats",
-                link: "/app/stats"
+                value: "Guilds",
+                link: "/app/guilds"
             },
         ]
 

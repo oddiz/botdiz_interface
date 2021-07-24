@@ -108,6 +108,7 @@ const TextChannel = (props) => {
 
 
 const ChannelsBarWrapper = styled.div`
+    box-sizing: border-box;
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './Dashboard/Dashboard';
+import Guilds from './Guilds/Guilds'
 import Settings from './Settings/SettingsPage';
 import Navbar from './Navbar/Navbar'
 import Login from '../Login/Login';
@@ -12,6 +13,7 @@ import NotFoundPage from '../../404'
 const AppWrapper = styled.div`
     width: 100vw;
     height: 100vh;
+
     
     display:flex;
     flex-direction: column;
@@ -20,6 +22,7 @@ const AppWrapper = styled.div`
 const AppContentWrapper = styled.div`
     flex-grow: 1;
     flex-shrink: 1;
+    min-height: 250px;
 
     overflow-y: visible;
     overflow-x: hidden;
@@ -167,6 +170,12 @@ class App extends React.Component {
                                     token={this.state.token} 
                                     websocket={this.state.websocket}
                                     wsMessage= {this.state.wsMessage} 
+                                />
+                            </Route>
+                            <Route exact path="/app/guilds">
+                                <Guilds 
+                                    token={this.token}
+                                    websocket={this.websocket}
                                 />
                             </Route>
                             <Route path="/app/settings" render={(props) => 

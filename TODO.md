@@ -5,6 +5,7 @@
     - 404 page ✅
     - discord login
     - figure out if logged-in in several windows (currently it doesn't get websocket messages, without any error)
+    - refresh relevant pages if data update happens (playlists updated, dj access to new channel, botdiz added to new guild)
 
 ## Navbar
     - Settings, websocket status ✅, refresh websocket ✅
@@ -31,10 +32,15 @@
         - join voice channel✅
         - leave voice channel
         - lock skip, stop when processing the command✅
+        - move songs in queue
         
     - Subscriptions
-        - Sub to content like epic deal reminder
+        - Sub to content (epic deal reminder)
         - Select a text channel to post subbed content  
+
+## Guilds
+    - add remove roles for DJ access
+    - add botdiz to guilds you are admin of
 
 ## Stats
 
