@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import Dashboard from './Dashboard/Dashboard';
-import Guilds from './Guilds/Guilds'
+import Guilds from './MyGuilds/MyGuilds'
 import Settings from './Settings/SettingsPage';
 import Navbar from './Navbar/Navbar'
 import Login from '../Login/Login';
@@ -172,7 +172,7 @@ class App extends React.Component {
                                     wsMessage= {this.state.wsMessage} 
                                 />
                             </Route>
-                            <Route exact path="/app/guilds">
+                            <Route exact path="/app/myguilds">
                                 <Guilds 
                                     token={this.token}
                                     websocket={this.websocket}

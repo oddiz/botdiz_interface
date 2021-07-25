@@ -103,8 +103,8 @@ export default class Navbar extends React.Component {
                 link: "/app/dashboard"
             },
             {
-                value: "Guilds",
-                link: "/app/guilds"
+                value: "My Guilds",
+                link: "/app/myguilds"
             },
         ]
 

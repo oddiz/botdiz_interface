@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
-import './fonts/whitney.css'
+import './fonts/Whitney/whitney.css'
 import { BrowserRouter, Switch, Route, Redirect, Router} from 'react-router-dom'
 import SpotifyCallback from './components/SpotifyCallback'
 import DiscordLogin from './components/DiscordCallback'

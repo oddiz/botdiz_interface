@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import config from 'config.js'
 import Scrollbars from 'react-custom-scrollbars'
 
+import GuildsContent from './MyGuildsContent'
 
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
@@ -33,7 +34,7 @@ class Guilds extends React.Component {
         super(props)
 
         this.state= {
-            activeGuild: "",
+            activeGuild: {},
             discordGuilds: []
         }
 
@@ -46,7 +47,6 @@ class Guilds extends React.Component {
 
         discordGuilds.sort((a,b) => a.botdiz_guild === b.botdiz_guild ? -1 : 1)
 
-        console.log(discordGuilds)
         this.setState({discordGuilds: discordGuilds})
     }
     
@@ -63,7 +63,7 @@ class Guilds extends React.Component {
         }
     }
     /* 
-    {
+    discordGuild = {
         "id": "854409105431330836",
         "name": "botdiz test",
         "icon": "b396da8cf5224d94c0ffa137d186c4ad",
@@ -76,17 +76,27 @@ class Guilds extends React.Component {
     }
     */
 
+    guildCardClicked = (event) => {
+        const clickedNode = event.currentTarget
+        const clickedIndex = [...clickedNode.parentElement.children].indexOf(clickedNode);
+
+        const clickedGuild = this.state.discordGuilds[clickedIndex]
+
+        this.setState({ activeGuild: clickedGuild})
+    }
     render() {
         const renderGuilds = this.state.discordGuilds.map((guild, index) => {
             return (
                 <GuildCard 
                     key={index}
                     guild={guild}
+                    onClick={this.guildCardClicked}
                 />
             )
         })
         return (
             <GuildsWrapper>
+                
                 <GuildsListWrapper>
                     <Scrollbars
                         autoHide
@@ -97,6 +107,12 @@ class Guilds extends React.Component {
 
                     </Scrollbars>
                 </GuildsListWrapper>
+
+                <GuildsContent
+                    key={this.state.activeGuild.name}
+                    activeGuild = {this.state.activeGuild}
+                />
+
             </GuildsWrapper>
         )
     }
@@ -169,10 +185,7 @@ const Seperator = styled.span`
 `;
 function GuildCard (props) {
     const guild = props.guild
-    function makeImageUrl(guildID, hash, { format = 'webp', size } = {size:128}) {
-        const root = "https://cdn.discordapp.com"
-        return `${root}/icons/${guildID}/${hash}.${format}${size ? `?size=${size}` : ''}`;
-    }
+    
 
     const guildBadges = []
 
@@ -189,9 +202,9 @@ function GuildCard (props) {
     }
 
     return (
-        <GuildCardWrapper>
+        <GuildCardWrapper onClick={props.onClick}>
             <GuildIcon>
-                <img src={makeImageUrl(guild.id, guild.icon)} alt="Guild Icon" />
+                <img src={guild.iconUrl} alt="Guild Icon" />
             </GuildIcon>
             <GuildContent>
                 <GuildName>
@@ -254,7 +267,7 @@ const GuildBadgeWrapper = styled.div`
     border-radius: 5px;
     background: ${props => props.color};
 
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     font-family: "Fira Code";
 
