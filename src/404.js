@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Box } from '@dracula/dracula-ui'
 
 const NotFoundPageWrapper = styled.div`
     display: flex;

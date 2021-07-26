@@ -19,18 +19,15 @@ const Username = styled.div`
     align-items: center;
     color: white;
     width: 100%;
+
+    padding: 4px 0 5px 16px;
     
     box-sizing: border-box;
     margin-bottom: auto;
-    padding: 5px 5px;
     font-size: 16px;
+    font-weight: 600;
     
     border-bottom: solid 1px #4C5167;
-`
-const UsernameTitle = styled.span`
-    font-size: 12px;
-    color: white;
-    margin-right: 5px;
 `
 const BoxContent = styled.div`
     display: flex;
@@ -96,10 +93,7 @@ class AccountMenu extends React.Component {
                     style={{width: "180px", border:"solid 1px #4C5167"}}
                 >
                     <BoxContent>
-                        <Username>
-                            <UsernameTitle>
-                                Logged in as:
-                            </UsernameTitle>
+                        <Username>                
                             {this.username}
                         </Username>
 

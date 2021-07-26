@@ -49,7 +49,6 @@
         - total interactions replied
         - uptime
 
-## Footer
-
-    - websocket ping ✅
+## BUGS
+    - Default profile pic doesn't show
 

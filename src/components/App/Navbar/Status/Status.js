@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import {IoRefresh} from 'react-icons/io5'
 
 import AccountSection from './AccountSection'
-import { render } from '@testing-library/react'
 
 const WebsocketStatusIcon = styled.span`
     height: 10px;

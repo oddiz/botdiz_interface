@@ -4,7 +4,7 @@ import './index.css';
 import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
 import './fonts/Whitney/whitney.css'
-import { BrowserRouter, Switch, Route, Redirect, Router} from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
 import SpotifyCallback from './components/SpotifyCallback'
 import DiscordLogin from './components/DiscordCallback'
 import NotFoundPage from './404'

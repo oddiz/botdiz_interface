@@ -43,8 +43,11 @@ class Guilds extends React.Component {
     }
 
     async componentDidMount() {
-        const discordGuilds = await this.getDiscordGuilds()
+        let discordGuilds = await this.getDiscordGuilds()
 
+        if (!discordGuilds) {
+            discordGuilds = []
+        }
         discordGuilds.sort((a,b) => a.botdiz_guild === b.botdiz_guild ? -1 : 1)
 
         this.setState({discordGuilds: discordGuilds})
@@ -183,6 +186,7 @@ const Seperator = styled.span`
     background: #55585F;
     border-radius: 10px;
 `;
+
 function GuildCard (props) {
     const guild = props.guild
     
@@ -238,6 +242,8 @@ function GuildBadges(props) {
             color = "#04c33a"
         } else if (badge === "Botdiz Guild") {
             color = "#9d3dd8"
+        } else if (badge === "DJ") {
+            color = "#e74c3c"
         }
 
         return (

@@ -86,7 +86,6 @@ export default class DiscordCallback extends React.Component {
         const authCode = new URLSearchParams(window.location.search).get("code")
 
         
-        const redirectURI = window.location.origin + window.location.pathname
 
         if (!authCode){
             console.log("No code available.")

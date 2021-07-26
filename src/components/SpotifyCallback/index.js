@@ -33,36 +33,36 @@ const SuccessText = styled.span`
     font-family:"Fira Code";
     font-size: 22px;
 `
-const SaveMeButton = styled.a`
-    display:flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+// const SaveMeButton = styled.a`
+//     display:flex;
+//     flex-direction: row;
+//     justify-content: center;
+//     align-items: center;
 
-    margin-top: 50px;
+//     margin-top: 50px;
 
-    color: #202225;
-    font-size: 30px;
-    font-weight: 700;
-    height: 50px;
-    width: 200px;
+//     color: #202225;
+//     font-size: 30px;
+//     font-weight: 700;
+//     height: 50px;
+//     width: 200px;
 
-    background: linear-gradient(var(--gradientDegree),var(--green) 0% ,var(--yellow) 50%,var(--pink) 100%);
-    background-size: 200% 100%;
+//     background: linear-gradient(var(--gradientDegree),var(--green) 0% ,var(--yellow) 50%,var(--pink) 100%);
+//     background-size: 200% 100%;
 
-    border-radius: 8px;
+//     border-radius: 8px;
 
-    cursor:pointer;
+//     cursor:pointer;
 
-    text-decoration: none;
+//     text-decoration: none;
 
-    transition: linear 0.2s all;
+//     transition: linear 0.2s all;
     
-    &:hover{
-        background-position-x: 100%;
-    }
+//     &:hover{
+//         background-position-x: 100%;
+//     }
 
-`
+// `
 export default class SpotfiyCallback extends React.Component {
     constructor(props) {
         super(props)
