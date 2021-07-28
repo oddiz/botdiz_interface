@@ -14,7 +14,6 @@
 ### Settings
     - user info
     - change profile pic
-    - Theme?
 
 
 ## Dashboard
@@ -33,14 +32,15 @@
         - leave voice channel
         - lock skip, stop when processing the command✅
         - move songs in queue
+        - add custom playlist
         
     - Subscriptions
         - Sub to content (epic deal reminder)
         - Select a text channel to post subbed content  
 
-## Guilds
-    - add remove roles for DJ access
-    - add botdiz to guilds you are admin of
+## My Guilds
+    - add remove roles for DJ access ✅
+    - add botdiz to guilds you are admin of ✅
 
 ## Stats
 
@@ -49,6 +49,11 @@
         - total interactions replied
         - uptime
 
+## Administration
+    - kick user
+    - soft/hard ban user
+    - silence user
+
 ## BUGS
-    - Default profile pic doesn't show
+    - Default profile pic doesn't show ✅
 

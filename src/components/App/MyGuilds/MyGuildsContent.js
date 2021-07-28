@@ -247,6 +247,8 @@ class GuildsContent extends React.Component {
             inviteLink = "https://discord.com/oauth2/authorize?client_id=851497395190890518&scope=bot+applications.commands&permissions=2184309832"
         }
         window.open(inviteLink, "_blank")
+        this.props.addBotdizClicked()
+        
     }
 
     render() {

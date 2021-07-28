@@ -92,7 +92,10 @@ export default class Dashboard extends React.Component {
              const mappedGuilds = parsedReply.result.map( GuildObj => {
                  return {
                      id: GuildObj.id,
-                     icon: GuildObj.icon
+                     icon: GuildObj.icon,
+                     dj_access: GuildObj.dj_access,
+                     administrator: GuildObj.administrator,
+                     owner: GuildObj.owner
                  }
              })
              if (this._isMounted){
@@ -219,7 +222,11 @@ export default class Dashboard extends React.Component {
                 />
 
                 <DashboardContent>
-                    {this.state.activeGuild && <GuildOptions onClickFunc={this.guildOptionsClickHandler} />}
+                    {this.state.activeGuild && 
+                    <GuildOptions 
+                        onClickFunc={this.guildOptionsClickHandler} 
+                        activeGuild={this.state.activeGuild} 
+                    />}
                     <GuildOptionsContent id="guild_options_content" key={this.state.activeGuild?.id}>
                         {this.RenderGuildOptionContent()}
                         

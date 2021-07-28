@@ -36,11 +36,19 @@ const MenuItem = styled.span`
 `
 
 export default function GuildOptions(props) {
-    const menuItems = ["Music Player", "Chat"]
+    const menuItems = []
+
+    const guild = props.activeGuild
+    if(guild.owner || guild.administrator || guild.dj_access) {
+        menuItems.push("Music Player")
+    } 
+    if (guild.owner || guild.administrator) {
+        menuItems.push("Chat")
+    }
     
     
-    const menuItemsRender = menuItems.map(menuItem => (
-        <MenuItem key={menuItem} onClick={props.onClickFunc}> {menuItem} </MenuItem>
+    const menuItemsRender = menuItems.map((menuItem, index) => (
+        <MenuItem key={index} onClick={props.onClickFunc}> {menuItem} </MenuItem>
         
     ))
 

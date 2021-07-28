@@ -93,10 +93,7 @@ const StyledLogo = styled(Logo)`
 export default class Navbar extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
-            active: "Dashboard",
-            activeIndex: 0
-        }
+
         this.menuItems = [
             {
                 value: "Dashboard",
@@ -107,6 +104,17 @@ export default class Navbar extends React.Component {
                 link: "/app/myguilds"
             },
         ]
+        this.initialLocation = window.location.pathname
+        for (const [index, menuItem] of this.menuItems.entries()) {
+            if(menuItem.link === this.initialLocation) {
+                this.initialIndex = index
+                this.initialMenuItem = menuItem 
+            }
+        }
+        this.state = {
+            activeName: this.initialMenuItem?.value || null,
+            activeIndex: this.initialIndex || null
+        }
 
         this.account = props.accountInfo
 
@@ -117,9 +125,8 @@ export default class Navbar extends React.Component {
     async handleClick(event) {
         const clickedElement = event.target
         const activeIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
-        
         this.setState({
-            active: event.target.innerHTML,
+            activeName: event.target.innerHTML,
             activeIndex: activeIndex
         })
     }
@@ -157,7 +164,7 @@ export default class Navbar extends React.Component {
                     <NavbarSelectedIndicator 
                         className={typeof this.state.activeIndex === "number" ? "" : "hide"} 
                         activeIndex={this.state.activeIndex} 
-                        activeName={this.state.active} 
+                        activeName={this.state.activeName} 
                         menuItems = {this.menuItems}
                     />
                 </div>

@@ -199,9 +199,23 @@ export default class ChatPage extends React.Component{
             } catch (error) {
                 console.log("Unable to parse reply")
             }
+            
+            if(parsedReply.command !== "RPC_getTextChannels") {
+                return
+            }
 
-            if(parsedReply.result && parsedReply.token === this.token && parsedReply.command === "RPC_getTextChannels") {
-                this.setState({activeGuildTextChannels: parsedReply.result})
+            if (parsedReply.result.status === "unauthorized") {
+                this.setState({error: "You are not authorized to view text channels!"})
+            }
+            
+
+            if(Array.isArray(parsedReply.result) && parsedReply.token === this.token) {
+                this.setState(
+                    {
+                        activeGuildTextChannels: parsedReply.result,
+                        error: null
+                    }
+                )
             }
 
         }
@@ -224,6 +238,14 @@ export default class ChatPage extends React.Component{
 
 
     render() {
+
+        if(this.state.error) {
+            return (
+                <div style={{textAlign: "center", fontSize:"36px", color: "red", width:"100%"}}>
+                    {this.state.error}
+                </div>
+            )
+        }
 
         if (this.state.activeChannel && this.state.activeGuild) {
             this.ChatContentComponent = (

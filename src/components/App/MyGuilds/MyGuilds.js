@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components';
 import config from 'config.js'
 import Scrollbars from 'react-custom-scrollbars'
+import {IoRefresh} from 'react-icons/io5'
 
 import GuildsContent from './MyGuildsContent'
-
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
     width: 100%;
@@ -35,7 +35,9 @@ class Guilds extends React.Component {
 
         this.state= {
             activeGuild: {},
-            discordGuilds: []
+            discordGuilds: [],
+            refreshButtonKey: 0,
+            refreshButtonHidden: true
         }
 
         this.token = props.token
@@ -43,26 +45,31 @@ class Guilds extends React.Component {
     }
 
     async componentDidMount() {
-        let discordGuilds = await this.getDiscordGuilds()
+        this.getDiscordGuilds()
 
-        if (!discordGuilds) {
-            discordGuilds = []
-        }
-        discordGuilds.sort((a,b) => a.botdiz_guild === b.botdiz_guild ? -1 : 1)
-
-        this.setState({discordGuilds: discordGuilds})
+        
     }
     
     getDiscordGuilds = async () => {
-        const discordGuilds = await fetch(config.botdiz_server+"/discordguilds", {
+        let discordGuilds = await fetch(config.botdiz_server+"/discordguilds", {
             method: "GET",
             credentials: "include"
         })
         .then(reply => reply.json())
         
-
         if (discordGuilds.status === "success") {
-            return discordGuilds.result
+            if (!discordGuilds.result) {
+                discordGuilds.result = []
+            } else {
+                discordGuilds.result.sort((a,b) => b.botdiz_guild - a.botdiz_guild)
+            }
+            this.setState(
+                {
+                    discordGuilds: discordGuilds.result,
+                    refreshButtonHidden: true,
+                    activeGuild: {}
+                }
+            )
         }
     }
     /* 
@@ -87,6 +94,13 @@ class Guilds extends React.Component {
 
         this.setState({ activeGuild: clickedGuild})
     }
+
+    addBotdizClicked = () => {
+        this.setState({ 
+            refreshButtonKey : this.state.refreshButtonKey + 1,
+            refreshButtonHidden: false
+        })
+    }
     render() {
         const renderGuilds = this.state.discordGuilds.map((guild, index) => {
             return (
@@ -94,6 +108,7 @@ class Guilds extends React.Component {
                     key={index}
                     guild={guild}
                     onClick={this.guildCardClicked}
+                    addBotdizClicked={this.addBotdizClicked}
                 />
             )
         })
@@ -109,17 +124,79 @@ class Guilds extends React.Component {
                         {renderGuilds}
 
                     </Scrollbars>
+                    <RefreshButton 
+                        key={this.state.refreshButtonKey}
+                        hidden={this.state.refreshButtonHidden}
+                        refreshClicked={this.getDiscordGuilds}
+                        
+                    />
                 </GuildsListWrapper>
 
                 <GuildsContent
                     key={this.state.activeGuild.name}
                     activeGuild = {this.state.activeGuild}
+                    addBotdizClicked={this.addBotdizClicked}
                 />
 
             </GuildsWrapper>
         )
     }
     
+}
+
+const RefreshButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    height: 40px;
+    width: 240px;
+
+    position:absolute;
+
+    background: #04c33a66;
+    bottom: 0;
+    left: 60px;
+
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    color: white;
+    font-size: 24px;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transform: ${props => props.hidden? "translateY(40px)": "translateY(0px)" };
+
+    transition: linear 0.1s all;
+
+    &:hover {
+        background: #04c33ab6;
+    }
+`;
+function RefreshButton (props) {
+
+    const [hidden, setHidden] = useState(props.hidden)
+
+    const buttonClicked = () => {
+        setHidden(true)
+        props.refreshClicked()
+    }
+    return (
+        <RefreshButtonWrapper
+            hidden={hidden}
+            onClick={buttonClicked}
+        >
+            <IoRefresh style= {{
+                fontSize: "30px",
+                marginRight: "10px"
+            }} />
+            Refresh Guilds
+        </RefreshButtonWrapper>
+    )
 }
 
 const GuildCardWrapper = styled.div`
@@ -140,6 +217,9 @@ const GuildCardWrapper = styled.div`
 
     &:hover {
         background: #36393f;
+    }
+    &:last-child {
+        margin-bottom: 50px;
     }
 
 `

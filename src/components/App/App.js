@@ -35,7 +35,7 @@ class App extends React.Component {
         
         
         this.state = {
-            sessionActive: false,
+            sessionValidated: false,
             wsMessage: null,
             websocket: null,
             accountInfo: null,
