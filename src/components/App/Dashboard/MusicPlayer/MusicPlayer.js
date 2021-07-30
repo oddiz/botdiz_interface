@@ -386,6 +386,17 @@ export default class MusicPlayer extends React.Component {
         //disable buttons until success message is recieved
         this.setState({controlsDisabled: true})
     }
+
+    stringifyQueue = (queue) => {
+        let songNames = ""
+        for (const queueItem of queue) {
+            songNames += queueItem.videoName[0]
+            songNames += queueItem.videoArtist[0]
+            
+        }
+
+        return songNames
+    }
     render() {
         const formattedTime = this.formatTime()
         
@@ -401,7 +412,11 @@ export default class MusicPlayer extends React.Component {
                         setVoiceChannelStatus={this.setVoiceChannelStatus}
                     />
                     <Queue
-                        key={this.state.playerInfo.queue.length+this.state.controlsDisabled}
+                        websocket={this.websocket}
+                        token={this.token}
+                        guildId={this.activeGuild?.id}
+
+                        key={this.stringifyQueue(this.state.playerInfo.queue)+this.state.controlsDisabled}
                         queue={this.state.playerInfo.queue} 
                         currentSong={{
                             title: this.state.playerInfo.currentTitle,

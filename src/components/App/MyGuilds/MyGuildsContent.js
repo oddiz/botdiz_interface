@@ -124,7 +124,9 @@ class GuildsContent extends React.Component {
     }
 
     async componentDidMount() {
-        if (this.state.activeGuild?.id && this.state.activeGuild?.botdiz_guild) {
+        if (this.state.activeGuild?.id && 
+            this.state.activeGuild?.botdiz_guild &&
+            (this.state.activeGuild?.owner || this.state.activeGuild?.administrator)) {
             const guildDetails = await this.getGuildInfo(this.state.activeGuild.id)
             const djRoles = await this.getDjRoles(this.state.activeGuild.id)
             this.setState(
@@ -310,6 +312,33 @@ class GuildsContent extends React.Component {
                 </GuildsContentWrapper>
             )
         }
+        
+        if (this.state.activeGuild.botdiz_guild &&
+            !this.state.activeGuild.dj_access &&
+            !(this.state.activeGuild.administrator || this.state.activeGuild.owner)) {
+            return(
+                <GuildsContentWrapper>
+                    <Header>
+                        <GuildIcon>
+                            <img src={this.state.activeGuild.iconUrl} alt="Guild Icon" />
+                        </GuildIcon>
+                        <GuildTitle>
+                            {this.state.activeGuild.name}
+                        </GuildTitle>
+                    </Header>
+                    <SettingsWrapper>
+                        <SettingTitle>
+                            You don't have access to this guild's Music Player
+                        </SettingTitle>
+
+                        <SettingTitle style={{marginTop: "20px"}}>
+                            Ask an administrator for access
+                        </SettingTitle>
+
+                    </SettingsWrapper>
+                </GuildsContentWrapper>
+            )
+        }
 
         
 
@@ -352,7 +381,7 @@ class GuildsContent extends React.Component {
                                         Music Player Access
                                     </SettingTitle>
                                     <SettingDescription>
-                                        Only members with specified roles can access the music player on Botdiz Interface when logged in with their discord account.
+                                        Only members with specified roles can access the music player on Botdiz Interface.
                                     </SettingDescription>
                                 </SettingHeader>
                                     <span style={{

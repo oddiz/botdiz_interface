@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import config from 'config.js'
+import Scrollbars from 'react-custom-scrollbars'
 
 const ChannelName = styled.div`
     padding-bottom:6px;
@@ -284,7 +285,13 @@ export default class VoiceChannelSection extends React.Component{
         
         return(
             <VoiceChannelSectionWrapper id="voice_channels_wrapper">
-                {voiceChannelRender}
+                <Scrollbars
+                    autoHide
+                    autoHideTimeout={1500}
+                    autoHideDuration={200}
+                >
+                    {voiceChannelRender}
+                </Scrollbars>
             </VoiceChannelSectionWrapper>
         )   
     }

@@ -1,7 +1,40 @@
+/* eslint-disable no-extend-native */
+import { useEffect, useState } from 'react';
 import { RiDeleteBin5Fill } from 'react-icons/ri'
 import { IoPlaySkipForward } from 'react-icons/io5'
 import styled from 'styled-components'
 import Scrollbars from 'react-custom-scrollbars'
+import { ReactSortable } from "react-sortablejs";
+
+// Warn if overriding existing method
+if(Array.prototype.equals)
+    console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+// attach the .equals method to Array's prototype to call it on any array
+Array.prototype.equals = function (array) {
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
+
+    // compare lengths - can save a lot of time 
+    if (this.length != array.length)
+        return false;
+
+    for (var i = 0, l=this.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].equals(array[i]))
+                return false;       
+        }           
+        else if (this[i] != array[i]) { 
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;   
+        }           
+    }       
+    return true;
+}
+// Hide method from for-in loops
+Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
 const QueueWrapper = styled.div`
 
@@ -42,7 +75,11 @@ export function Queue(props) {
                 <h4>Current Song</h4>
                 {props.currentSong.title && <CurrentSong currentSong={props.currentSong} />}
                 <h4>Next Up</h4>
-                <NextUp 
+                <NextUp
+                    key={props.queue}
+                    token={props.token}
+                    guildId={props.guildId}
+                    websocket={props.websocket}
                     queueDeleteClicked={props.queueDeleteClicked} 
                     queue={props.queue} 
                     queueSkipClicked={props.queueSkipClicked}
@@ -95,6 +132,7 @@ function CurrentSong (props) {
 const NextUpWrapper = styled.div`
     display: flex;
     flex-direction: column;
+    cursor: grab;
 `
 const DeleteIcon = styled(RiDeleteBin5Fill)`
     margin: 0 5px;
@@ -126,14 +164,40 @@ const SkipIcon = styled(IoPlaySkipForward)`
     }
 `
 function NextUp(props) {
+    const [queueCache, setQueueCache] = useState([])
+    const [queue,setQueue] = useState(props.queue)
 
-    const queue = props.queue
-    
-    
+    const updateQueue = (queue) => {
+        const message = JSON.stringify({
+            type: "exec",
+            token: props.token,
+            command: "RPC_updateQueue",
+            params: [props.guildId, queue]
+        })
+
+        props.websocket.send(message)
+    }
+
+    useEffect(() => {
+
+        const parseSongs = []
+        for (const song of queue) {
+            parseSongs.push(song.videoTitle)
+        }
+        if(queueCache.equals(parseSongs) || queueCache.length === 0) {
+
+        } else {
+            console.log("time to update!")
+            updateQueue(queue)
+        }
+        setQueueCache(parseSongs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [queue])
+
     const queueSongs = queue.map((song, index) => {
         const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/0.jpg`
         return (
-            <SongWrapper key={index}>
+            <SongWrapper key={song.videoTitle+index}>
                 <ListIndex>{index+2}</ListIndex>
                 {song.videoId && <StyledThumbnail src={thumbnailUrl} alt="" />}
                 <SongTitle>{song.videoTitle}</SongTitle>
@@ -145,7 +209,13 @@ function NextUp(props) {
 
     return(
         <NextUpWrapper>
-            {queueSongs}
+            <ReactSortable 
+                list={queue} 
+                setList={setQueue}
+                animation={200}
+            >
+                {queueSongs}
+            </ReactSortable>
         </NextUpWrapper>
     )
 }

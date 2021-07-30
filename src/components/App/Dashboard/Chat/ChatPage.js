@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import ChatContent from './ChatRoomContent'
+import Scrollbars from 'react-custom-scrollbars'
 
 const ChatWrapper = styled.div`
     flex-grow: 1;
@@ -146,7 +147,14 @@ const ChannelsBar = (props) => {
 
     return (
         <ChannelsBarWrapper id="channels_bar">
-            {textChannelRender}
+            <Scrollbars
+                autoHide
+                autoHideTimeout={1500}
+                autoHideDuration={200}
+            >
+
+                {textChannelRender}
+            </Scrollbars>
         </ChannelsBarWrapper>
     )
 }

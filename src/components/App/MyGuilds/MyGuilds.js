@@ -29,7 +29,7 @@ const GuildsListWrapper = styled.div`
 
     background: #2f3136;
 `
-class Guilds extends React.Component {
+class MyGuilds extends React.Component {
     constructor(props) {
         super(props)
 
@@ -378,4 +378,4 @@ function GuildBadge (props) {
         </GuildBadgeWrapper>
     )
 }
-export default Guilds
+export default MyGuilds
