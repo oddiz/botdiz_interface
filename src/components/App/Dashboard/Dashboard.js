@@ -98,10 +98,8 @@ export default class Dashboard extends React.Component {
             console.log("Reply is not valid or empty: ", parsedReply)
             return
         }
-        console.log(parsedReply)
         //get Guild command
         if(parsedReply.command === "RPC_getGuilds") {
-            console.log(parsedReply.result)
             if (parsedReply.result.length === 0) {
                 this.setState({allGuilds: "no_guilds"})
 
