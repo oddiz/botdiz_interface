@@ -47,7 +47,6 @@ const HashtagDiv = styled.div`
 `
 
 const ChannelName = styled.div`
-    font-size: 16px;
     padding-bottom:6px;
     margin-left: 6px;
     line-height: 20px;
@@ -78,13 +77,13 @@ const TextChannel = (props) => {
 
     const channelNameWidth = getTextWidth(channelName)
 
-    if (channelNameWidth > 180) {
+    if (channelNameWidth > 150) {
         let counter = 10;
 
         let newChannelName = channelName.substring(0,counter) + "..."
         let newChannelWidth = getTextWidth(newChannelName)
         
-        while (newChannelWidth < 180) {
+        while (newChannelWidth < 150) {
             counter ++
             newChannelName = channelName.substring(0,counter) + "..."
             newChannelWidth = getTextWidth(newChannelName)
@@ -113,10 +112,10 @@ const ChannelsBarWrapper = styled.div`
     display: flex;
     flex-direction: column;
 
-    width: 232px;
+    width: 200px;
     height: 100%;
 
-    font-size: 16px;
+    font-size: 14px;
     padding-bottom:6px;
     line-height: 20px;
     font-weight: 600;
@@ -143,7 +142,6 @@ const ChannelsBar = (props) => {
                 />
             )
         })
-
     }
 
     return (

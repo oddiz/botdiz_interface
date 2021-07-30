@@ -105,6 +105,7 @@ export default class Navbar extends React.Component {
             },
         ]
         this.initialLocation = window.location.pathname
+        console.log(this.initialLocation);
         for (const [index, menuItem] of this.menuItems.entries()) {
             if(menuItem.link === this.initialLocation) {
                 this.initialIndex = index
@@ -113,7 +114,7 @@ export default class Navbar extends React.Component {
         }
         this.state = {
             activeName: this.initialMenuItem?.value || null,
-            activeIndex: this.initialIndex || null
+            activeIndex: this.initialIndex
         }
 
         this.account = props.accountInfo

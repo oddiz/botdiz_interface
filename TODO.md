@@ -3,9 +3,9 @@
 ## General
 
     - 404 page ✅
-    - discord login
+    - discord login ✅
     - figure out if logged-in in several windows (currently it doesn't get websocket messages, without any error)
-    - refresh relevant pages if data update happens (playlists updated, dj access to new channel, botdiz added to new guild)
+    - refresh relevant pages if data update happens (playlists updated, dj access to new channel, botdiz added to new guild) ✅ (partially - refresh button pops out not automatic)
 
 ## Navbar
     - Settings, websocket status ✅, refresh websocket ✅
@@ -17,6 +17,10 @@
 
 
 ## Dashboard
+
+    - if no botdiz guild available:
+        - show "ask administrator to add your role as dj" message
+        - instruct user to go to My Guilds and add botdiz to their guild
 
     - Chat
         - new messages doesn't show user colors
@@ -36,7 +40,10 @@
         
     - Subscriptions
         - Sub to content (epic deal reminder)
-        - Select a text channel to post subbed content  
+        - Select a text channel to post subbed content 
+
+    -Guilds Bar
+        - Show icons for admin and DJ guilds ✅
 
 ## My Guilds
     - add remove roles for DJ access ✅

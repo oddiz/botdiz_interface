@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from "styled-components";
+
+import { RiAdminFill, RiHeadphoneFill } from 'react-icons/ri'
 
 function makeImageUrl(guildID, hash, { format = 'webp', size } = {size:128}) {
     const root = "https://cdn.discordapp.com"
@@ -10,36 +12,9 @@ function makeImageUrl(guildID, hash, { format = 'webp', size } = {size:128}) {
     }
 }
 
-const Pill = styled.span`
-    position:absolute;
-    display: inline-block;
-    
-    width:4px;
-    margin-top:9px;
-    border-radius: 0 4px 4px 0;
-    background-color: #808691;
-    height: 38px;
-    left:0;
-`
-
-function GuildIcon(props) {
-    
-    return(
-
-        <GuildIconWrapper >
-            {props.isActive ? <Pill /> : ""}
-            <GuildIconImg 
-                src={makeImageUrl(props.guildID, props.iconHash, { size: 128})}
-                alt="Guild Icon"
-                onClick={(event) => {props.GuildBarOnClick(event)}}
-            />
-        </GuildIconWrapper>
-    )
-}
-
 const GuildIconWrapper = styled.div`
 
-    
+    position:relative;
     width: 48px;
     height: 48px;
 
@@ -48,7 +23,77 @@ const GuildIconWrapper = styled.div`
 
     cursor: pointer;
 
+    &.active::after {
+        content:"";
+        position:absolute;
+        display: inline-block;
+        
+        width:4px;
+        margin-top:9px;
+        border-radius: 0 4px 4px 0;
+        background-color: #808691;
+        height: 38px;
+        left:-5px;
+    }
 `
+const GuildRoleIconWrapper = styled.div`
+    position:absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width:18px;
+    height: 18px;
+
+    border-radius: 1000px;
+    background: #42464D;
+
+    z-index: 2;
+
+    left: 35px;
+    bottom: -10px;
+`;
+
+const GuildRoleIcon = styled.span`
+    color: white;
+    fill: white;
+    outline-color: white;
+    font-size: 12px;
+`;
+function GuildIcon(props) {
+    const guild = props.guild
+
+    const guildIconClicked = async (event) => {
+        const eventTarget = event.currentTarget
+
+        const guildIconNodes = eventTarget.parentElement.parentElement.children
+        for (const guildIconNode of guildIconNodes) {
+            guildIconNode.classList.remove("active")
+        }
+        await new Promise(resolve => setTimeout(resolve, 40));
+        
+        eventTarget.parentElement.classList.add("active")
+        props.GuildBarOnClick(event)
+        props.guildBarClicked()
+    }
+    return(
+
+        <GuildIconWrapper >
+            <GuildIconImg 
+                src={makeImageUrl(props.guildID, props.iconHash, { size: 128})}
+                alt="Guild Icon"
+                onClick={guildIconClicked}
+            />
+            <GuildRoleIconWrapper>
+                <GuildRoleIcon>
+                    {guild.administrator || guild.owner ? <RiAdminFill /> : guild.dj_access? <RiHeadphoneFill /> : ""}
+                </GuildRoleIcon>
+            </GuildRoleIconWrapper>
+        </GuildIconWrapper>
+    )
+}
+
 
 const GuildIconImg = styled.img`
     width: 48px;
@@ -74,23 +119,37 @@ const GuildIconsBar = styled.div`
     width: 64px;
     
 
-    padding-top: 30px;
     background-color: #202225;
+`
+const GuildIcons = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width:100%;
 
+    margin-left:10px;
+    transform: ${props => props.guildActive? "translateY(29px)": "translateY(0px)"};
+    
+    transition: ease-in-out 0.2s all;
     &:before{
+        display: block;
         content: "";
         height: 2px;
         width: 32px;
         border-radius: 1px;
         background-color: #36393f;
         margin-bottom: 5px;
+        margin-left:10px;
     }
-
+    
 `
-
 export default function GuildBar(props) {
     let guildList = props.allGuilds
-    const activeGuild = props.activeGuild
+    const [guildActive, setGuildActive] = useState(false)
+
+    const guildBarClicked = () => {
+        setGuildActive(true)
+    }
 
     const guildListRender = guildList.map(guild => (
         <GuildIcon
@@ -98,15 +157,18 @@ export default function GuildBar(props) {
             id={guild.id} 
             guildID={guild.id}
             iconHash={guild.icon}
-            isActive={guild.id === activeGuild?.id ? true : false}
+            guild={guild}
             GuildBarOnClick = {props.GuildBarOnClick}
+            guildBarClicked = {guildBarClicked}
         />
 
     ))
     
     return(
-        <GuildIconsBar id="guild_bar"> 
-            {guildListRender}
+        <GuildIconsBar id="guild_bar">
+            <GuildIcons guildActive={guildActive}>
+                {guildListRender}
+            </GuildIcons>
         </GuildIconsBar>
     )
 }

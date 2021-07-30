@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { ImSpotify } from 'react-icons/im'
 import Scrollbars from 'react-custom-scrollbars'
 import config from 'config.js'
 import './Playlist.css'
+
+import {IoRefresh} from 'react-icons/io5'
+
 
 
 const PlaylistWrapper = styled.div`
@@ -80,12 +83,14 @@ const SpotifyLogo = styled(ImSpotify)`
     color: white;
 
 `
+
 export default class Playlist extends React.Component {
     constructor(props){
         super(props)
 
         this.state = {
             processingPlaylist: false,
+            playlistRefreshHidden: true,
         }
         this.websocket = props.websocket
         this.playlists = props.playlists|| {items: []}
@@ -143,9 +148,7 @@ export default class Playlist extends React.Component {
         //index of song in queue array
         const playlistIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
 
-        //signal parent element that playlist is clicked so loading bar can be shown
-        this.playerButtonClicked()
-
+        
         const clickedPlaylist = this.playlists.items[parseInt(playlistIndex)]
         clickedElement.classList.remove("loading")
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -172,11 +175,13 @@ export default class Playlist extends React.Component {
                 clickedElement.classList.remove("failed")
             }
             await new Promise(resolve => setTimeout(resolve, 50));
-
+            
             clickedElement.classList.add("failed")
             return
         }
-
+        
+        //signal parent element that playlist is clicked so loading bar can be shown
+        this.playerButtonClicked()
         this.setState({processingPlaylist: true})
 
         const response = await fetch(config.botdiz_server+"/playlists/"+clickedPlaylist.id, {
@@ -215,6 +220,7 @@ export default class Playlist extends React.Component {
         const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`
 
 
+        this.setState({playlistRefreshHidden: false})
         //window.location.href = spotifyAuthUrl
         //window.location.reload()
         window.open(spotifyAuthUrl)
@@ -238,13 +244,18 @@ export default class Playlist extends React.Component {
 
         return(
             <PlaylistWrapper>
-                    <Scrollbars
-                        autoHide
-                        autoHideTimeout={1500}
-                        autoHideDuration={200}
-                    >
-                <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
-                <PlaylistItemsWrapper className="hide_scrollbar">
+                <Scrollbars
+                    autoHide
+                    autoHideTimeout={1500}
+                    autoHideDuration={200}
+                >
+                    <PlaylistRefreshButton 
+                        key={this.state.playlistRefreshHidden}
+                        getPlaylists={this.props.getPlaylists} 
+                        hidden={this.state.playlistRefreshHidden}
+                    />
+                    <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
+                    <PlaylistItemsWrapper className="hide_scrollbar">
                         {processedPlaylists}
                         
                         <ImportSpotifyButton onClick={this.handleSpotifyButton}>
@@ -254,9 +265,63 @@ export default class Playlist extends React.Component {
                                 
                             </ButtonText>
                         </ImportSpotifyButton>
-                </PlaylistItemsWrapper>
-                    </Scrollbars>
+                    </PlaylistItemsWrapper>
+                </Scrollbars>
             </PlaylistWrapper>
         )
     }
 } 
+
+const PlaylistRefreshButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    display: ${props => props.hidden? "none": "flex"};
+
+    height:40px;
+    width: 100%;
+
+`
+const PlaylistButton = styled.div`
+    width: 60%;
+    height: 100%;
+    
+    background: #66cc99;
+    
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    color: white;
+    font-size: 20px;
+
+    cursor:pointer;
+`
+function PlaylistRefreshButton(props) {
+    const [hidden, setHidden] = useState(props.hidden)
+
+    const refreshClicked = () => {
+        props.getPlaylists()
+        setHidden(true)
+    }
+
+    return (
+        <PlaylistRefreshButtonWrapper
+            hidden={hidden}
+        >
+            <PlaylistButton
+                onClick={refreshClicked}
+            >
+                <IoRefresh />
+                <span style={{position:"relative", bottom: "2px", marginLeft: "5px"}}>
+                    Refresh
+                </span>
+            </PlaylistButton>
+        </PlaylistRefreshButtonWrapper>
+    )
+}

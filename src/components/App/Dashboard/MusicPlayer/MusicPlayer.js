@@ -419,6 +419,7 @@ export default class MusicPlayer extends React.Component {
                         token={this.token}
                         inVoiceChannel={this.state.inVoiceChannel}
                         playerButtonClicked={this.playerButtonClicked}
+                        getPlaylists={this.props.getPlaylists}
                     />
 
                 </MusicPlayerContent>

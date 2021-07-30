@@ -48,7 +48,12 @@ export default function GuildOptions(props) {
     
     
     const menuItemsRender = menuItems.map((menuItem, index) => (
-        <MenuItem key={index} onClick={props.onClickFunc}> {menuItem} </MenuItem>
+        <MenuItem 
+            key={index} 
+            onClick={props.onClickFunc}
+        > 
+            {menuItem} 
+        </MenuItem>
         
     ))
 

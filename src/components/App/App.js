@@ -107,7 +107,22 @@ class App extends React.Component {
             retryCounter = 0
             console.log("Connected to websocket")
             self.setState({ websocket: ws})
+            
+            ws.onmessage = (message) => {
+                let parsedMessage
+                try {
+                parsedMessage = JSON.parse(message.data)
+                    
+                } catch (error) {
+                    console.log("error while trying to parse ws message on App.js")
+                }
+
+                if (parsedMessage.status === "error" && parsedMessage.message === "already connected") {
+                    self.setState({alreadyConnected: true})
+                }
+            }
         }
+        
     
         ws.onclose = (data) => {
             console.log("Socket is closed. Trying to reconnect")
@@ -144,6 +159,36 @@ class App extends React.Component {
                 <div></div>
             )
         }
+        if(this.state.alreadyConnected) {
+            return(
+                <div 
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }} 
+                >
+                    <div 
+                        style= {{
+                            width: "80%",
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            textAlign: "center",
+                            paddingTop: "50px"
+                        }}
+                    >
+                        <span style={{fontSize:"64px", marginBottom: "20px"}}>
+                            ⛔
+                        </span>
+                        <span style={{fontSize: "36px", color: "var(--red)"}}>
+                            You are already connected to Dashboard on another window or tab!
+                        </span>
+                    </div>
+                </div>
+            )
+        }
         
             
         return (
@@ -161,9 +206,6 @@ class App extends React.Component {
 
                     <AppContentWrapper id="app_content_wrapper">
                         <Switch>
-                            <Route exact path="/app">
-                                <Redirect to="/app/dashboard" />
-                            </Route>
                             <Route exact path={["/app/dashboard", "/app/home"]}>
                                 <Dashboard 
                                     key={this.state.websocket?.readyState}
