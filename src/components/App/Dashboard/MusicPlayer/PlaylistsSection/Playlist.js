@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { ImSpotify } from 'react-icons/im'
 import Scrollbars from 'react-custom-scrollbars'
 import config from 'config.js'
 import './Playlist.css'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+import { ImSpotify } from 'react-icons/im'
 import {IoRefresh} from 'react-icons/io5'
 
 
@@ -134,6 +136,8 @@ export default class Playlist extends React.Component {
             this.clickedElement.classList.add("success")
 
         } else if (parsedReply.status === "failed") {
+            toast.error('Failed to add playlist');
+
             this.clickedElement.classList.remove("loading")
             this.clickedElement.classList.remove("failed")
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -156,8 +160,7 @@ export default class Playlist extends React.Component {
         clickedElement.classList.remove("failed")
         clickedElement.classList.remove("success")
         if (!this.props.inVoiceChannel) {
-            
-            console.log("Bot is not in a voice channel. Can't add playlist")
+            toast.error('Bot is not in a voice channel');
             clickedElement.classList.remove("loading")
             if (clickedElement.classList.contains("failed")) {
                 clickedElement.classList.remove("failed")
@@ -169,7 +172,8 @@ export default class Playlist extends React.Component {
             return
         }
         if(this.state.processingPlaylist) {
-            console.log("Trying to add another playlist")
+            toast.error('Already trying to add another playlist');
+
             clickedElement.classList.remove("loading")
             if (clickedElement.classList.contains("failed")) {
                 clickedElement.classList.remove("failed")
@@ -205,6 +209,8 @@ export default class Playlist extends React.Component {
             //this.websocket.removeEventListener("message", listenWebsocketReply)
             
         } else {
+            toast.error("Failed to get user's playlists");
+
             clickedElement.classList.remove("loading")
             clickedElement.classList.remove("failed")
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -244,6 +250,17 @@ export default class Playlist extends React.Component {
 
         return(
             <PlaylistWrapper>
+                <ToastContainer 
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
                 <Scrollbars
                     autoHide
                     autoHideTimeout={1500}

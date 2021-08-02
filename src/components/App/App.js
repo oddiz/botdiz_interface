@@ -9,6 +9,7 @@ import Login from '../Login/Login';
 import config from 'config'
 import styled from 'styled-components'
 import NotFoundPage from '../../404'
+import ConnectionContext from './ConnectionContext';
 
 const AppWrapper = styled.div`
     width: 100vw;
@@ -193,52 +194,57 @@ class App extends React.Component {
             
         return (
             <BrowserRouter>
-                
-                <AppWrapper id="app_wrapper" key={Math.floor(Math.random()*10000)}>
-                    <Navbar 
-                        key={this.state.websocket?.readyState+"_navbar"}
-                        accountInfo={this.state.accountInfo} 
-                        token={this.state.token}
-                        setupWebsocket={this.setupWebsocket} 
-                        websocket={this.state.websocket}
-                        location={this.state.location} 
-                        />
+                <ConnectionContext.Provider value={{
+                    websocket: this.state.websocket,
+                    token: this.state.token
+                }} >
 
-                    <AppContentWrapper id="app_content_wrapper">
-                        <Switch>
-                            <Route exact path={["/app/dashboard", "/app/home"]}>
-                                <Dashboard 
-                                    key={this.state.websocket?.readyState}
-                                    token={this.state.token} 
-                                    websocket={this.state.websocket}
-                                    wsMessage= {this.state.wsMessage} 
-                                />
-                            </Route>
-                            <Route path="/app/myguilds">
-                                <MyGuilds 
-                                    token={this.token}
-                                    websocket={this.websocket}
-                                />
-                            </Route>
-                            <Route path="/app/settings" render={(props) => 
-                                <Settings 
+                    <AppWrapper id="app_wrapper" key={Math.floor(Math.random()*10000)}>
+                        <Navbar 
+                            key={this.state.websocket?.readyState+"_navbar"}
+                            accountInfo={this.state.accountInfo} 
+                            token={this.state.token}
+                            setupWebsocket={this.setupWebsocket} 
+                            websocket={this.state.websocket}
+                            location={this.state.location} 
+                            />
+
+                        <AppContentWrapper id="app_content_wrapper">
+                            <Switch>
+                                <Route exact path={["/app/dashboard", "/app/home"]}>
+                                    <Dashboard 
+                                        key={this.state.websocket?.readyState}
+                                        token={this.state.token} 
+                                        websocket={this.state.websocket}
+                                        wsMessage= {this.state.wsMessage} 
+                                        />
+                                </Route>
+                                <Route path="/app/myguilds">
+                                    <MyGuilds 
+                                        token={this.token}
+                                        websocket={this.websocket}
+                                        />
+                                </Route>
+                                <Route path="/app/settings" render={(props) => 
+                                    <Settings 
                                     accountInfo={this.state.accountInfo}
                                     token={this.state.token}
                                     {...props}
-                                />
-                            }>
-                            </Route>
-                            <Route exact path="/404">
-                                <NotFoundPage />
-                            </Route>
-                            {/* IF NO PATH IS FOUND */}
-                            <Route>
-                                <Redirect to='/404' />
-                            </Route>
-                        </Switch>
-                    </AppContentWrapper>
-                </AppWrapper>
+                                    />
+                                }>
+                                </Route>
+                                <Route exact path="/404">
+                                    <NotFoundPage />
+                                </Route>
+                                {/* IF NO PATH IS FOUND */}
+                                <Route>
+                                    <Redirect to='/404' />
+                                </Route>
+                            </Switch>
+                        </AppContentWrapper>
+                    </AppWrapper>
                         
+                </ConnectionContext.Provider>
             </BrowserRouter>
         );
         

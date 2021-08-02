@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import Switch from 'react-switch'
 import config from 'config'
 import Scrollbars from 'react-custom-scrollbars';
-import { Button } from '@dracula/dracula-ui'
+import { Button, Select, Text } from '@dracula/dracula-ui'
+import ConnectionContext from '../ConnectionContext';
 
 const GuildsContentWrapper = styled.div`
     flex-grow: 1;
@@ -59,9 +60,14 @@ const SettingsWrapper = styled.div`
 const Setting = styled.div`
     width: 100%;
 
+    margin-bottom: 50px;
 
     display: flex;
     flex-direction: column;
+
+    &:last-child {
+        margin-bottom: 400px;
+    }
     
 `
 const SettingHeader = styled.div`
@@ -88,9 +94,7 @@ const SettingContent = styled.div`
     max-width: 1000px;
     flex-grow: 1;
 
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    
 `
 const CheckBoxWrapper = styled.div`
     display: flex;
@@ -110,6 +114,19 @@ const AddGuildButtonWrapper = styled.div`
 
     margin-top: 50px;
 `
+const Roles = styled.div`
+    
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+`
+const SettingSubtitle = styled.div`
+    color: white;
+    font-size: 18px;
+    font-family: "Whitney Book Regular";
+    font-weight: 500;
+    margin-top: 25px;
+`
 class GuildsContent extends React.Component {
     constructor(props) {
         super(props)
@@ -120,6 +137,8 @@ class GuildsContent extends React.Component {
             djRoles: [],
             MPSubmitButtonDisabled: true
         }
+
+        
 
     }
 
@@ -375,7 +394,7 @@ class GuildsContent extends React.Component {
                         </GuildTitle>
                     </Header>
                     <SettingsWrapper>
-                            <Setting>
+                            <Setting id="music_player_access">
                                 <SettingHeader>
                                     <SettingTitle>
                                         Music Player Access
@@ -384,18 +403,14 @@ class GuildsContent extends React.Component {
                                         Only members with specified roles can access the music player on Botdiz Interface.
                                     </SettingDescription>
                                 </SettingHeader>
-                                    <span style={{
-                                        color: "white",
-                                        fontSize: "18px",
-                                        fontFamily: "Whitney Book Regular",
-                                        fontWeight: 500,
-                                        marginTop: "25px"
-                                    }}>
-                                        Allowed Roles:
-                                    </span>
-                                    
                                 <SettingContent>
-                                    {parseRoleCheckboxes}
+                                    <SettingSubtitle>
+                                        Allowed Roles:
+                                    </SettingSubtitle>
+                                    <Roles>
+
+                                        {parseRoleCheckboxes}
+                                    </Roles>
                                     
                                 </SettingContent>
 
@@ -412,6 +427,27 @@ class GuildsContent extends React.Component {
                                     {this.state.saveStatus}
                                 </SubmitButtonWrapper>
 
+                            </Setting>
+
+                            <Setting id="subscriptions">
+                                <SettingHeader>
+                                    <SettingTitle>
+                                        Subscriptions
+                                    </SettingTitle>
+                                    <SettingDescription>
+                                        Add various subscriptions to text channels  
+                                    </SettingDescription>
+                                </SettingHeader>
+                                <ConnectionContext.Consumer>
+                                    {values =>
+                                        <SubscriptionsContent 
+                                            websocket = {values.websocket}
+                                            token = {values.token}
+                                            guildId = {this.state.activeGuild.id}
+                                        />
+                                    }
+
+                                </ConnectionContext.Consumer>
                             </Setting>
 
 
@@ -461,4 +497,257 @@ function RoleCheckBox (props) {
     )
 }
 
+class SubscriptionsContent extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state= {
+            textChannels: [],
+            epicSubActive: false,
+            epicSubChannelName: "default",
+            epicSubChannelId: null,
+            epicSubSubmitButtonDisabled: true,
+            epicSelectReady: false
+        }
+
+        this.websocket = props.websocket
+        this.guildId = props.guildId
+        this.token = props.token
+
+        this.channelSwitchRef = React.createRef()
+    }
+
+    async componentDidMount() {
+        this.websocket.addEventListener("message", this.listenWebsocket)
+        await this.getTextChannels()
+
+    }
+
+    componentWillUnmount() {
+        this.websocket.removeEventListener("message", this.listenWebsocket)
+    }
+
+    getSubscriptions = async () => {
+        try {
+            const reply = await fetch(config.botdiz_server + "/botdizguild/subscriptions/" + this.guildId, {
+                method: "GET",
+                credentials: "include"
+            })
+            .then(reply => reply.json())
+
+            console.log(reply)
+
+            const guildSubs = reply.result
+            let epicSubActive = false
+            let epicSubChannelId = null
+            let epicSubChannelName = "default"
+
+            for (const sub of guildSubs) {
+                if (sub.type === "epic_deals") {
+                    epicSubActive = sub.active || false
+                    epicSubChannelId = sub.subscribed_channel
+                    console.log(sub)
+                    for (const textChannel of this.state.textChannels) {
+                        if (parseInt(sub.subscribed_channel) === parseInt(textChannel.id)){
+                            epicSubChannelName = textChannel.name
+                        }
+                    }
+                    break
+                }
+            }
+            this.setState({
+                epicSubActive: epicSubActive,
+                guildSubs: guildSubs,
+                epicSubChannelName: epicSubChannelName,
+                epicSubChannelId: epicSubChannelId,
+                epicSelectReady: true
+            })
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    listenWebsocket = async (reply) => {
+        let parsedReply;
+        try {
+            parsedReply = JSON.parse(reply.data)
+        } catch (error) {
+            console.log("Unable to parse reply")
+        }
+        
+        if(parsedReply.command !== "RPC_getTextChannels") {
+            return
+        }
+
+        if (parsedReply.result.status === "unauthorized") {
+            return
+        }
+        
+
+        if(Array.isArray(parsedReply.result) && parsedReply.token === this.token) {
+
+            await this.setState(
+                {
+                    textChannels: parsedReply.result,
+                    error: null
+                }
+            )
+
+            await this.getSubscriptions()
+
+        }
+    }
+    getTextChannels = async () => {
+        if(!this.guildId){
+            return
+        }
+        const message = JSON.stringify({
+            type:"get",
+            token: this.token,
+            command: "RPC_getTextChannels",
+            params: [this.guildId]
+        })
+
+        this.websocket.send(message)
+    }
+    epicDealChannelSelected = async (event) => {
+
+
+        let selectedChannelId;
+        for (const channel of this.state.textChannels) {
+            if (channel.name === event.target.value) {
+                selectedChannelId = channel.id
+                break
+            }
+        }
+
+        this.setState(
+            {
+                epicSubSubmitButtonDisabled: false,
+                epicSubChannelId: selectedChannelId
+            }
+        )
+    }
+    handleEpicSubSwitch = async (checked) => {
+        this.setState({epicSubActive: checked})
+
+        if(this.state.epicSubChannelId || !checked) {
+           this.setState({epicSubSubmitButtonDisabled: false}) 
+        }
+    }
+
+    handleEpicSubAccessButton = async () => {
+        console.log(this.channelSwitchRef.current.value)
+        console.log(this.state.epicSubChannelId)
+        console.log(this.state.epicSubActive)
+
+        this.setState({
+            savingSettings: true
+        })
+        const reply = await fetch(config.botdiz_server + `/botdizguild/subscriptions/${this.guildId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                type: "epic_deals",
+                active: this.state.epicSubActive,
+                subscribed_channel: this.state.epicSubChannelId
+            })
+        })
+        .then(reply => reply.json())
+
+        if(reply.status === "success") {
+            this.setState({
+                savingSettings: false,
+                epicSubSubmitButtonDisabled: true,
+                saveStatus: "✔️"
+            })
+        } else {
+            this.setState({
+                savingSettings: false,
+                epicSubSubmitButtonDisabled: true,
+                saveStatus: "❌"
+            })
+        }
+    }
+    render() {
+        
+        const renderTextChannels = this.state.textChannels.map((textChannel, index) => 
+           <option key={index}>{textChannel.name}</option> 
+        )
+
+        return(
+            <SettingContent>
+                <SettingSubtitle>
+                    Epic Game Deals:
+                </SettingSubtitle>
+                <SettingDescription style={{fontSize: "12px"}}>
+                    Every week epic games releases new set of free games. Get notification every cycle.
+                </SettingDescription>
+                <ActiveSwitch>
+                    <Text
+                        style={{
+                            fontSize:"14px",
+                            marginRight: "10px"
+                        }}
+                    >
+                        Active:
+                    </Text>
+                    <Switch 
+                        checked={this.state.epicSubActive}
+                        onChange={this.handleEpicSubSwitch}
+                        height={22}
+                        width={44}
+                        name={"epic_active_switch"}
+                        offColor={"#42464D"}
+                        onColor={"#2fcc6f"}
+                        onHandleColor="#FFFFFF"    
+                    />
+                </ActiveSwitch>
+                {this.state.epicSelectReady && 
+                <ChannelSelector>
+                    <Select 
+                        defaultValue={this.state.epicSubChannelName} 
+                        color="purple" 
+                        onChange={this.epicDealChannelSelected} 
+                        ref={this.channelSwitchRef} 
+                    >
+                        <option value="default" disabled={true}>
+                            Select text channel
+                        </option>
+                        {renderTextChannels}
+                    </Select>
+                </ChannelSelector>}
+                <SubmitButtonWrapper>
+                    <Button
+                        color="green"
+                        size="md"
+                        disabled={this.state.epicSubSubmitButtonDisabled}
+                        onClick={this.handleEpicSubAccessButton}
+                        mr="xxs"
+                    >
+                        Apply
+                    </Button>
+                    {this.state.saveStatus}
+                </SubmitButtonWrapper>
+            </SettingContent>
+        )
+    }
+}
+const ActiveSwitch = styled.div`
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+
+    margin-top: 10px;
+    
+`
+const ChannelSelector = styled.div`
+    margin-top: 20px;
+    width: 300px;
+
+    
+`
 export default GuildsContent
