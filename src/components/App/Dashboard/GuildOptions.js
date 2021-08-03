@@ -39,10 +39,10 @@ export default function GuildOptions(props) {
     const menuItems = []
 
     const guild = props.activeGuild
-    if(guild.owner || guild.administrator || guild.dj_access) {
+    if(guild.owner || guild.administrator || guild.dj_access || props.isAdmin) {
         menuItems.push("Music Player")
     } 
-    if (guild.owner || guild.administrator) {
+    if (guild.owner || guild.administrator || props.isAdmin) {
         menuItems.push("Chat")
     }
     

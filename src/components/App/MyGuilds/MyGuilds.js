@@ -136,6 +136,8 @@ class MyGuilds extends React.Component {
                     key={this.state.activeGuild.name}
                     activeGuild = {this.state.activeGuild}
                     addBotdizClicked={this.addBotdizClicked}
+                    accountInfo={this.props.accountInfo} 
+
                 />
 
             </GuildsWrapper>

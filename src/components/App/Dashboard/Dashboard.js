@@ -254,7 +254,8 @@ export default class Dashboard extends React.Component {
                     {this.state.activeGuild && 
                     <GuildOptions 
                         onClickFunc={this.guildOptionsClickHandler} 
-                        activeGuild={this.state.activeGuild} 
+                        activeGuild={this.state.activeGuild}
+                        isAdmin={this.props.accountInfo.is_admin}
                     />}
                     <GuildOptionsContent 
                         id="guild_options_content" 

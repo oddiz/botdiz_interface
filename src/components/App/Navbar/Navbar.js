@@ -105,6 +105,9 @@ export default class Navbar extends React.Component {
             },
         ]
         this.initialLocation = window.location.pathname
+        if (this.initialLocation === "/app") {
+            this.initialLocation = "/app/dashboard"
+        }
         for (const [index, menuItem] of this.menuItems.entries()) {
             if(menuItem.link === this.initialLocation) {
                 this.initialIndex = index

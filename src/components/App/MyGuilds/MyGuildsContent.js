@@ -138,14 +138,18 @@ class GuildsContent extends React.Component {
             MPSubmitButtonDisabled: true
         }
 
-        
+        this.accountInfo = props.accountInfo
 
     }
 
     async componentDidMount() {
-        if (this.state.activeGuild?.id && 
+        if ((this.state.activeGuild?.id && 
             this.state.activeGuild?.botdiz_guild &&
-            (this.state.activeGuild?.owner || this.state.activeGuild?.administrator)) {
+            (this.state.activeGuild?.owner || this.state.activeGuild?.administrator)) 
+            ||
+            (this.accountInfo.is_admin &&
+            this.state.activeGuild?.id)
+            ) {
             const guildDetails = await this.getGuildInfo(this.state.activeGuild.id)
             const djRoles = await this.getDjRoles(this.state.activeGuild.id)
             this.setState(
@@ -534,7 +538,6 @@ class SubscriptionsContent extends React.Component {
             })
             .then(reply => reply.json())
 
-            console.log(reply)
 
             const guildSubs = reply.result
             let epicSubActive = false
@@ -545,7 +548,6 @@ class SubscriptionsContent extends React.Component {
                 if (sub.type === "epic_deals") {
                     epicSubActive = sub.active || false
                     epicSubChannelId = sub.subscribed_channel
-                    console.log(sub)
                     for (const textChannel of this.state.textChannels) {
                         if (parseInt(sub.subscribed_channel) === parseInt(textChannel.id)){
                             epicSubChannelName = textChannel.name

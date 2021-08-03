@@ -13,7 +13,9 @@
     
 ### Settings
     - user info
-    - change profile pic
+        - username
+        - email
+        - premium status                                                                                                                                                                                                                                                    
 
 
 ## Dashboard
@@ -38,8 +40,8 @@
         - add custom playlist
         
     - Subscriptions
-        - Sub to content (epic deal reminder)
-        - Select a text channel to post subbed content 
+        - Sub to content (epic deal reminder) ✅
+        - Select a text channel to post subbed content ✅
 
     -Guilds Bar
         - Show icons for admin and DJ guilds ✅

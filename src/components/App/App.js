@@ -216,14 +216,16 @@ class App extends React.Component {
                                         key={this.state.websocket?.readyState}
                                         token={this.state.token} 
                                         websocket={this.state.websocket}
-                                        wsMessage= {this.state.wsMessage} 
-                                        />
+                                        wsMessage= {this.state.wsMessage}
+                                        accountInfo={this.state.accountInfo} 
+                                    />
                                 </Route>
                                 <Route path="/app/myguilds">
                                     <MyGuilds 
                                         token={this.token}
                                         websocket={this.websocket}
-                                        />
+                                        accountInfo={this.state.accountInfo} 
+                                    />
                                 </Route>
                                 <Route path="/app/settings" render={(props) => 
                                     <Settings 
@@ -232,6 +234,9 @@ class App extends React.Component {
                                     {...props}
                                     />
                                 }>
+                                </Route>
+                                <Route exact path="/app">
+                                    <Redirect to='/app/dashboard' />
                                 </Route>
                                 <Route exact path="/404">
                                     <NotFoundPage />

@@ -101,6 +101,7 @@ export default class Playlist extends React.Component {
         this.token = props.token
         this.activeGuild = props.activeGuild
         this.playlistClicked = this.playlistClicked.bind(this)
+
     }
 
     componentDidMount() {
@@ -249,7 +250,7 @@ export default class Playlist extends React.Component {
 
 
         return(
-            <PlaylistWrapper>
+            <PlaylistWrapper >
                 <ToastContainer 
                     position="top-center"
                     autoClose={5000}
@@ -265,14 +266,16 @@ export default class Playlist extends React.Component {
                     autoHide
                     autoHideTimeout={1500}
                     autoHideDuration={200}
+                    id="spotify_list"
                 >
                     <PlaylistRefreshButton 
                         key={this.state.playlistRefreshHidden}
                         getPlaylists={this.props.getPlaylists} 
                         hidden={this.state.playlistRefreshHidden}
+                        ref={this.refreshButton}
                     />
                     <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
-                    <PlaylistItemsWrapper className="hide_scrollbar">
+                    <PlaylistItemsWrapper className="hide_scrollbar" >
                         {processedPlaylists}
                         
                         <ImportSpotifyButton onClick={this.handleSpotifyButton}>
@@ -322,14 +325,22 @@ const PlaylistButton = styled.div`
 function PlaylistRefreshButton(props) {
     const [hidden, setHidden] = useState(props.hidden)
 
+    const buttonRef = React.useRef();
+
+    React.useEffect(() => {
+        buttonRef.current.scrollIntoView({behaviour: "auto", block: "nearest"})
+    }, [hidden])
+
     const refreshClicked = () => {
         props.getPlaylists()
         setHidden(true)
     }
 
+
     return (
         <PlaylistRefreshButtonWrapper
             hidden={hidden}
+            ref={buttonRef}
         >
             <PlaylistButton
                 onClick={refreshClicked}
@@ -342,3 +353,4 @@ function PlaylistRefreshButton(props) {
         </PlaylistRefreshButtonWrapper>
     )
 }
+

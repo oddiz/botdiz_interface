@@ -144,7 +144,7 @@ const AlwaysScrollToBottom = () => {
     const elementRef = React.useRef();
     React.useEffect(() => elementRef.current.scrollIntoView({behaviour: "auto", block: "nearest"}));
     return <div style={{ float:"left", clear: "both" }} ref={elementRef} />;
-  };
+};
 
 function ChatRoom(props) {
 

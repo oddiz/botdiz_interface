@@ -20,13 +20,16 @@ ReactDOM.render(
                 <Route exact path="/discordlogin">
                     <DiscordLogin />
                 </Route>
-                <Route path='/app/dashboard' component={App} >
+                <Route path='/app' component={App} >
                 </Route>
                 <Route exact path='/404'>
                     <NotFoundPage />
                 </Route>
-                <Route exact path={['/', '/app']}>
-                    <Redirect to='/app/dashboard' />
+                <Route exact path={['/']}>
+                    <Redirect to='/app' />
+                </Route>
+                <Route>
+                    <Redirect to='/404' />
                 </Route>
 
             </Switch>
