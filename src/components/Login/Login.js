@@ -66,6 +66,10 @@ export default class Login extends React.Component {
         this.reCaptchaRef = React.createRef()
         this.reCaptchaKey = process.env.REACT_APP_RECAPTCHA_SITEKEY
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.adminLogin = new URLSearchParams(window.location.search).get("admin") !== null
+
+        console.log(this.adminLogin)
+
     }
 
     async handleSubmit(event) {
@@ -158,11 +162,12 @@ export default class Login extends React.Component {
                             m="xxs"
                             style={{
                                 marginBottom: "1.2em",
+                                textAlign: "center"
                             }}
                         >
-                            Botdiz Login
+                            Welcome to Botdiz Interface
                         </Heading>
-                        <form onSubmit={this.handleSubmit} style={{display: "flex", flexDirection: "column"}}>
+                        {this.adminLogin && <form onSubmit={this.handleSubmit} style={{display: "flex", flexDirection: "column"}}>
                                 <Input
                                     color="purple"
                                     variant="normal"
@@ -205,7 +210,7 @@ export default class Login extends React.Component {
 
                                 {this.state.loading ? <LoadingIconWrapper src={LoadingIcon} alt="loading_icon" /> : "Login"}
                             </Button>
-                        </form>
+                        </form>}
                         <LoginWithDiscord
                             onClick={this.handleDiscordLogin}
                         >
