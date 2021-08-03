@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import {IoRefresh} from 'react-icons/io5'
+import CountUp from 'react-countup';
 
 import AccountSection from './AccountSection'
-
 const WebsocketStatusIcon = styled.span`
     height: 10px;
     width: 10px;
@@ -33,7 +33,8 @@ class WebsocketStatus extends React.Component {
         super(props) 
         this.state = {
             lastSentPingTime: 0,
-            latency: 0
+            latency: 0,
+            lastLatency: 0
         }
         this.indicatorColor = props.websocket?.readyState === WebSocket.OPEN? "#8aff80" : "#FF5230"
         
@@ -62,7 +63,12 @@ class WebsocketStatus extends React.Component {
             if (parsedReply.event === "pong") {
                 const latency = new Date().getTime() - this.state.lastSentPingTime
                 if(this._isMounted) {
-                    this.setState({latency: latency})
+                    this.setState(
+                        {
+                            lastLatency: this.state.latency,
+                            latency: latency > 1000? 999 : latency
+                        }
+                    )
                 }
             }
 
@@ -93,7 +99,13 @@ class WebsocketStatus extends React.Component {
     render() {
         return(
             <WebsocketStatusWrapper>
-                <WebsocketStatusText>{this.state.latency> 1000? "999+" : this.state.latency} ms</WebsocketStatusText>
+                <WebsocketStatusText>
+                    <CountUp 
+                        start={this.state.lastLatency}
+                        end={this.state.latency}
+                        duration={2}
+                    /> ms
+                </WebsocketStatusText>
                 <WebsocketStatusIcon color={this.indicatorColor} />
             </WebsocketStatusWrapper>
         )
