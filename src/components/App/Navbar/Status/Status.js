@@ -103,7 +103,7 @@ class WebsocketStatus extends React.Component {
                     <CountUp 
                         start={this.state.lastLatency}
                         end={this.state.latency}
-                        duration={2}
+                        duration={0.5}
                     /> ms
                 </WebsocketStatusText>
                 <WebsocketStatusIcon color={this.indicatorColor} />
