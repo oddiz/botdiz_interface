@@ -13,12 +13,13 @@ import {IoRefresh} from 'react-icons/io5'
 
 const PlaylistWrapper = styled.div`
     height:100%;
-    width: 200px;
+    width: 250px;
     flex-shrink: 0;
     background-color: #2f3136; 
 
     display: flex;
     flex-direction: column;
+
 `
 const PlaylistItemsWrapper = styled.div`
     flex-grow: 1;
@@ -34,22 +35,22 @@ const PlaylistItemsWrapper = styled.div`
 const PlaylistItemWrapper = styled.div`
     box-sizing: border-box;
     
-    padding: 10px 0px;
-    padding-left: 15px;
+    padding: 8px 0px;
+    padding-left: 20px;
 
     flex-shrink: 0;
     word-break: normal;
-
+    color: #b3b3b3;
     cursor:pointer;
+    &:hover {
+        color: white;
+    }
 
 `
 const PlaylistItemName = styled.span`
     font-size: 16px;
-    color: #b3b3b3;
 
-    &:hover {
-        color: white;
-    }
+    
 `
 const ImportSpotifyButton =styled.div`
     box-sizing: border-box;
@@ -64,7 +65,7 @@ const ImportSpotifyButton =styled.div`
     height: 40px;
     
 
-    margin: 10px 10px;
+    margin: 10px 30px;
 
     background-color: #1DB954;
     border-radius: 100px;
@@ -274,7 +275,7 @@ export default class Playlist extends React.Component {
                         hidden={this.state.playlistRefreshHidden}
                         ref={this.refreshButton}
                     />
-                    <h2 style={{color: "white", marginLeft:"10px", marginBottom:"25px"}}>Playlists</h2>
+                    <h2 style={{color: "white", marginLeft: "20px", marginBottom:"25px"}}>Playlists</h2>
                     <PlaylistItemsWrapper className="hide_scrollbar" >
                         {processedPlaylists}
                         

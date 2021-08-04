@@ -48,7 +48,7 @@ const QueueWrapper = styled.div`
     overflow-y: scroll;
 
     min-width: 300px;
-    
+    max-width: 800px;
     -ms-overflow-style: none;
     scrollbar-width: none;
 
@@ -91,11 +91,20 @@ export function Queue(props) {
 }
 
 const SongWrapper = styled.div`
-    margin: 5px 0;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    min-height:40px;
     display: flex;
     flex-direction: row;
 
     align-items: center;
+
+
+    border-radius: 10px;
+    
+    &:hover {
+        background: #4B4F58;
+    }
 `
 const StyledThumbnail = styled.img`
     height: 40px;

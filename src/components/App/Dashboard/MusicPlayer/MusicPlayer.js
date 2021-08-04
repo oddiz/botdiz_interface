@@ -51,6 +51,7 @@ const CurrentTime = styled.span`
     color: white;
 `
 const SongSliderWrapper = styled.div`
+    box-sizing: border-box;
     height: 30%;
     display: flex;
     flex-direction: row;
@@ -58,6 +59,7 @@ const SongSliderWrapper = styled.div`
     align-items: center;
     font-size: 10px;
     color: white;  
+    padding: 0 30px;
 `
 const MPControlsWrapper = styled.div`
     height: 70%;

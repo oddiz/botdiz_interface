@@ -34,6 +34,7 @@ const GuildIconWrapper = styled.div`
         background-color: #808691;
         height: 38px;
         left:-5px;
+        top: 0;
     }
 `
 const GuildRoleIconWrapper = styled.div`

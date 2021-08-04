@@ -6,22 +6,23 @@ const SongTitle = styled.div`
 
     word-break: keep-all;
     text-align: center;
+    margin-left:5px;
 
     color: white;
 `
 const VideoImg = styled.img`
-    height: calc(100% - 10px);
+    height: calc(140% - 10px);
     margin: 5px;
 
     border-radius: 5px;
-
+    position: relative;
+    bottom: -12px;
 `
 const SongInfoWrapper = styled.div`
     margin-right:auto;
     display: flex;
     flex-direction: row;
     
-    justify-content: center;
     align-items: center;
     width: 250px;
     height: 100%;
