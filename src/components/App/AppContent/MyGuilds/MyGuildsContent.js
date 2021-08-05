@@ -4,7 +4,7 @@ import Switch from 'react-switch'
 import config from 'config'
 import Scrollbars from 'react-custom-scrollbars';
 import { Button, Select, Text } from '@dracula/dracula-ui'
-import ConnectionContext from '../ConnectionContext';
+import ConnectionContext from '../../ConnectionContext';
 
 const GuildsContentWrapper = styled.div`
     flex-grow: 1;

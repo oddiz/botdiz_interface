@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import './App.css';
-import Dashboard from './Dashboard/Dashboard';
-import MyGuilds from './MyGuilds/MyGuilds'
-import Settings from './Settings/SettingsPage';
+import Dashboard from './AppContent/Dashboard/Dashboard';
+import MyGuilds from './AppContent/MyGuilds/MyGuilds'
+import Settings from './AppContent/Settings/SettingsPage';
 import Navbar from './Navbar/Navbar'
 import Login from '../Login/Login';
 import config from 'config'
@@ -241,8 +241,8 @@ class App extends React.Component {
                                 <Route exact path="/404">
                                     <NotFoundPage />
                                 </Route>
-                                {/* IF NO PATH IS FOUND */}
                                 <Route>
+                                    {/* IF NO PATH IS FOUND */}
                                     <Redirect to='/404' />
                                 </Route>
                             </Switch>

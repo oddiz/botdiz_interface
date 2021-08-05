@@ -103,6 +103,10 @@ export default class Navbar extends React.Component {
                 value: "My Guilds",
                 link: "/app/myguilds"
             },
+            {
+                value: "Botdiz Stats",
+                link: "/app/stats"
+            }
         ]
         this.initialLocation = window.location.pathname
         if (this.initialLocation === "/app") {

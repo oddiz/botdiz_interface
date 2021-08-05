@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components';
 import { Button } from '@dracula/dracula-ui'
-import config from '../../../../../config'
+import config from '../../../../../../config'
 const AddUserInput = styled.input`
     box-sizing: border-box;
     width: 50%;
