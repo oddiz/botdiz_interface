@@ -10,6 +10,7 @@ import config from 'config'
 import styled from 'styled-components'
 import NotFoundPage from '../../404'
 import ConnectionContext from './ConnectionContext';
+import BotdizStats from './AppContent/BotdizStats/BotdizStats';
 
 const AppWrapper = styled.div`
     width: 100%;
@@ -27,6 +28,10 @@ const AppContentWrapper = styled.div`
 
     overflow-y: visible;
     overflow-x: hidden;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 
 `;
 let retryCounter = 0
@@ -229,11 +234,17 @@ class App extends React.Component {
                                 </Route>
                                 <Route path="/app/settings" render={(props) => 
                                     <Settings 
-                                    accountInfo={this.state.accountInfo}
-                                    token={this.state.token}
-                                    {...props}
+                                        accountInfo={this.state.accountInfo}
+                                        token={this.state.token}
+                                        {...props}
                                     />
                                 }>
+                                </Route>
+                                <Route path="/app/stats">
+                                    <BotdizStats 
+                                        websocket = {this.state.websocket}
+                                        token={this.state.token}
+                                    />
                                 </Route>
                                 <Route exact path="/app">
                                     <Redirect to='/app/dashboard' />
