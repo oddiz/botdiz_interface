@@ -3,36 +3,46 @@ import React from 'react'
 import styled from 'styled-components';
 
 const BotdizStatsWrapper = styled.div`
-    max-width: 800px;
-    min-width: 500px;
-
+    height: 400px;
 
     margin-top:30px;
-    padding: 10px;
+    padding-left: 20px;
 
     display: flex;
     flex-direction: column;
     
-    background: #474B53;
-    border-radius: 20px;
-    color: white;
+    color: var(--black);
 `;
 const Stat = styled.div`
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
+    flex-direction: column;
+    align-items: center;
+
+    margin: 20px;
+    height: 110px;
+    width: 130px;
+
+    padding: 10px;
+
+    background: var(--${props => props.color});
+    border-radius: 15px;
 `;
 const StatTitle = styled.div`
 
     font-size: 18px;
     font-weight: 600;
-    margin-right:10px;
 `;
 ;
 const StatValue = styled.div`
 
-    font-size: 18px;
+    font-size: 64px;
     font-weight: 500;
+`;
+const StatsWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    
+    width: 100%;
 `;
 export default class BotdizStats extends React.Component {
     constructor(props) {
@@ -59,7 +69,6 @@ export default class BotdizStats extends React.Component {
             .then(reply => reply.json())
             .catch(err => {console.log("Error while trying to fetch botdiz stats"); return})
 
-            console.log(statsReply)
 
             this.setState({
                 totalGuilds: statsReply.result.total_guilds,
@@ -73,24 +82,29 @@ export default class BotdizStats extends React.Component {
 
         return (
             <BotdizStatsWrapper>
-                <h2>Botdiz Stats</h2>
+                <StatsWrapper>
+                    <Stat
+                        color="pink-purple"
+                    >
+                        <StatTitle>
+                            Total Guilds:
+                        </StatTitle>
+                        <StatValue>
+                            {this.state.totalGuilds}
+                        </StatValue>
+                    </Stat>
+                    <Stat
+                        color={"purple-cyan"}
+                    >
+                        <StatTitle>
+                            Total Playing:
+                        </StatTitle>
+                        <StatValue>
+                            {this.state.totalPlaying}
+                        </StatValue>
+                    </Stat>
 
-                <Stat>
-                    <StatTitle>
-                        Total Guilds:
-                    </StatTitle>
-                    <StatValue>
-                        {this.state.totalGuilds}
-                    </StatValue>
-                </Stat>
-                <Stat>
-                    <StatTitle>
-                        Total Playing:
-                    </StatTitle>
-                    <StatValue>
-                        {this.state.totalPlaying}
-                    </StatValue>
-                </Stat>
+                </StatsWrapper>
             </BotdizStatsWrapper>
         )
     }
