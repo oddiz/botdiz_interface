@@ -68,7 +68,6 @@ export default class Login extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.adminLogin = new URLSearchParams(window.location.search).get("admin") !== null
 
-        console.log(this.adminLogin)
 
     }
 
