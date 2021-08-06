@@ -58,7 +58,7 @@ export default function GuildOptions(props) {
     ))
 
     return (
-        <GuildOptionsWrapper onClick = {props.onClick}>
+        <GuildOptionsWrapper>
             {menuItemsRender}
         </GuildOptionsWrapper>
     )

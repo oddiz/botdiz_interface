@@ -25,7 +25,7 @@ const Stat = styled.div`
     padding: 10px;
 
     background: var(--${props => props.color});
-    border-radius: 15px;
+    border-radius: 5px;
 `;
 const StatTitle = styled.div`
 
