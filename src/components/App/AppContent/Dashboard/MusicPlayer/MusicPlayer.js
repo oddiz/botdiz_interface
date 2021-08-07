@@ -392,8 +392,12 @@ export default class MusicPlayer extends React.Component {
     stringifyQueue = (queue) => {
         let songNames = ""
         for (const queueItem of queue) {
-            songNames += queueItem.videoName[0]
-            songNames += queueItem.videoArtist[0]
+            if(queueItem.videoName && queueItem.videoArtist) {
+                songNames += queueItem.videoName[0]
+                songNames += queueItem.videoArtist[0]
+            } else {
+                songNames += queueItem.videoId
+            }
             
         }
 
