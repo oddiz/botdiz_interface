@@ -78,7 +78,7 @@ const VoiceChannel = (props) => {
     const botdizDiscordId = config.botdiz_discordId
     const renderChannelMembers = props.channelMembers.map((member,index) => {
         return(
-            <ChannelMember key={index} className={parseInt(member.userID) === botdizDiscordId? "emphasis drac-bg-animated" : ""}>
+            <ChannelMember key={index} className={parseInt(member.userId) === botdizDiscordId? "emphasis drac-bg-animated" : ""}>
                 {member.displayName}
             </ChannelMember>
         )
@@ -191,7 +191,7 @@ export default class VoiceChannelSection extends React.Component{
         let botFound = false
         for (const voiceChannel of this.state.voiceChannels) {
             for(const member of voiceChannel.members)
-                if(botdizDiscordId === parseInt(member.userID)) {
+                if(botdizDiscordId === parseInt(member.userId)) {
                     botFound = true
             }
         }
