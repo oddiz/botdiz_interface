@@ -99,6 +99,7 @@ const SongWrapper = styled.div`
 
     align-items: center;
 
+    background: ${props => props.recommended ? "#0538064f" : ""};
 
     border-radius: 10px;
     
@@ -191,7 +192,7 @@ function NextUp(props) {
 
         const parseSongs = []
         for (const song of queue) {
-            parseSongs.push(song.videoTitle)
+            parseSongs.push(song.info?.title)
         }
         if(queueCache.equals(parseSongs) || queueCache.length === 0) {
 
@@ -204,12 +205,13 @@ function NextUp(props) {
     }, [queue])
 
     const queueSongs = queue.map((song, index) => {
-        const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/0.jpg`
+        //const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/0.jpg`
+        const thumbnailUrl = song.info?.thumbnail
         return (
-            <SongWrapper key={song.videoTitle+index}>
+            <SongWrapper recommended={song.recommendedSong} key={song.info?.title+index}>
                 <ListIndex>{index+2}</ListIndex>
-                {song.videoId && <StyledThumbnail src={thumbnailUrl} alt="" />}
-                <SongTitle>{song.videoTitle}</SongTitle>
+                {song.info?.thumbnail && <StyledThumbnail src={thumbnailUrl} alt="" />}
+                <SongTitle>{song.info?.title}<i><em>{song.recommendedSong? " - Botdiz Recommended": ""}</em></i></SongTitle>
                 <DeleteIcon onClick={props.queueDeleteClicked} className={props.controlsDisabled? "disabled": ""} />
                 <SkipIcon onClick={props.queueSkipClicked} className={props.controlsDisabled? "disabled": ""} />
             </SongWrapper>
@@ -228,3 +230,4 @@ function NextUp(props) {
         </NextUpWrapper>
     )
 }
+

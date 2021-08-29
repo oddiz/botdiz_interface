@@ -231,6 +231,8 @@ export default class MusicPlayer extends React.Component {
     }
 
     formatTime() {
+
+        
         const streamTime = this.state.playerInfo.streamTime || 0
         const streamHours = Math.floor(streamTime / (60 * 60) % 60)
         const streamMins = Math.floor(streamTime / (60) % 60)
