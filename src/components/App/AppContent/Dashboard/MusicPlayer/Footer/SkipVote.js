@@ -145,6 +145,11 @@ export function SkipVote (props) {
             props.websocket.removeEventListener("message", websocketOnMessage)
         }
     }, [props.websocket])
+
+    useEffect(() => {
+        //reset voted status when vote is active
+        setVoted(false)
+    }, [data.voteActive])
     
     if(data?.voteActive) {
         return(
