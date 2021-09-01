@@ -15,7 +15,7 @@ ReactDOM.render(
         <BrowserRouter>
             <Switch>
                 <Route exact path="/spotifycallback">
-                    <SpotifyCallback />
+                    <SpotifyCallback /> 
                 </Route>
                 <Route exact path="/discordlogin">
                     <DiscordLogin />

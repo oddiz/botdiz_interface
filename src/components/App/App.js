@@ -11,6 +11,7 @@ import styled from 'styled-components'
 import NotFoundPage from '../../404'
 import ConnectionContext from './ConnectionContext';
 import BotdizStats from './AppContent/BotdizStats/BotdizStats';
+import { ToastContainer } from 'react-toastify';
 
 const AppWrapper = styled.div`
     width: 100%;
@@ -199,6 +200,18 @@ class App extends React.Component {
             
         return (
             <BrowserRouter>
+            
+                <ToastContainer 
+                    position="top-center"
+                    autoClose={3000}
+                    hideProgressBar={true}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
                 <ConnectionContext.Provider value={{
                     websocket: this.state.websocket,
                     token: this.state.token
@@ -212,7 +225,7 @@ class App extends React.Component {
                             setupWebsocket={this.setupWebsocket} 
                             websocket={this.state.websocket}
                             location={this.state.location} 
-                            />
+                        />
 
                         <AppContentWrapper id="app_content_wrapper">
                             <Switch>

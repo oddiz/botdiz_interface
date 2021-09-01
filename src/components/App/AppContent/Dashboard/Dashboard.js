@@ -53,7 +53,7 @@ export default class Dashboard extends React.Component {
         this.token = props.token
 
         
-        
+        this.accountInfo = props.accountInfo
         this.setupWebsocketListener = this.setupWebsocketListener.bind(this)
         this.guildOptionsClickHandler = this.guildOptionsClickHandler.bind(this)
         this.GuildBarOnClick = this.GuildBarOnClick.bind(this)
@@ -196,6 +196,7 @@ export default class Dashboard extends React.Component {
                         websocket={this.websocket}
                         playlists={this.state.userPlaylists}
                         getPlaylists={this.getPlaylists}
+                        accountInfo={this.accountInfo}
                     />
                 )
                 
@@ -255,7 +256,7 @@ export default class Dashboard extends React.Component {
                     <GuildOptions 
                         onClickFunc={this.guildOptionsClickHandler} 
                         activeGuild={this.state.activeGuild}
-                        isAdmin={this.props.accountInfo.is_admin}
+                        isAdmin={this.accountInfo.is_admin}
                     />}
                     <GuildOptionsContent 
                         id="guild_options_content" 

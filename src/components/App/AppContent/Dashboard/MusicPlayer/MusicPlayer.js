@@ -8,6 +8,9 @@ import { Queue } from './Queue'
 import VoiceChannelSection from './VoiceChannelSecition/VoiceChannelSection'
 import AddSong from './Footer/AddSong'
 import Playlist from './PlaylistsSection/Playlist'
+import { SkipVote } from './Footer/SkipVote'
+import { toast } from 'react-toastify';
+
 
 // width: ${props => props.percentage}%;  //will get this value from props
 const InnerBar = styled.div`
@@ -62,6 +65,7 @@ const SongSliderWrapper = styled.div`
     padding: 0 30px;
 `
 const MPControlsWrapper = styled.div`
+    position:relative;
     height: 70%;
     display:flex;
     flex-direction: row;
@@ -147,6 +151,8 @@ export default class MusicPlayer extends React.Component {
             inVoiceChannel: false
         }
 
+        this.accountInfo = props.accountInfo
+
         this.token = props.token
         this.websocket = props.websocket
         this.activeGuild = props.activeGuild
@@ -211,6 +217,12 @@ export default class MusicPlayer extends React.Component {
             }
             if(parsedReply.event === "musicplayer_update"){
                 this.setState({ playerInfo: parsedReply.message })
+            }
+
+            if(parsedReply.event === "exec_command_status") {
+                if(parsedReply.status=== "failed") {
+                    toast.error(parsedReply.message)
+                }
             }
 
             const RpcCommands = [
@@ -410,7 +422,8 @@ export default class MusicPlayer extends React.Component {
         
         
         return(
-            <MusicPlayerWrapper id="musicplayer_wrapper" >          
+            <MusicPlayerWrapper id="musicplayer_wrapper" >
+                    
                 <MusicPlayerContent id="musicplayer_content">
                     <VoiceChannelSection 
                         websocket={this.websocket}
@@ -448,6 +461,14 @@ export default class MusicPlayer extends React.Component {
                 </MusicPlayerContent>
                 <MPFooterWrapper>
                     <MPControlsWrapper>
+                        <SkipVote
+                            key = {this.state.skipVoteData}
+                            skipVoteData= {this.state.playerInfo.skipVoteData}
+                            websocket = {this.websocket}
+                            guildId = {this.activeGuild?.id}
+                            token = {this.token}
+                            accountInfo={this.accountInfo}
+                        />
                         <SongInfo 
                             imgUrl={this.state.playerInfo.videoThumbnailUrl} 
                             songTitle={this.state.playerInfo.currentTitle} 
@@ -456,6 +477,7 @@ export default class MusicPlayer extends React.Component {
                             key={this.state.controlsDisabled}
                             token={this.token} 
                             guildId={this.activeGuild.id} 
+                            accountInfo={this.accountInfo}
                             websocket={this.websocket} 
                             audioPlayerStatus={this.state.playerInfo.audioPlayerStatus}
                             controlsDisabled={this.state.controlsDisabled}

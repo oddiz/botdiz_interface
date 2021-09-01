@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import Scrollbars from 'react-custom-scrollbars'
 import config from 'config.js'
 import './Playlist.css'
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ImSpotify } from 'react-icons/im'
@@ -252,17 +252,7 @@ export default class Playlist extends React.Component {
 
         return(
             <PlaylistWrapper >
-                <ToastContainer 
-                    position="top-center"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
+                
                 <Scrollbars
                     autoHide
                     autoHideTimeout={1500}
