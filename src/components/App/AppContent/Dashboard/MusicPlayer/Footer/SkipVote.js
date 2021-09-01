@@ -149,7 +149,7 @@ export function SkipVote (props) {
     useEffect(() => {
         //reset voted status when vote is active
         setVoted(false)
-    }, [data.voteActive])
+    }, [data?.voteActive])
     
     if(data?.voteActive) {
         return(
