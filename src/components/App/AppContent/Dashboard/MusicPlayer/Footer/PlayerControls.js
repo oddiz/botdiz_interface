@@ -1,8 +1,8 @@
-import { IoPlayCircle, IoPauseCircle, IoPlaySkipForward, IoStopCircle } from 'react-icons/io5'
+import { IoPlayCircle, IoPauseCircle, IoPlaySkipForward, IoStopCircle,IoShuffle } from 'react-icons/io5'
 import styled from 'styled-components'
 
 const SkipButton = styled(IoPlaySkipForward)`
-    font-size: 1em;
+    font-size: 1.5em;
     color: #b3b3b3;
 
     margin: 0 5px;
@@ -19,7 +19,7 @@ const SkipButton = styled(IoPlaySkipForward)`
     }
 `
 const PauseButton = styled(IoPauseCircle)`
-    font-size: 2em;
+    font-size: 3.5em;
     color: white;
     margin: 0 5px;
     transition: linear 0.2s all;
@@ -34,7 +34,7 @@ const PauseButton = styled(IoPauseCircle)`
 
 `
 const PlayButton = styled(IoPlayCircle)`
-    font-size: 2em;
+    font-size: 3.5em;
     color: white;
     margin: 0 5px;
     transition: linear 0.2s all;
@@ -49,10 +49,48 @@ const PlayButton = styled(IoPlayCircle)`
 
 `
 const StopButton = styled(IoStopCircle)`
-    font-size: 1.5em;
+    font-size: 2em;
     color: #ff9580d5;
     margin: 0 5px;
     transition: linear 0.2s all;
+
+    cursor: pointer;
+
+    &:hover {
+        color: #ff9580
+    }
+    &.disabled {
+        cursor: not-allowed;
+        color: #72767d;
+
+    }
+`
+const ShuffleButton = styled(IoShuffle)`
+    font-size: 1.7em;
+    color: white;
+    margin: 0 5px;
+
+    cursor: pointer;
+
+    &:hover {
+        color: #00b85fBF
+    }
+    &:active {
+        transform: translateY(2px);
+    }
+    &.active {
+        color: #00b85f;
+
+    }
+`
+
+// phantom button to center elements
+const PhantomButton = styled(IoShuffle)`
+    font-size: 1.7em;
+    color: white;
+    margin: 0 5px;
+    transition: linear 0.2s all;
+    visibility: hidden;
 
     cursor: pointer;
 
@@ -93,6 +131,20 @@ export function PlayerControls (props) {
     const controlsDisabled = props.controlsDisabled
     const playerButtonClicked = props.playerButtonClicked
 
+    function shuffleClicked () {
+        if(controlsDisabled) {
+            return
+        }
+        const message = JSON.stringify({
+            token: token,
+            type: "exec",
+            command: "RPC_shuffleQueue",
+            //should take 1 param: guildid
+            params: [guildId]
+        })
+
+        websocket.send(message)
+    }
     function pauseClicked () {
         if(controlsDisabled) {
             return
@@ -171,9 +223,11 @@ export function PlayerControls (props) {
     return (
         <PlayerControlsWrapper>
             {controlsDisabled && <Loading className="drac-bg-animated" />}
+            <ShuffleButton onClick={shuffleClicked} className={controlsDisabled? "disabled":""}/>
             <StopButton onClick={stopClicked} className={controlsDisabled? "disabled":""} />
             {PlayPause}
             <SkipButton onClick={skipClicked} className={controlsDisabled? "disabled":""} />
+            <PhantomButton />
             {/* <PlayPauseButton />
             <SkipButton /> */}
         </PlayerControlsWrapper>

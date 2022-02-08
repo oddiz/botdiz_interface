@@ -73,7 +73,7 @@ const MPControlsWrapper = styled.div`
     justify-content: center;
 `
 const MPFooterWrapper = styled.div`
-    height: 80px;
+    height: 90px;
     min-width: 250px;
     display:flex;
     flex-direction: column;
@@ -409,6 +409,9 @@ export default class MusicPlayer extends React.Component {
             if(queueItem.videoName && queueItem.videoArtist) {
                 songNames += queueItem.videoName[0]
                 songNames += queueItem.videoArtist[0]
+            } else if (queueItem.isSpotify){ 
+                songNames += queueItem.info.trackName
+                songNames += queueItem.info.artist
             } else {
                 songNames += queueItem.videoId
             }
@@ -419,8 +422,6 @@ export default class MusicPlayer extends React.Component {
     }
     render() {
         const formattedTime = this.formatTime()
-        
-        
         return(
             <MusicPlayerWrapper id="musicplayer_wrapper" >
                     
