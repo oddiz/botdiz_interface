@@ -23,6 +23,7 @@ const GuildIconWrapper = styled.div`
 
     cursor: pointer;
 
+
     &.active::after {
         content:"";
         position:absolute;
@@ -36,6 +37,25 @@ const GuildIconWrapper = styled.div`
         left:-5px;
         top: 0;
     }
+`
+
+const GuildIconImg = styled.img`
+    width: 48px;
+    height: 48px;
+
+    margin-left: 1px;
+    border-radius: 48px;
+
+    transition: linear all 0.2s;
+    border: 3px solid transparent;
+
+    font-size: 10px;
+    color: white;
+    &:hover {
+        border: 3px solid #808691;
+    }
+
+
 `
 const GuildRoleIconWrapper = styled.div`
     position:absolute;
@@ -96,22 +116,7 @@ function GuildIcon(props) {
 }
 
 
-const GuildIconImg = styled.img`
-    width: 48px;
-    height: 48px;
 
-    margin-left: 1px;
-    border-radius: 48px;
-
-    transition: linear all 0.2s;
-    border: 3px solid transparent;
-
-    &:hover {
-        border: 3px solid #808691;
-    }
-
-
-`
 const GuildIconsBar = styled.div`
     display: flex;
     flex-direction: column;

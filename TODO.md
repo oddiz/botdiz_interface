@@ -38,7 +38,7 @@
         - lock skip, stop when processing the command✅
         - move songs in queue ✅
         - add custom playlist
-        - shuffle playlist
+        - shuffle playlist ✅
         
     - Subscriptions
         - Sub to content (epic deal reminder) ✅

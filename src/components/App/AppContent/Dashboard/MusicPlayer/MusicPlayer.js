@@ -1,4 +1,3 @@
-
 import React from 'react'
 import styled from 'styled-components'
 import { IoAddCircleOutline } from 'react-icons/io5'
@@ -11,14 +10,28 @@ import Playlist from './PlaylistsSection/Playlist'
 import { SkipVote } from './Footer/SkipVote'
 import { toast } from 'react-toastify';
 
-
 // width: ${props => props.percentage}%;  //will get this value from props
+
+let lastSeekEvent
+
+const ProgressBarWrapper = styled.div`
+    height: 5px;
+    padding: 0 10px;
+    width: 60%;
+
+    cursor: ${props => lastSeekEvent + 1000 > Date.now()? "no-drop" : "pointer"};
+    
+`
+
 const InnerBar = styled.div`
     height:100%;
 
     background-color: #b3b3b3;
     border-radius: 10px;
+
+    transition: linear 1s all;
 `
+
 const OuterBar = styled.div`
     height:100%;
     width: 100%;
@@ -26,22 +39,43 @@ const OuterBar = styled.div`
     background-color: #535353;
 
     border-radius: 10px;
+    
 `
-const ProgressBarWrapper = styled.div`
-    height: 5px;
-    padding: 0 10px;
-    width: 60%;
+const PlayerDot = styled.div`
+    height: 12px;
+    width: 12px;
+    background-color: gray;
+    border-radius: 100%;
+    top: -8px;
+    position: relative;
+
+    ${ProgressBarWrapper}:hover & {
+        background-color: #66cc99;
+    }
+    transition: linear 1s all;
 `
+
 function ProgressBar (props) {
+
+    const onMouseDown = (e) => {
+        if(lastSeekEvent + 1000 > Date.now()){
+            console.log("too soon")
+        }
+        const percentage = e.nativeEvent.offsetX / e.currentTarget.offsetWidth *100
+        props.onProgressbarClick(percentage)
+        lastSeekEvent = Date.now()
+
+    }
+
     return(
         <ProgressBarWrapper>
-            <OuterBar>
-                <InnerBar style={{width: props.percentage+"%"}} />
+            <OuterBar onMouseDown={onMouseDown} >
+                <InnerBar  style={{width: props.percentage+"%"}} />
             </OuterBar>
+            <PlayerDot style={{left: props.percentage -1 +"%"}} />
         </ProgressBarWrapper>
     )
 }
-
 
 const TotalTime = styled.span`
     font-size: 10px;
@@ -420,6 +454,20 @@ export default class MusicPlayer extends React.Component {
 
         return songNames
     }
+
+    onProgressbarClick = (clickedPercentage) => {
+        const videoLenghtInMs = this.state.playerInfo.videoLength * 1000
+        const seekTo = Math.floor(videoLenghtInMs * clickedPercentage / 100)
+
+        const RPCMessage = JSON.stringify({
+            token: this.token,
+            type: "exec",
+            command: "RPC_seekTo",
+            params: [this.activeGuild.id, seekTo]
+        })
+        this.websocket.send(RPCMessage)
+    }
+
     render() {
         const formattedTime = this.formatTime()
         return(
@@ -500,7 +548,7 @@ export default class MusicPlayer extends React.Component {
                         <CurrentTime>
                             {formattedTime.formattedStreamTime}
                         </CurrentTime>
-                        <ProgressBar percentage={formattedTime.percentage} />
+                        <ProgressBar onProgressbarClick = {this.onProgressbarClick} percentage={formattedTime.percentage} />
                         <TotalTime>
                             {formattedTime.formattedVideoLenght}
                         </TotalTime>
