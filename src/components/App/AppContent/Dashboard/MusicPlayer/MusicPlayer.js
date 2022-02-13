@@ -4,6 +4,7 @@ import { IoAddCircleOutline } from 'react-icons/io5'
 import { SongInfo } from './Footer/SongInfo'
 import { PlayerControls } from './Footer/PlayerControls'
 import { Queue } from './Queue'
+import ProgressBar from './Footer/ProgressBar'
 import VoiceChannelSection from './VoiceChannelSecition/VoiceChannelSection'
 import AddSong from './Footer/AddSong'
 import Playlist from './PlaylistsSection/Playlist'
@@ -12,70 +13,7 @@ import { toast } from 'react-toastify';
 
 // width: ${props => props.percentage}%;  //will get this value from props
 
-let lastSeekEvent
 
-const ProgressBarWrapper = styled.div`
-    height: 5px;
-    padding: 0 10px;
-    width: 60%;
-
-    cursor: ${props => lastSeekEvent + 1000 > Date.now()? "no-drop" : "pointer"};
-    
-`
-
-const InnerBar = styled.div`
-    height:100%;
-
-    background-color: #b3b3b3;
-    border-radius: 10px;
-
-    transition: linear 1s all;
-`
-
-const OuterBar = styled.div`
-    height:100%;
-    width: 100%;
-
-    background-color: #535353;
-
-    border-radius: 10px;
-    
-`
-const PlayerDot = styled.div`
-    height: 12px;
-    width: 12px;
-    background-color: gray;
-    border-radius: 100%;
-    top: -8px;
-    position: relative;
-
-    ${ProgressBarWrapper}:hover & {
-        background-color: #66cc99;
-    }
-    transition: linear 1s all;
-`
-
-function ProgressBar (props) {
-
-    const onMouseDown = (e) => {
-        if(lastSeekEvent + 1000 > Date.now()){
-            console.log("too soon")
-        }
-        const percentage = e.nativeEvent.offsetX / e.currentTarget.offsetWidth *100
-        props.onProgressbarClick(percentage)
-        lastSeekEvent = Date.now()
-
-    }
-
-    return(
-        <ProgressBarWrapper>
-            <OuterBar onMouseDown={onMouseDown} >
-                <InnerBar  style={{width: props.percentage+"%"}} />
-            </OuterBar>
-            <PlayerDot style={{left: props.percentage -1 +"%"}} />
-        </ProgressBarWrapper>
-    )
-}
 
 const TotalTime = styled.span`
     font-size: 10px;
