@@ -1,5 +1,8 @@
 {
  "name": "Botdiz Interface",
+ 
+ "author": "oddiz",
+ "display": "standalone",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",
