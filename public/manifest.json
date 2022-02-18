@@ -3,6 +3,13 @@
  
  "author": "oddiz",
  "display": "standalone",
+ "start_url": "/",
+ "category": ["music", "entertainment", "discord", "bot"],
+ "background_color": "#36393F",
+ "theme_color": "#202225",
+ "lang": "en-US",
+ "short_name": "Botdiz",
+ "description": "A Discord bot for your server's music needs.",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",
