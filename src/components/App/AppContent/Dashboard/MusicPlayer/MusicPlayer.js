@@ -169,7 +169,7 @@ export default class MusicPlayer extends React.Component {
             token: this.token,
             command: 'RPC_ListenMusicPlayer',
             //params guildid
-            params: [guildId]
+            guildId: guildId
         })
 
         this.websocket.send(message)

@@ -151,7 +151,7 @@ export function SkipVote (props) {
         setVoted(false)
     }, [data?.voteActive])
     
-    if(data?.voteActive) {
+    if(data?.voteActive && data.skipVoteData) {
         return(
             <SkipVoteWrapper>
                 <Header id="skip_info_header">

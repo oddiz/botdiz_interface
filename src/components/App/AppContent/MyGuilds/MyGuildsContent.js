@@ -581,22 +581,20 @@ class SubscriptionsContent extends React.Component {
         }
 
         if (parsedReply.result.status === "unauthorized") {
+            console.error("Unauthorized")
             return
         }
         
+        await this.setState(
+            {
+                textChannels: parsedReply.result,
+                error: null
+            }
+        )
 
-        if(Array.isArray(parsedReply.result) && parsedReply.token === this.token) {
+        await this.getSubscriptions()
 
-            await this.setState(
-                {
-                    textChannels: parsedReply.result,
-                    error: null
-                }
-            )
-
-            await this.getSubscriptions()
-
-        }
+        
     }
     getTextChannels = async () => {
         if(!this.guildId){

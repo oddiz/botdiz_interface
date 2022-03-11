@@ -199,15 +199,13 @@ export default class VoiceChannelSection extends React.Component{
         this.props.setVoiceChannelStatus(botFound)
     }
     setupChannelListener = () => {
-        const listenerId = this.guildId
+        const guildId = this.guildId
 
         const message = JSON.stringify({
             type: `addVoiceChannelListener`,
-            listenerId: listenerId,
+            guildId: guildId,
             token: this.token,
             command:`RPC_listenVoiceChannels`,
-            //need guildid
-            params: [listenerId]
         })
 
         this.websocket.send(message)

@@ -212,17 +212,19 @@ export default class ChatPage extends React.Component{
 
             if (parsedReply.result.status === "unauthorized") {
                 this.setState({error: "You are not authorized to view text channels!"})
+
+                return
             }
             
 
-            if(Array.isArray(parsedReply.result) && parsedReply.token === this.token) {
-                this.setState(
-                    {
-                        activeGuildTextChannels: parsedReply.result,
-                        error: null
-                    }
-                )
-            }
+            
+            this.setState(
+                {
+                    activeGuildTextChannels: parsedReply.result,
+                    error: null
+                }
+            )
+            
 
         }
     }

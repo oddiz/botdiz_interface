@@ -88,11 +88,7 @@ export default class Dashboard extends React.Component {
             return
         }
         
-
-        if(parsedReply.token !== this.token) {
-            console.log("Websocket reply token mismatch.")
-            return
-        }
+        console.log(parsedReply)
 
         if(!parsedReply.result) {
             console.log("Reply is not valid or empty: ", parsedReply)
@@ -105,6 +101,7 @@ export default class Dashboard extends React.Component {
 
                 return
             }
+            console.log("Guilds recieved: ", parsedReply.result)
             const mappedGuilds = parsedReply.result.map( GuildObj => {
                 return {
                     id: GuildObj.id,

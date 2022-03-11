@@ -244,15 +244,15 @@ export default class ChatContent extends React.Component {
 
     async setupListener() {
 
-        const listenerId = this.activeChannel.id
+        const guildId = this.activeChannel.id
 
         const message = JSON.stringify({
             type: `addTextChannelListener`,
-            listenerId: listenerId,
             token: this.token,
             command:`RPC_listenTextChannel`,
             //need guildid, channelid
-            params: [this.activeGuild.id, this.activeChannel.id]
+            guildId: guildId,
+            channelId: this.activeChannel.id
         })
 
         this.websocket.send(message)
@@ -286,7 +286,7 @@ export default class ChatContent extends React.Component {
             }
 
             
-            if(parsedReply.result && parsedReply.token === this.token && parsedReply.command === "RPC_getTextChannelContent") {
+            if(parsedReply.result && parsedReply.command === "RPC_getTextChannelContent") {
                 
                 if(parsedReply.result.status === "unauthorized") {
                     console.log("Not authorized to see the channel content")
