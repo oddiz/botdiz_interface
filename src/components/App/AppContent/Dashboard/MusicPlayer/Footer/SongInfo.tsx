@@ -1,4 +1,6 @@
+import { useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
+import { playerInfoState } from '../Atoms'
 
 const SongTitle = styled.div`
     font-size: 12px;
@@ -29,16 +31,18 @@ const SongInfoWrapper = styled.div`
 
     background-color: none;
 ` 
-export function SongInfo (props) {
-    
+export function SongInfo () {
+    const playerInfo = useRecoilValue(playerInfoState)
+    const imgUrl = playerInfo.videoThumbnailUrl
+    const songTitle = playerInfo.currentTitle
     return(
         <SongInfoWrapper>
             <VideoImg 
-                src={props.imgUrl}
-                alt="" 
+                src={imgUrl}
+                alt={songTitle + " thumbnail"} 
             />
             <SongTitle>
-                {props.songTitle}
+                {songTitle}
             </SongTitle>
 
         </SongInfoWrapper>

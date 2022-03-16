@@ -1,5 +1,8 @@
+import { accountData } from 'components/App/Atoms';
 import React from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components'
+import { activeGuildState } from './Atoms';
 
 const GuildOptionsWrapper = styled.div`
     height:var(--guild-options-height);
@@ -35,14 +38,22 @@ const MenuItem = styled.span`
     }
 `
 
-export default function GuildOptions(props) {
+export default function GuildOptions(props: { onClickFunc: React.MouseEventHandler<HTMLSpanElement> }) {
+    const guild = useRecoilValue(activeGuildState)
+    const account = useRecoilValue(accountData)
+    const isAdmin = account.is_admin
     const menuItems = []
 
-    const guild = props.activeGuild
-    if(guild.owner || guild.administrator || guild.dj_access || props.isAdmin) {
+    if(!guild) {
+        console.log("No guild selected")
+        return(<></>)
+    }
+    
+
+    if(guild.owner || guild.administrator || guild.dj_access || isAdmin) {
         menuItems.push("Music Player")
     } 
-    if (guild.owner || guild.administrator || props.isAdmin) {
+    if (guild.owner || guild.administrator || isAdmin) {
         menuItems.push("Chat")
     }
     

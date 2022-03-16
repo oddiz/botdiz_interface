@@ -5,21 +5,14 @@ import styled from 'styled-components';
 const ProfileWrapper = styled.div`
     
 `;
-export default class Profile extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state={}
-    }
+const Profile = () => {
+    
+    return(
+        <ProfileWrapper>
 
 
-    render() {
-
-        return(
-            <ProfileWrapper>
-
-
-            </ProfileWrapper>
-        )
-    }
+        </ProfileWrapper>
+    )
 }
+
+export default Profile

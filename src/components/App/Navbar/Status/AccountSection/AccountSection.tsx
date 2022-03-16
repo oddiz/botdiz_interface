@@ -1,6 +1,8 @@
 import AccountSectionMenu from './AccountSectionMenu'
 import styled from 'styled-components'
-import { useState } from 'react'
+import { MouseEvent } from 'react'
+import { atom, useRecoilState, useRecoilValue } from 'recoil'
+import { accountData } from 'components/App/Atoms'
 
 const AccountSectionWrapper = styled.div`
     margin: 0px 10px;
@@ -35,11 +37,16 @@ const AvatarImg = styled.img`
 
 `
 
+export const accountSectionVisible = atom({
+    key: 'accountSectionVisible',
+    default: false
+})
 
-export default function AccountSection (props) {
+export default function AccountSection () {
 
-    const [menuVisible, setMenuVisible] = useState(false)
-    const accountInfo = props.account
+    const [menuVisible, setMenuVisible] = useRecoilState(accountSectionVisible)
+    const accountInfo = useRecoilValue(accountData)
+    
     /**
      * props.account={
      *      avatarURL: "",
@@ -48,22 +55,23 @@ export default function AccountSection (props) {
      */
     
 
-    function handleAvatarClick (event) {
+    function handleAvatarClick () {
 
         setMenuVisible(!menuVisible)
 
     }
 
-    function handleOutsideClick (event) {
-        
-        if((event.target.id === "avatar" || event.target.id !== "avatar_img")) {
-            setMenuVisible(false)
+    function handleOutsideClick (event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) {
+        const target = event.target as HTMLDivElement | HTMLImageElement | null
+        if (!target) return
 
+        if((target.id === "avatar" || target.id !== "avatar_img")) {
+            setMenuVisible(false)
         }
         
     }
     return(
-        <AccountSectionWrapper id="account_section_wrapper">
+        <AccountSectionWrapper id="account_section" onClick={handleOutsideClick}>
             <AvatarBorder className="" id="avatar" onClick={handleAvatarClick}>
                 <AvatarImg id="avatar_img" src={accountInfo.avatarURL} alt={accountInfo.username} />
             </AvatarBorder>
@@ -71,12 +79,6 @@ export default function AccountSection (props) {
             {
                 menuVisible && 
                 <AccountSectionMenu 
-                    token={props.token} 
-                    accountInfo={accountInfo} 
-                    outsideClickFunc={handleOutsideClick} 
-                    key={menuVisible} 
-                    isVisible={menuVisible}
-                    menuItemClicked={props.menuItemClicked}
                 />
             }
         </AccountSectionWrapper>

@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import Scrollbars from 'react-custom-scrollbars'
+import { useRecoilValue } from 'recoil'
+import { activeGuildState } from '../Atoms'
+import { activeTextChannelState } from './Atoms'
+import { connectionState } from 'components/App/Atoms'
 
 const ChatContentWrapper = styled.div`
     flex-grow: 1;
@@ -40,19 +44,25 @@ const MIinput = styled.input`
     `
 
    
-function MessageInput(props) {
+function MessageInput() {
 
-    const activeGuild = props.activeGuild
-    const activeChannel = props.activeChannel
-    const websocket = props.websocket
-    const token = props.token
+    const activeGuild = useRecoilValue(activeGuildState)
+    const activeChannel = useRecoilValue(activeTextChannelState)
     const [inputValue, setInputValue] = useState(""); 
 
-    const onKeyDownEvent = (event) => {
-        if (event.keyCode === 13) {
+    const { websocket, token } = useRecoilValue(connectionState)
+    const onKeyDownEvent = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        console.log(event.code)
+        console.log(event.keyCode)
+
+        if (event.keyCode === 13) { //when enter is pressed
 
 
             //send a message to channel
+            if (!(activeGuild && activeChannel)) {
+                console.log("active guild or active channel is null")
+                return 
+            }
 
             const message = {
                 token: token,
@@ -62,7 +72,7 @@ function MessageInput(props) {
                 params: [activeGuild.id, activeChannel.id, inputValue]
             }
 
-            websocket.send(JSON.stringify(message))
+            websocket?.send(JSON.stringify(message))
 
             setInputValue("")
 
@@ -141,12 +151,23 @@ const MessageSeperator = styled.span`
 
 
 const AlwaysScrollToBottom = () => {
-    const elementRef = React.useRef();
-    React.useEffect(() => elementRef.current.scrollIntoView({behaviour: "auto", block: "nearest"}));
+    const elementRef = React.useRef<HTMLDivElement>(null);
+    
+    useEffect(() => {
+        
+        if(elementRef && elementRef.current) {
+            elementRef?.current?.scrollIntoView({behavior: "smooth", block: "nearest"})
+        }
+    },);
     return <div style={{ float:"left", clear: "both" }} ref={elementRef} />;
 };
-
-function ChatRoom(props) {
+interface ChatRoomMessage {
+    type: string;
+    author: string;
+    authorColor?: string | null;
+    content: string;
+}
+function ChatRoom(props: { activeChannelMessages: ChatRoomMessage[] | null }) {
 
     //array of messages
     const messages = props.activeChannelMessages 
@@ -163,7 +184,7 @@ function ChatRoom(props) {
             <ChatRoomWrapper />
         )
     }
-    const mappedMessages = messages.map((message, index) => {
+    const mappedMessages = messages.map((message: ChatRoomMessage, index) => {
         return (
             <MessageWrapper key={"wrapper_" + index}>
                 <MessageSeperator />
@@ -211,71 +232,73 @@ const Unauthorized = styled.div`
     word-wrap: normal;
 `
 
-export default class ChatContent extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            activeChannelMessages: null,
-            listeners: [],
-        }
-        this.activeGuild = props.activeGuild
-        this.activeChannel = props.activeChannel
-        this.websocket = props.websocket
-        this.token = props.token
-        this.getChannelMessages = this.getChannelMessages.bind(this)
-        
-    }
+const ChatContent = () => {
 
+    const activeGuild = useRecoilValue(activeGuildState)
+    const activeChannel = useRecoilValue(activeTextChannelState)
+    const { token, websocket } = useRecoilValue(connectionState)
+    const [activeChannelMessages, setActiveChannelMessages] = useState<ChatRoomMessage[] |null | "unauthorized">(null)
+    const [listeners, setListeners] = useState([])
 
-    componentDidMount(){
-        
-        this.getChannelMessages()
-
-        //setup listener for new messages
-        this.setupListener()
-    }
-
-    componentWillUnmount() {
-        this.websocket.send(JSON.stringify({
+    useEffect(() => {
+        getChannelMessages()
+        setupListener()
+      return () => {
+        if(!websocket) return
+        websocket.send(JSON.stringify({
             type: 'clearListeners',
-            token: this.token
+            token: token
         }))
-    }
+      }
+    }, [])
+    
+   
 
-    async setupListener() {
+    const setupListener = async() => {
 
-        const guildId = this.activeChannel.id
-
+        const guildId = activeChannel?.id
+        if (!guildId) return
+        if (!websocket) return
         const message = JSON.stringify({
             type: `addTextChannelListener`,
-            token: this.token,
+            token: token,
             command:`RPC_listenTextChannel`,
             //need guildid, channelid
             guildId: guildId,
-            channelId: this.activeChannel.id
+            channelId: activeChannel.id
         })
 
-        this.websocket.send(message)
+        websocket.send(message)
 
         
 
     }
 
-    async getChannelMessages() {
-        if (!this.activeChannel) {
+    type WebsocketNewMessageEvent = {
+        event: 'new_message',
+        listenerId: string,
+        message: ChatRoomMessage
+    }
+    const getChannelMessages = async() => {
+        if (!activeChannel) {
             console.log("No active channels")
+            return
+        }
+
+        if (!websocket) {
+            console.log("No websocket")
             return
         }
         const message = JSON.stringify({
             type:"get",
-            token: this.token,
+            token: token,
             command: "RPC_getTextChannelContent",
-            params: [this.activeGuild.id, this.activeChannel.id]
+            params: [activeGuild?.id, activeChannel?.id]
         })
 
-        this.websocket.send(message)
+        websocket.send(message)
 
-        this.websocket.onmessage = (reply) => {
+        websocket.onmessage = (reply) => {
             let parsedReply;
             
             try {
@@ -290,8 +313,7 @@ export default class ChatContent extends React.Component {
                 
                 if(parsedReply.result.status === "unauthorized") {
                     console.log("Not authorized to see the channel content")
-                    this.setState({activeChannelMessages: "unauthorized"})
-
+                    setActiveChannelMessages("unauthorized")
                     return
                 }
 
@@ -300,46 +322,45 @@ export default class ChatContent extends React.Component {
                     return
                 }
                 
+                if(parsedReply.result.status === "success") {
+                    setActiveChannelMessages(parsedReply.result.messages)
 
-                this.setState({activeChannelMessages: parsedReply.result})
+                    return
+                }
 
-                return
             }
 
-            if (parsedReply.event === "new_message") {
-                let currentMessages = this.state.activeChannelMessages
+            if (parsedReply.event === "new_message" && (activeChannelMessages !== "unauthorized")) {
+                const newMessage = parsedReply as WebsocketNewMessageEvent
+                let currentMessages = activeChannelMessages || []
                 
-                currentMessages.unshift(parsedReply.message)
-                this.setState({activeChannelMessages: currentMessages})
                 
+                currentMessages.unshift(newMessage.message)
+                setActiveChannelMessages(currentMessages)
                 
             }
-
-
         }
     }
 
-
-    render() {
-        if(this.state.activeChannelMessages === "unauthorized") {
-            return(
-                <Unauthorized>
-                    ⛔ Bot is not authorized to see this channel's content ⛔
-                </Unauthorized>
-            )
-        }
+    if(activeChannelMessages === "unauthorized") {
         return(
-            <ChatContentWrapper>
-                
-                <ChatRoom activeChannelMessages={this.state.activeChannelMessages}/>
-                
-                <MessageInput 
-                    activeGuild = {this.activeGuild}
-                    activeChannel = {this.activeChannel}
-                    websocket = {this.websocket}
-                    token = {this.token}
-                />
-            </ChatContentWrapper>
+            <Unauthorized>
+                ⛔ Bot is not authorized to see this channel's content ⛔
+            </Unauthorized>
         )
     }
+
+    if (!activeChannel || !activeGuild) {
+        return (<ChatContentWrapper />)
+    }
+    return(
+        <ChatContentWrapper>
+            
+            <ChatRoom activeChannelMessages={activeChannelMessages}/>
+            
+            <MessageInput />
+        </ChatContentWrapper>
+    )
 }
+
+export default ChatContent

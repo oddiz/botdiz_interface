@@ -53,7 +53,7 @@ const SaveMeButton = styled.a`
     }
 
 `
-export default function NotFoundPage (props) {
+export default function NotFoundPage () {
 
     return(
         <NotFoundPageWrapper>

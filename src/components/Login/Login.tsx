@@ -1,26 +1,30 @@
-import React from "react";
-import config from '../../config'
-import "./Login.css"
-import '@dracula/dracula-ui/styles/dracula-ui.css'
-import { Card, Text, Box, Input, Button, Heading} from '@dracula/dracula-ui'
-import ReCAPTCHA from 'react-google-recaptcha'
-import LoadingIcon from './loading.svg'
-import DiscordIcon from './dclogo.svg'
+import React, { useRef, useState } from 'react';
+import { config } from 'config';
+import './Login.css';
+import '@dracula/dracula-ui/styles/dracula-ui.css';
+import { Card, Text, Box, Input, Button, Heading } from '@dracula/dracula-ui';
+import ReCAPTCHA from 'react-google-recaptcha';
+import LoadingIcon from './loading.svg';
+import DiscordIcon from './dclogo.svg';
 import styled from 'styled-components';
 
+type ICredentials = {
+    username: string;
+    password: string;
+    reCaptchaToken: string;
+};
 
-async function loginUser(credentials) {
+async function loginUser(credentials: ICredentials) {
     return fetch(config.botdiz_server + '/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(credentials)
+        body: JSON.stringify(credentials),
     })
-    .then(reply => reply.json())
-    .then(data => data)
-    .catch(err => err)
+        .then((reply) => reply.json())
+        .catch((err) => err);
 }
 const LoadingIconWrapper = styled.img`
     height: 100%;
@@ -48,188 +52,196 @@ const LoginWithDiscord = styled.div`
     &:hover {
         background: #7983f5;
     }
-`
+`;
 const LoginWithDiscordIcon = styled.img`
     height: 70%;
     margin-right: 0.8em;
-` 
-export default class Login extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: "",
-            password: "",
-            loggedIn: false,
-            loading: false
-        }
-        
-        this.reCaptchaRef = React.createRef()
-        this.reCaptchaKey = process.env.REACT_APP_RECAPTCHA_SITEKEY
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.adminLogin = new URLSearchParams(window.location.search).get("admin") !== null
+`;
+const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [loginError, setLoginError] = useState<string | null>(null);
 
+    const reCaptchaRef = useRef<ReCAPTCHA>(null);
+    const adminLogin =
+        new URLSearchParams(window.location.search).get('admin') !== null;
+    const reCaptchaKey = process.env.REACT_APP_RECAPTCHA_SITEKEY;
 
+    if (!reCaptchaKey) {
+        console.error("No reCaptcha Key found in server.")
+
+        return (
+            <div className="login_wrapper">
+                Error with reCaptcha token. Please try again.
+            </div>
+        ) 
     }
-
-    async handleSubmit(event) {
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
+        event
+    ) => {
         event.preventDefault();
-        if(this.state.loading) {
-            console.log("Already trying to log in")
+        if (loading) {
+            console.log('Already trying to log in');
 
-            return
-        }
-        this.setState({loading: true, loginError: null})
-
-        const reCaptchaToken = await this.reCaptchaRef.current.executeAsync()
-
-        const credentials = {
-            username: this.state.username,
-            password: this.state.password,
-            reCaptchaToken: reCaptchaToken
+            
         }
 
-        if (!(credentials.username && credentials.password)){
-            this.setState({loginError: {status: 404, message: "Cannot leave username or password empty"}})
+        setLoading(true);
+        setLoginError(null);
 
-            return
+        const reCaptchaToken = await reCaptchaRef.current?.executeAsync();
+
+        if (!reCaptchaToken) {
+            console.log('No reCaptcha token');
+            setLoading(false);
+            
+            return (
+                <div className="login_wrapper">
+                    Error with reCaptcha token. Please try again.
+                </div>
+            ) 
+            
+        }
+
+        const credentials: ICredentials = {
+            username: username,
+            password: password,
+            reCaptchaToken: reCaptchaToken,
+        };
+
+        if (!(credentials.username && credentials.password)) {
+            setLoginError('Cannot leave username or password empty');
+
+            
         }
         const response = await loginUser(credentials);
-        console.log(response)
-        if (response.result === "OK") {
-            console.log("Login successful")
-            
-            this.setState({loggedIn: true})
-            window.location.reload()
+        console.log(response);
+        if (response.result === 'OK') {
+            console.log('Login successful');
+            window.location.reload();
         } else {
-            this.setState({loginError: {status: response.status, message: response.message }, loading: false})
-
+            setLoading(false);
+            setLoginError(response.message);
         }
+    };
 
-    }
-
-    handleDiscordLogin = async () => {
+    const handleDiscordLogin = async () => {
         let discordUrl;
-        if (process.env.NODE_ENV === "development") {
-            discordUrl= "https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds"
+        if (process.env.NODE_ENV === 'development') {
+            discordUrl =
+                'https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds';
         } else {
-            discordUrl= "https://discord.com/api/oauth2/authorize?client_id=851497395190890518&redirect_uri=https%3A%2F%2Fbotdiz.kaansarkaya.com%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds"
+            discordUrl =
+                'https://discord.com/api/oauth2/authorize?client_id=851497395190890518&redirect_uri=https%3A%2F%2Fbotdiz.kaansarkaya.com%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds';
         }
-        window.open(discordUrl,"_self")
-    }
+        window.open(discordUrl, '_self');
+    };
 
-
-    render() {
-        function renderError(self){
-            if(self.state.loginError) {
-                return (
+    return (
+        <div className="login_wrapper">
+            {loginError && (
                 <Card variant="subtle" color="pink" p="md" mt="md">
-                    <Text color="pink">{self.state.loginError.message}</Text>
+                    <Text color="pink">{loginError}</Text>
                 </Card>
-                )
-            }
-        }
-
-        
-        return(
-            <div className="login_wrapper">
-                {renderError(this)}
+            )}
+            <Box
+                color="purpleCyan"
+                rounded="lg"
+                as="div"
+                height="auto"
+                width="sm"
+                m="md"
+                borderColor="pink"
+                style={{
+                    padding: '3px',
+                }}
+            >
                 <Box
-                    variant="subtle"
-                    color="purpleCyan"
+                    style={{ backgroundColor: '#1d1e26' }}
+                    className="drac-black-secondary"
+                    p="md"
                     rounded="lg"
                     as="div"
-                    height="auto"
-                    width="sm"
-                    m="md"
-                    borderColor="pink"
-                    style={{
-                        padding:"3px"
-                    }}
-                    
+                    height="full"
+                    width="auto"
                 >
-                    <Box
-                        style={{backgroundColor: "#1d1e26"}}
-                        className="drac-black-secondary"
-                        p="md"
-                        color=""
-                        rounded="lg"
-                        as="div"
-                        height="full"
-                        width="auto"
+                    <Heading
+                        m="xxs"
+                        style={{
+                            marginBottom: '1.2em',
+                            textAlign: 'center',
+                        }}
                     >
-                        <Heading 
-                            m="xxs"
-                            style={{
-                                marginBottom: "1.2em",
-                                textAlign: "center"
-                            }}
+                        Welcome to Botdiz Interface
+                    </Heading>
+                    {adminLogin && (
+                        <form
+                            onSubmit={handleSubmit}
+                            style={{ display: 'flex', flexDirection: 'column' }}
                         >
-                            Welcome to Botdiz Interface
-                        </Heading>
-                        {this.adminLogin && <form onSubmit={this.handleSubmit} style={{display: "flex", flexDirection: "column"}}>
-                                <Input
-                                    color="purple"
-                                    variant="normal"
-                                    borderSize="md"
-                                    placeholder="Username"
-                                    m="xxs"
-                                    style={{marginLeft:0}}
-                                    onChange={(input) => {
-                                        this.setState({username: input.target.value})
-                                        }}
-                                />                                  
-                                <Input
-                                    borderSize="md"
-                                    color="purple"
-                                    variant="normal"
-                                    placeholder="Password"
-                                    style={{marginLeft:0}}
-                                    m="xxs"
-                                    onChange={(input) => {
-                                        this.setState({password: input.target.value})
-                                        }}
-                                    type="password"
-                                />
-                            <Button
-                                type="submit" 
-                                color="animated" 
-                                mt="md"
-                                style={
-                                    {
-                                        marginLeft:0, 
-                                        width: "308px", 
-                                        alignSelf: "center"
-                                    }
-                                }
-                                
-                                onClick={() => {
-                                    
+                            <Input
+                                color="purple"
+                                variant="normal"
+                                borderSize="md"
+                                placeholder="Username"
+                                m="xxs"
+                                style={{ marginLeft: 0 }}
+                                onChange={(input) => {
+                                    setUsername(input.target.value);
                                 }}
+                            />
+                            <Input
+                                borderSize="md"
+                                color="purple"
+                                variant="normal"
+                                placeholder="Password"
+                                style={{ marginLeft: 0 }}
+                                m="xxs"
+                                onChange={(input) => {
+                                    setPassword(
+                                        input.target.value,
+                                    );
+                                }}
+                                type="password"
+                            />
+                            <Button
+                                type="submit"
+                                color="animated"
+                                mt="md"
+                                style={{
+                                    marginLeft: 0,
+                                    width: '308px',
+                                    alignSelf: 'center',
+                                }}
+                                onClick={() => {}}
                             >
-
-                                {this.state.loading ? <LoadingIconWrapper src={LoadingIcon} alt="loading_icon" /> : "Login"}
+                                {loading ? (
+                                    <LoadingIconWrapper
+                                        src={LoadingIcon}
+                                        alt="loading_icon"
+                                    />
+                                ) : (
+                                    'Login'
+                                )}
                             </Button>
-                        </form>}
-                        <LoginWithDiscord
-                            onClick={this.handleDiscordLogin}
-                        >
-                            <LoginWithDiscordIcon src={DiscordIcon} />
-                            Login With Discord
-                        </LoginWithDiscord>
-                    </Box>
-                
-                
+                        </form>
+                    )}
+                    <LoginWithDiscord onClick={handleDiscordLogin}>
+                        <LoginWithDiscordIcon src={DiscordIcon} />
+                        Login With Discord
+                    </LoginWithDiscord>
                 </Box>
-                <ReCAPTCHA
-                    style={{display: "inline-block"}}
-                    theme="dark"
-                    size="invisible"
-                    ref={this.reCaptchaRef}
-                    sitekey={this.reCaptchaKey}
+            </Box>
+            <ReCAPTCHA
+                style={{ display: 'inline-block' }}
+                theme="dark"
+                size="invisible"
+                ref={reCaptchaRef}
+                sitekey={reCaptchaKey}
+            />
+        </div>
+    );
+};
 
-                />
-            </div>
-        )
-    }
-}
-
+export default Login;

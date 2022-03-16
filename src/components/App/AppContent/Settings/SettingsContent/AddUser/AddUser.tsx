@@ -1,7 +1,9 @@
-import React from 'react'
+import { useState } from 'react'
 import styled from 'styled-components';
 import { Button } from '@dracula/dracula-ui'
-import config from '../../../../../../config'
+import {config} from 'config'
+import { useRecoilValue } from 'recoil';
+import { connectionState } from 'components/App/Atoms';
 const AddUserInput = styled.input`
     box-sizing: border-box;
     width: 50%;
@@ -36,84 +38,86 @@ const AddUserWrapper = styled.div`
     color: white;
   
 `;
-export default class AddUser extends React.Component {
-    constructor(props) {
-        super(props)
 
-        this.state= {
-            username: "",
-            password: ""
-        }
+interface AddSuperUserReply {
+    status: 'success' | 'failed' |"unauthorized";
+    message: string;
+}
+const AddUser = () => {
 
-        this.token = props.token
-    }
-    handleAddUserSubmit = async () => {
-        
-        this.setState({
-            username: "a",
-            password: "a"
-        })
-        if (this.state.password.length < 32) {
+    const { token } = useRecoilValue(connectionState);
+
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [ avatarURL, setAvatarURL] = useState("");
+    const [ addUserResponse, setAddUserResponse] = useState<AddSuperUserReply | null>(null)
+
+
+    const handleAddUserSubmit = async () => {
+
+        if (password.length < 32) {
             console.log("password must be at least 32 characters long")
             return
         }
         
         
-        console.log(this.state, this.state.password, this.token)
-        const response = await fetch(config.botdiz_server+"/addsuperuser", {
+        const response: AddSuperUserReply | void = await fetch(config.botdiz_server+"/addsuperuser", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
             credentials: "include",
             body: JSON.stringify({
-                token: this.token,
-                username: this.state.username,
-                password: this.state.password,
-                avatarURL: this.state.avatarURL
+                token: token,
+                username: username,
+                password: password,
+                avatarURL: avatarURL
             })
 
         })
         .then(res=> res.json())
-        .then(data => data)
         .catch(err => console.log("error while sending fetch to addsuperuser", err))
 
+        if(!response) return
         console.log(response)
-        this.setState({addUserResponse: response})
+
+        setAddUserResponse(response)
+        setUsername("")
+        setPassword("")
     }
-    render() {
-        return(
-            <AddUserWrapper>
+    return(
+        <AddUserWrapper>
 
-                {this.state.addUserResponse && <h3 style={{color: this.state.addUserResponse.isSuccessful? "var(--green)": "var(--red)"}}> {this.state.addUserResponse.message}</h3>}
+            {addUserResponse && <h3 style={{color: addUserResponse.status === "success"? "var(--green)": "var(--red)"}}> {addUserResponse.message}</h3>}
 
-                <InputSection>
-                    Username
-                    <AddUserInput onChange={(evt) => {
-                        this.setState({username: evt.target.value})
-                    }} 
-                    />
-                </InputSection>
+            <InputSection>
+                Username
+                <AddUserInput onChange={(evt) => {
+                    setUsername(evt.target.value)
+                }} 
+                />
+            </InputSection>
 
-                <InputSection>
-                    Password
-                    <AddUserInput onChange={(evt) => {this.setState({password: evt.target.value})}}/>
-                </InputSection>
-                
-                <InputSection>
-                    Avatar URL
-                    <AddUserInput onChange={(evt) => {this.setState({avatarURL: evt.target.value})}}/>
-                </InputSection>
-                <Button 
-                    color = "green"
-                    size= "md"
-                    mt="md"
-                    style={{width: "10em"}}
-                    onClick={this.handleAddUserSubmit}
-                >
-                    Confirm
-                </Button>
-            </AddUserWrapper>
-        )
-    }
+            <InputSection>
+                Password
+                <AddUserInput onChange={(evt) => {setPassword(evt.target.value)}}/>
+            </InputSection>
+            
+            <InputSection>
+                Avatar URL
+                <AddUserInput onChange={(evt) => {setAvatarURL(evt.target.value)}}/>
+            </InputSection>
+            <Button 
+                color = "green"
+                size= "md"
+                mt="md"
+                style={{width: "10em"}}
+                onClick={handleAddUserSubmit}
+            >
+                Confirm
+            </Button>
+        </AddUserWrapper>
+    )
 }
+
+export default AddUser

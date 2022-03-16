@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
-import config from 'config.js'
+import {config} from 'config'
 import Scrollbars from 'react-custom-scrollbars'
 import {IoRefresh} from 'react-icons/io5'
 
 import GuildsContent from './MyGuildsContent'
+
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
     width: 100%;
@@ -29,120 +30,119 @@ const GuildsListWrapper = styled.div`
 
     background: #2f3136;
 `
-class MyGuilds extends React.Component {
-    constructor(props) {
-        super(props)
+export interface BotdizGuild {
+    id: string;
+    icon: string | null;
+    name: string;
+    iconUrl: string;
+    dj_access: boolean;
+    administrator: boolean;
+    botdiz_guild: boolean;
+    owner?: boolean;
+}
 
-        this.state= {
-            activeGuild: {},
-            discordGuilds: [],
-            refreshButtonKey: 0,
-            refreshButtonHidden: true
-        }
+type DiscordGuildsResponse = {
+    status: "success";
+    result: BotdizGuild[];
+} | { status: "failed"}
 
-        this.token = props.token
-
-    }
-
-    async componentDidMount() {
-        this.getDiscordGuilds()
-
-        
-    }
+const MyGuilds = () => {
     
-    getDiscordGuilds = async () => {
-        let discordGuilds = await fetch(config.botdiz_server+"/discordguilds", {
+    const [activeGuild, setActiveGuild] = useState<BotdizGuild | null>(null)
+    const [discordGuilds, setDiscordGuilds] = useState<BotdizGuild[]>([])
+    const [refreshButtonKey, setRefreshButtonKey] = useState(0)
+    const [refreshButtonHidden, setRefreshButtonHidden] = useState(true)
+
+    const getDiscordGuilds = async () => {
+        let discordGuildsReply: DiscordGuildsResponse = await fetch(config.botdiz_server+"/discordguilds", {
             method: "GET",
             credentials: "include"
         })
         .then(reply => reply.json())
         
-        if (discordGuilds.status === "success") {
-            if (!discordGuilds.result) {
-                discordGuilds.result = []
-            } else {
-                discordGuilds.result.sort((a,b) => b.botdiz_guild - a.botdiz_guild)
-            }
-            this.setState(
-                {
-                    discordGuilds: discordGuilds.result,
-                    refreshButtonHidden: true,
-                    activeGuild: {}
-                }
-            )
+        if (discordGuildsReply.status === "success") {
+            const discordGuilds = discordGuildsReply.result
+            
+            discordGuilds.sort((a,b) => (a.botdiz_guild === b.botdiz_guild) ? 0 : a.botdiz_guild ? -1 : 1)
+            
+            setDiscordGuilds(discordGuilds)
+            setRefreshButtonHidden(true)
+            setActiveGuild(null)
+
+            
         }
     }
-    /* 
-    discordGuild = {
-        "id": "854409105431330836",
-        "name": "botdiz test",
-        "icon": "b396da8cf5224d94c0ffa137d186c4ad",
-        "owner": true,
-        "permissions": 2147483647,
-        "features": [],
-        "permissions_new": "274877906943",
-        "botdiz_guild": true,
-        "administrator": true
-    }
-    */
 
-    guildCardClicked = (event) => {
+    useEffect(() => {
+        getDiscordGuilds()
+    
+      
+    }, [])
+    
+
+    
+    
+
+    const guildCardClicked: React.MouseEventHandler<HTMLDivElement> = (event) => {
         const clickedNode = event.currentTarget
-        const clickedIndex = [...clickedNode.parentElement.children].indexOf(clickedNode);
+        const clickedParent = clickedNode.parentElement
+        if(!clickedParent) return
 
-        const clickedGuild = this.state.discordGuilds[clickedIndex]
+        const clickedIndex = [...clickedParent.children].indexOf(clickedNode);
+        const clickedGuild = discordGuilds[clickedIndex]
 
-        this.setState({ activeGuild: clickedGuild})
+        if (clickedGuild.iconUrl === null) {
+            clickedGuild.iconUrl = ""
+        }
+        setActiveGuild(clickedGuild)
     }
 
-    addBotdizClicked = () => {
-        this.setState({ 
-            refreshButtonKey : this.state.refreshButtonKey + 1,
-            refreshButtonHidden: false
-        })
+    const addBotdizClicked = () => {
+
+        setRefreshButtonKey(refreshButtonKey + 1)
+        setRefreshButtonHidden(false)
+
     }
-    render() {
-        const renderGuilds = this.state.discordGuilds.map((guild, index) => {
-            return (
-                <GuildCard 
-                    key={index}
-                    guild={guild}
-                    onClick={this.guildCardClicked}
-                    addBotdizClicked={this.addBotdizClicked}
-                />
-            )
-        })
+    const renderGuilds = discordGuilds.map((guild, index) => {
         return (
-            <GuildsWrapper>
+            <GuildCard 
+                key={index}
+                guild={guild}
+                onClick={guildCardClicked}
                 
-                <GuildsListWrapper>
-                    <Scrollbars
-                        autoHide
-                        autoHideTimeout={1500}
-                        autoHideDuration={200}
-                    >
-                        {renderGuilds}
-
-                    </Scrollbars>
-                    <RefreshButton 
-                        key={this.state.refreshButtonKey}
-                        hidden={this.state.refreshButtonHidden}
-                        refreshClicked={this.getDiscordGuilds}
-                        
-                    />
-                </GuildsListWrapper>
-
-                <GuildsContent
-                    key={this.state.activeGuild.name}
-                    activeGuild = {this.state.activeGuild}
-                    addBotdizClicked={this.addBotdizClicked}
-                    accountInfo={this.props.accountInfo} 
-
-                />
-
-            </GuildsWrapper>
+            />
         )
-    }
+    })
+    
+    return (
+        <GuildsWrapper>
+            
+            <GuildsListWrapper>
+                <Scrollbars
+                    autoHide
+                    autoHideTimeout={1500}
+                    autoHideDuration={200}
+                >
+                    {renderGuilds}
+
+                </Scrollbars>
+                <RefreshButton 
+                    key={refreshButtonKey}
+                    hidden={refreshButtonHidden}
+                    refreshClicked={getDiscordGuilds}
+                    
+                />
+            </GuildsListWrapper>
+
+            <GuildsContent
+                key={activeGuild?.name}
+                activeGuild = {activeGuild}
+                addBotdizClicked={addBotdizClicked}
+
+            />
+
+        </GuildsWrapper>
+    )
     
 }
 
@@ -179,7 +179,7 @@ const RefreshButtonWrapper = styled.div`
         background: #04c33ab6;
     }
 `;
-function RefreshButton (props) {
+function RefreshButton (props: { hidden: any; refreshClicked: () => void; }) {
 
     const [hidden, setHidden] = useState(props.hidden)
 
@@ -269,11 +269,11 @@ const Seperator = styled.span`
     border-radius: 10px;
 `;
 
-function GuildCard (props) {
+type IGuildBadges = ("Owner" | "Administrator" | "DJ" | "Botdiz Guild")[]
+function GuildCard (props: { guild: BotdizGuild; onClick: React.MouseEventHandler<HTMLDivElement> | undefined; }) {
     const guild = props.guild
     
-
-    const guildBadges = []
+    const guildBadges: IGuildBadges = []
 
     if(guild.owner) {
         guildBadges.push("Owner")
@@ -290,7 +290,7 @@ function GuildCard (props) {
     return (
         <GuildCardWrapper onClick={props.onClick}>
             <GuildIcon>
-                <img src={guild.iconUrl} alt="Guild Icon" />
+                <img src={guild?.iconUrl|| ""} alt="Guild Icon" />
             </GuildIcon>
             <GuildContent>
                 <GuildName>
@@ -313,7 +313,7 @@ const GuildBadgesWrapper = styled.div`
     justify-content: center;
     align-items: center;
 `
-function GuildBadges(props) {
+function GuildBadges(props: { badges: IGuildBadges; }) {
     const badges = props.badges
 
     const parsedBadges = badges.map((badge, index) => {
@@ -326,6 +326,8 @@ function GuildBadges(props) {
             color = "#9d3dd8"
         } else if (badge === "DJ") {
             color = "#e74c3c"
+        } else {
+            color = "#2c2c2c"
         }
 
         return (
@@ -369,7 +371,7 @@ const GuildBadgeWrapper = styled.div`
     }
 
 `;
-function GuildBadge (props) {
+function GuildBadge (props: { name: string; color: string; }) {
     const badgeName = props.name
     let badgeColor = props.color
     return(

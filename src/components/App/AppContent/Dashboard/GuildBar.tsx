@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import styled from "styled-components";
 
 import { RiAdminFill, RiHeadphoneFill } from 'react-icons/ri'
+import { InterfaceGuildObject } from './Dashboard';
 
-function makeImageUrl(guildID, hash, { format = 'webp', size } = {size:128}) {
+function makeImageUrl(guildID:string, hash:string, { format = 'webp', size } = {size:128}) {
     const root = "https://cdn.discordapp.com"
     if(hash) {
         return `${root}/icons/${guildID}/${hash}.${format}${size ? `?size=${size}` : ''}`;
@@ -82,13 +83,24 @@ const GuildRoleIcon = styled.span`
     outline-color: white;
     font-size: 12px;
 `;
-function GuildIcon(props) {
+
+interface GuildIconProps {
+    guildID: string;
+    iconHash:string;
+    guild: InterfaceGuildObject;
+    GuildBarOnClick: (event: React.MouseEvent<HTMLDivElement>) => void;
+    guildBarClicked: () => void;
+}
+function GuildIcon(props: GuildIconProps) {
     const guild = props.guild
 
-    const guildIconClicked = async (event) => {
+    const guildIconClicked = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         const eventTarget = event.currentTarget
 
-        const guildIconNodes = eventTarget.parentElement.parentElement.children
+        const guildIconNodes = eventTarget.parentElement?.parentElement?.children
+
+        if(!guildIconNodes) return
+
         for (const guildIconNode of guildIconNodes) {
             guildIconNode.classList.remove("active")
         }
@@ -100,7 +112,7 @@ function GuildIcon(props) {
     }
     return(
 
-        <GuildIconWrapper >
+        <GuildIconWrapper id={guild.id} >
             <GuildIconImg 
                 src={makeImageUrl(props.guildID, props.iconHash, { size: 128})}
                 alt="Guild Icon"
@@ -127,7 +139,7 @@ const GuildIconsBar = styled.div`
 
     background-color: #202225;
 `
-const GuildIcons = styled.div`
+const GuildIcons = styled.div<{ guildActive: boolean }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -149,7 +161,11 @@ const GuildIcons = styled.div`
     }
     
 `
-export default function GuildBar(props) {
+interface GuildBarProps {
+    allGuilds:InterfaceGuildObject[];
+    GuildBarOnClick:(event: React.MouseEvent<HTMLDivElement>) => void;
+}
+export default function GuildBar(props: GuildBarProps) {
     let guildList = props.allGuilds
     const [guildActive, setGuildActive] = useState(false)
 
@@ -160,7 +176,7 @@ export default function GuildBar(props) {
     const guildListRender = guildList.map(guild => (
         <GuildIcon
             key={guild.id}
-            id={guild.id} 
+            
             guildID={guild.id}
             iconHash={guild.icon}
             guild={guild}

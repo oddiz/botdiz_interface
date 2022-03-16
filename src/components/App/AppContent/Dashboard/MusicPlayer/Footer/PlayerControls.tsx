@@ -1,5 +1,9 @@
+import { connectionState } from 'components/App/Atoms'
 import { IoPlayCircle, IoPauseCircle, IoPlaySkipForward, IoStopCircle,IoShuffle } from 'react-icons/io5'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
+import { activeGuildState } from '../../Atoms'
+import { audioPlayerStatusState, controlsDisabledState } from '../Atoms'
 
 const SkipButton = styled(IoPlaySkipForward)`
     font-size: 1.5em;
@@ -123,13 +127,13 @@ const Loading = styled.div`
     animation: animatedGradient 3s ease infinite alternate;
 `
 
-export function PlayerControls (props) {
+export function PlayerControls () {
     
-    const guildId = props.guildId
-    const websocket = props.websocket
-    const token = props.token
-    const controlsDisabled = props.controlsDisabled
-    const playerButtonClicked = props.playerButtonClicked
+    const { token, websocket } = useRecoilValue(connectionState)
+    const guildId = useRecoilValue(activeGuildState)?.id
+    const audioPlayerStatus = useRecoilValue(audioPlayerStatusState)
+
+    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
 
     function shuffleClicked () {
         if(controlsDisabled) {
@@ -143,13 +147,13 @@ export function PlayerControls (props) {
             params: [guildId]
         })
 
-        websocket.send(message)
+        websocket?.send(message)
     }
     function pauseClicked () {
         if(controlsDisabled) {
             return
         }
-        playerButtonClicked()
+        setControlsDisabled(true)
         const message = JSON.stringify({
             token: token,
             type: "exec",
@@ -158,13 +162,13 @@ export function PlayerControls (props) {
             params: [guildId]
         })
 
-        websocket.send(message)
+        websocket?.send(message)
     }
     function playClicked () {
         if(controlsDisabled) {
             return
         }
-        playerButtonClicked()
+        setControlsDisabled(true)
 
         const message = JSON.stringify({
             token: token,
@@ -174,14 +178,14 @@ export function PlayerControls (props) {
             params: [guildId]
         })
 
-        websocket.send(message)
+        websocket?.send(message)
     }
     
     function stopClicked () {
         if(controlsDisabled) {
             return
         }
-        playerButtonClicked()
+        setControlsDisabled(true)
 
         const message = JSON.stringify({
             token: token,
@@ -191,13 +195,13 @@ export function PlayerControls (props) {
             params: [guildId]
         })
 
-        websocket.send(message)
+        websocket?.send(message)
     }
     function skipClicked () {
         if(controlsDisabled) {
             return
         }
-        playerButtonClicked()
+        setControlsDisabled(true)
 
         const message = JSON.stringify({
             token: token,
@@ -207,10 +211,10 @@ export function PlayerControls (props) {
             params: [guildId, 1]
         })
 
-        websocket.send(message)
+        websocket?.send(message)
     }
     let PlayPause;
-    if (props.audioPlayerStatus === "playing") {
+    if (audioPlayerStatus === "PLAYING") {
         PlayPause = (
             <PauseButton onClick={pauseClicked} className={controlsDisabled? "disabled":""} />
             )

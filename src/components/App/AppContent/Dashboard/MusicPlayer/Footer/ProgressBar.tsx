@@ -1,15 +1,19 @@
 import styled from 'styled-components';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { useRef } from 'react';
+import { useRecoilValue } from 'recoil';
+import { connectionState } from 'components/App/Atoms';
+import { activeGuildState } from '../../Atoms';
+import { formattedStreamTimeState, playerInfoState } from '../Atoms';
 
-let lastSeekEvent
+let lastSeekEvent = 0;
 
 const ProgressBarWrapper = styled.div`
     height: 5px;
     padding: 0 10px;
     width: 60%;
 
-    cursor: ${props => lastSeekEvent + 1000 > Date.now()? "no-drop" : "pointer"};
+    cursor: ${lastSeekEvent + 1000 > Date.now()? "no-drop" : "pointer"};
     
 `
 
@@ -50,50 +54,72 @@ const PlayerDot = styled.div`
     //transition: linear 1s all;
 `
 
-function ProgressBar (props) {
+function ProgressBar () {
+    const { token, websocket } = useRecoilValue(connectionState);
+    const activeGuild = useRecoilValue(activeGuildState);
+    const playerInfo = useRecoilValue(playerInfoState);
+    const formattedTime = useRecoilValue(formattedStreamTimeState);
+    const OuterBarRef = useRef<HTMLDivElement>(null);
 
-    const OuterBarRef = useRef(null);
+    const onProgressbarClick = (clickedPercentage: number) => {
+        if (!websocket) return;
+        if (!activeGuild) return;
+        const videoLenghtInMs = playerInfo.videoLength * 1000;
+        const seekTo = Math.floor((videoLenghtInMs * clickedPercentage) / 100);
 
+        const RPCMessage = JSON.stringify({
+            token: token,
+            type: 'exec',
+            command: 'RPC_seekTo',
+            params: [activeGuild.id, seekTo],
+        });
+        websocket.send(RPCMessage);
+    };
 
     let dragMode = false;
-    const onMouseDown = (e) => {
+    const onMouseDown: React.MouseEventHandler<HTMLDivElement> = (event) => {
+        const target = event.target as HTMLDivElement;
+
         if(lastSeekEvent + 1000 > Date.now()){
             console.log("too soon")
             return
         } else if (dragMode) {
             return
-        } else if (e.target.id === "player__dot") {
+        } else if (target.id === "player__dot") {
             return
         } else {
-            const percentage = e.nativeEvent.offsetX / e.currentTarget.offsetWidth *100
-            props.onProgressbarClick(percentage)
+            const percentage = event.nativeEvent.offsetX / event.currentTarget.offsetWidth *100
+            onProgressbarClick(percentage)
             lastSeekEvent = Date.now()
         }
 
 
     }
-    const onStop = (e) => {
+    const onStop: DraggableEventHandler = (e) => {
         if(lastSeekEvent + 1000 > Date.now()){
             console.log("too soon")
             return
         }
         //const percentage = e.nativeEvent.offsetX / e.currentTarget.offsetWidth *100
-        const outerBarWidth = OuterBarRef.current.offsetWidth;
+        const outerBarWidth = OuterBarRef.current?.offsetWidth;
+        if (!outerBarWidth) return
         
-        const rect = OuterBarRef.current.getBoundingClientRect();
-        const x = Math.floor(e.clientX - rect.left);
+        const rect = OuterBarRef.current?.getBoundingClientRect();
+
+        // @ts-ignore
+        const x = Math.floor(e.clientX || 0 - rect.left);
 
 
         const percentage = x / outerBarWidth *100
 
         dragMode = false;
 
-        props.onProgressbarClick(percentage)
+        onProgressbarClick(percentage)
         lastSeekEvent = Date.now()
 
     }
 
-    const onStart = () => {
+    const onStart: DraggableEventHandler = () => {
         //disable progressbar updates
         dragMode = true;
 
@@ -103,7 +129,7 @@ function ProgressBar (props) {
     return(
         <ProgressBarWrapper>
             <OuterBar ref={OuterBarRef}  onMouseDown={onMouseDown} >
-                <InnerBar  style={{width: props.percentage+"%"}} />
+                <InnerBar  style={{width: formattedTime.percentage+"%"}} />
                 <Draggable
                     axis='x'
                     bounds="parent"
@@ -111,7 +137,7 @@ function ProgressBar (props) {
                     onStart={onStart}
                     position={{x: 0, y: 0}}
                 >
-                    <PlayerDot percentage={props.percentage} id="player__dot"/>
+                    <PlayerDot id="player__dot"/>
                 </Draggable>
             </OuterBar>
             

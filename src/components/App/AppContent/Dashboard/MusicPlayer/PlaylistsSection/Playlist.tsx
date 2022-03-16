@@ -1,13 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Scrollbars from 'react-custom-scrollbars'
-import config from 'config.js'
+import {config} from 'config'
 import './Playlist.css'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ImSpotify } from 'react-icons/im'
 import {IoRefresh} from 'react-icons/io5'
+import { DbSpotifyData } from '../../Dashboard'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { connectionState } from 'components/App/Atoms'
+import { activeGuildState } from '../../Atoms'
+import { controlsDisabledState, inVoiceChannelState } from '../Atoms'
 
 
 
@@ -87,93 +92,118 @@ const SpotifyLogo = styled(ImSpotify)`
 
 `
 
-export default class Playlist extends React.Component {
-    constructor(props){
-        super(props)
+const Playlist = () => {
+    
+    const [userPlaylists, setUserPlaylists] = useState<DbSpotifyData["playlists"] | null>(null);
+    const [processingPlaylist, setProcessingPlaylist] = useState<boolean>(false);
+    const [playlistRefreshHidden, setPlaylistRefreshHidden] = useState<boolean>(true);
+    
+    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
+    
+    const { websocket, token } = useRecoilValue(connectionState)
+    const activeGuild = useRecoilValue(activeGuildState)
+    const inVoiceChannel = useRecoilValue(inVoiceChannelState)
+    
+    let lastClickedPlaylist: HTMLElement | null = null;
 
-        this.state = {
-            processingPlaylist: false,
-            playlistRefreshHidden: true,
-        }
-        this.websocket = props.websocket
-        this.playlists = props.playlists|| {items: []}
-        this.playerButtonClicked = props.playerButtonClicked
-
-        this.token = props.token
-        this.activeGuild = props.activeGuild
-        this.playlistClicked = this.playlistClicked.bind(this)
-
-    }
-
-    componentDidMount() {
-        this.websocket.addEventListener("message", this.listenWebsocketReply)
-    }
-
-    componentWillUnmount() {
-        this.websocket.removeEventListener("message", this.listenWebsocketReply)
-    }
-
-    listenWebsocketReply = async (reply) => {
+    useEffect(() => {
+        const listenWebsocketReply = async (reply: MessageEvent) => {
 
                 
-        let parsedReply;
-        
-        try {
-            parsedReply = JSON.parse(reply.data)
+            let parsedReply;
             
+            try {
+                parsedReply = JSON.parse(reply.data)
+                
+            } catch (error) {
+                console.log(error)
+                return
+            }
+    
+            if (parsedReply.command !== "RPC_addSpotifyPlaylist") {
+                //only listen to add spotify playlist command replies
+                return
+            }
+    
+    
+            if (parsedReply.status === "success") {
+                setProcessingPlaylist(false)
+                if (lastClickedPlaylist) {
+                    lastClickedPlaylist.classList.remove("loading")
+                    lastClickedPlaylist.classList.add("success")
+                }
+    
+            } else if (parsedReply.status === "failed") {
+                toast.error('Failed to add playlist');
+                if (lastClickedPlaylist) {
+                    lastClickedPlaylist.classList.remove("loading")
+                    lastClickedPlaylist.classList.remove("failed")
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    lastClickedPlaylist.classList.add("failed")
+                }
+                setProcessingPlaylist(false)
+            }
+        }
+      websocket?.addEventListener("message", listenWebsocketReply)
+
+      return () => {
+        
+        websocket?.removeEventListener("message", listenWebsocketReply)
+      }
+    }, [lastClickedPlaylist, websocket])
+    
+    
+    const getPlaylists = async () => {
+        try {
+            const response = await fetch(config.botdiz_server + '/playlists', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .catch(err => {
+                console.log(err)
+                return
+            })
+            
+            if(response.status !== "success") return
+            const playlists: DbSpotifyData["playlists"] = response.savedPlaylists
+
+            setUserPlaylists(playlists)
+            
+
         } catch (error) {
-            console.log(error)
-            return
+            console.log("error while trying to get playlist: ", error)
         }
-
-        if (parsedReply.command !== "RPC_addSpotifyPlaylist") {
-            //only listen to add spotify playlist command replies
-            return
-        }
-
-
-        if (parsedReply.status === "success") {
-            this.setState({processingPlaylist: false})
-            this.clickedElement.classList.remove("loading")
-            this.clickedElement.classList.add("success")
-
-        } else if (parsedReply.status === "failed") {
-            toast.error('Failed to add playlist');
-
-            this.clickedElement.classList.remove("loading")
-            this.clickedElement.classList.remove("failed")
-            await new Promise(resolve => setTimeout(resolve, 50));
-            this.clickedElement.classList.add("failed")
-            this.setState({processingPlaylist: false})
-        }
+    }
 
     
-}
-    async playlistClicked(event) {
+    const playlistClicked = async (event: React.MouseEvent<HTMLDivElement>) => {
         const clickedElement = event.currentTarget
+        if(!clickedElement || !clickedElement.parentElement || !userPlaylists) return
         //index of song in queue array
         const playlistIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);
 
         
-        const clickedPlaylist = this.playlists.items[parseInt(playlistIndex)]
+        const clickedPlaylist = userPlaylists.items[playlistIndex]
         clickedElement.classList.remove("loading")
         await new Promise(resolve => setTimeout(resolve, 50));
         clickedElement.classList.add("loading")
         clickedElement.classList.remove("failed")
         clickedElement.classList.remove("success")
-        if (!this.props.inVoiceChannel) {
+
+        if (!inVoiceChannel) {
             toast.error('Bot is not in a voice channel');
             clickedElement.classList.remove("loading")
             if (clickedElement.classList.contains("failed")) {
                 clickedElement.classList.remove("failed")
             }
             //need to delay so animation can register
-            await new Promise(resolve => setTimeout(resolve, 5));
+            await new Promise(resolve => setTimeout(resolve, 50));
             clickedElement.classList.add("failed")
-            this.setState({processingPlaylist: false})
+            setProcessingPlaylist(false)
             return
         }
-        if(this.state.processingPlaylist) {
+        if(processingPlaylist) {
             toast.error('Already trying to add another playlist');
 
             clickedElement.classList.remove("loading")
@@ -187,8 +217,10 @@ export default class Playlist extends React.Component {
         }
         
         //signal parent element that playlist is clicked so loading bar can be shown
-        this.playerButtonClicked()
-        this.setState({processingPlaylist: true})
+        setControlsDisabled(true)
+        setProcessingPlaylist(true)
+
+        console.log(clickedPlaylist)
 
         const response = await fetch(config.botdiz_server+"/playlists/"+clickedPlaylist.id, {
             method:"POST",
@@ -198,16 +230,15 @@ export default class Playlist extends React.Component {
         const parsedResponse = await response.json()
         
         
-        if (parsedResponse.status === "success") {
+        if (parsedResponse.status === "success" && activeGuild && websocket) {
             const message = JSON.stringify({
-                token: this.token,
+                token: token,
                 type:"exec",
                 command: "RPC_addSpotifyPlaylist",
-                params: [this.activeGuild.id, parsedResponse.result]
+                params: [activeGuild.id, parsedResponse.result]
             })
-            this.websocket.send(message)
+            websocket.send(message)
 
-            this.clickedElement = clickedElement
             //this.websocket.removeEventListener("message", listenWebsocketReply)
             
         } else {
@@ -217,18 +248,20 @@ export default class Playlist extends React.Component {
             clickedElement.classList.remove("failed")
             await new Promise(resolve => setTimeout(resolve, 50));
             clickedElement.classList.add("failed")
-            this.setState({processingPlaylist: false})
+            setProcessingPlaylist(false)
+            setControlsDisabled(false)
         }
-
+        
+        lastClickedPlaylist = clickedElement
     }
 
-    handleSpotifyButton = async () => {
+    const handleSpotifyButton = async () => {
         const botdizCallbackUrl = config.botdiz_interface+"/spotifycallback"
         const encodedbotdizCallbackUrl = encodeURIComponent(botdizCallbackUrl)
         const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`
 
 
-        this.setState({playlistRefreshHidden: false})
+        setPlaylistRefreshHidden(false)
         //window.location.href = spotifyAuthUrl
         //window.location.reload()
         window.open(spotifyAuthUrl)
@@ -236,51 +269,47 @@ export default class Playlist extends React.Component {
         return
     }
 
-    render() {
 
-        const processedPlaylists = this.playlists.items.map((playlist, index) => {
-            return(
-                <PlaylistItemWrapper key={index} onClick={this.playlistClicked}>
-                    <PlaylistItemName>
-                        {playlist.name}
-                    </PlaylistItemName>
-                </PlaylistItemWrapper>
-            )
-        })
-        
-
-
+    const processedPlaylists = userPlaylists?.items.map((playlist, index) => {
         return(
-            <PlaylistWrapper >
-                
-                <Scrollbars
-                    autoHide
-                    autoHideTimeout={1500}
-                    autoHideDuration={200}
-                    id="spotify_list"
-                >
-                    <PlaylistRefreshButton 
-                        key={this.state.playlistRefreshHidden}
-                        getPlaylists={this.props.getPlaylists} 
-                        hidden={this.state.playlistRefreshHidden}
-                        ref={this.refreshButton}
-                    />
-                    <h2 style={{color: "white", marginLeft: "20px", marginBottom:"25px"}}>Playlists</h2>
-                    <PlaylistItemsWrapper className="hide_scrollbar" >
-                        {processedPlaylists}
-                        
-                        <ImportSpotifyButton onClick={this.handleSpotifyButton}>
-                            <SpotifyLogo />
-                            <ButtonText>
-                                {this.playlists.items.length > 0 ? "Refresh Playlists": "Import Playlists"}
-                                
-                            </ButtonText>
-                        </ImportSpotifyButton>
-                    </PlaylistItemsWrapper>
-                </Scrollbars>
-            </PlaylistWrapper>
+            <PlaylistItemWrapper key={index} onClick={playlistClicked}>
+                <PlaylistItemName>
+                    {playlist.name}
+                </PlaylistItemName>
+            </PlaylistItemWrapper>
         )
-    }
+    }) || <></>
+    
+
+
+    return(
+        <PlaylistWrapper >
+            
+            <Scrollbars
+                autoHide
+                autoHideTimeout={1500}
+                autoHideDuration={200}
+                id="spotify_list"
+            >
+                <PlaylistRefreshButton 
+                    getPlaylists={getPlaylists} 
+                    hidden={playlistRefreshHidden}
+                />
+                <h2 style={{color: "white", marginLeft: "20px", marginBottom:"25px"}}>Playlists</h2>
+                <PlaylistItemsWrapper className="hide_scrollbar" >
+                    {processedPlaylists}
+                    
+                    <ImportSpotifyButton onClick={handleSpotifyButton}>
+                        <SpotifyLogo />
+                        <ButtonText>
+                            {userPlaylists && userPlaylists.items.length > 0 ? "Refresh Playlists": "Import Playlists"}
+                            
+                        </ButtonText>
+                    </ImportSpotifyButton>
+                </PlaylistItemsWrapper>
+            </Scrollbars>
+        </PlaylistWrapper>
+    )
 } 
 
 const PlaylistRefreshButtonWrapper = styled.div`
@@ -313,13 +342,13 @@ const PlaylistButton = styled.div`
 
     cursor:pointer;
 `
-function PlaylistRefreshButton(props) {
+function PlaylistRefreshButton(props: { hidden: boolean, getPlaylists: () => void }) {
     const [hidden, setHidden] = useState(props.hidden)
 
-    const buttonRef = React.useRef();
+    const buttonRef = useRef<HTMLDivElement>(null);
 
-    React.useEffect(() => {
-        buttonRef.current.scrollIntoView({behaviour: "auto", block: "nearest"})
+    useEffect(() => {
+        buttonRef?.current?.scrollIntoView({behavior: "smooth", block: "nearest"})
     }, [hidden])
 
     const refreshClicked = () => {
@@ -345,3 +374,4 @@ function PlaylistRefreshButton(props) {
     )
 }
 
+export default Playlist

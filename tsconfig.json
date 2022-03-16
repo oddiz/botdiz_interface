@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "lib": [
         "dom",
         "dom.iterable",
@@ -8,8 +8,9 @@
         ],
         "baseUrl": "src",
         "paths": {
-            "@src":["src/*"]
+            "@src":["src/*"],
         },
+        "types": ["@types/spotify-api", "node"],
         "allowJs": true,
         "skipLibCheck": true,
         "esModuleInterop": true,
@@ -21,10 +22,13 @@
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
+        "downlevelIteration": true,
         "noEmit": true,
         "jsx": "react-jsx"
     },
     "include": [
-        "src"
-    ]
+        "src",
+        "src/custom.d.ts"
+    ],
+    
 }

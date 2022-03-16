@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components';
-import { Link, Switch, Route } from 'react-router-dom'
+import { Link, Routes, Route } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import './SettingsContent.css'
 import AddUser from './AddUser/AddUser'
 import Profile from './Profile/Profile'
+import { useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
+import { accountData, connectionState } from 'components/App/Atoms';
 
 const SettingsOptions = styled.div`
     flex-grow: 1;
@@ -80,102 +84,115 @@ const OptionTitle = styled.div`
         border-radius: 5px;
     }
 `;
-export default class SettingsContent extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state={
-            activeSetting: null
+
+type NavItem = {
+    title: string;
+    url: string;
+    component: any;
+    requireAdmin?: boolean;
+}
+const SettingsContent = () => {
+    const location = useLocation();
+    const initialLocation = location.pathname.split("/")[3]
+    const { token } = useRecoilValue(connectionState)
+    const accountInfo = useRecoilValue(accountData);
+    const [activeSetting, setActiveSetting] = useState<NavItem | null>(null)
+
+    const navItems: NavItem[] = [
+        {
+            title: "Profile",
+            url: "profile",
+            component: Profile
+        },
+        {
+            title: "Add User",
+            url: "adduser",
+            component: AddUser,
+            requireAdmin: true
         }
-        this.token = props.token
-        this.accountInfo = props.accountInfo
-        this.initialLocation = props.location.pathname.split("/")[3]
+    ]
 
-        this.navItems = [
-            {
-                title: "Profile",
-                url: "profile",
-                component: Profile
-            },
-            {
-                title: "Add User",
-                url: "adduser",
-                component: AddUser,
-                requireAdmin: true
-            }
-        ]
-    }
-
-    componentDidMount() {
-        const initialItem = this.findSelectedOption(this.initialLocation)
-        this.setState({activeSetting: initialItem})
+    useEffect(() => {
         
-    }
+        
+        const initialItem = findSelectedOption(initialLocation)
+
+        setActiveSetting(initialItem)
+      
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    
 
 
-    findSelectedOption = (itemNameorUrl) => {
+    const findSelectedOption = useCallback((itemNameorUrl: string) => {
+
+        
+
         //find clicked item
         let clickedItem;
-        for(const item of this.navItems) {
+        for(const item of navItems) {
             if(item.title === itemNameorUrl ||item.url === itemNameorUrl) {
                 clickedItem = item
             }
         }
 
-        return clickedItem
+        return clickedItem || null
+        
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[])
+
+    const navItemClicked: React.MouseEventHandler<HTMLDivElement>= (event) => {
+        const selectedItem = findSelectedOption(event.currentTarget.innerText)
+
+        setActiveSetting(selectedItem)
     }
 
-    navItemClicked = (event) => {
-        const selectedItem = this.findSelectedOption(event.currentTarget.innerText)
-        this.setState({activeSetting: selectedItem})
-    }
-    render() {
-
-        const renderNavItems = this.navItems.map((item,index) => {
-            if(item.requireAdmin && !this.accountInfo.is_admin) {
-                return null
-            }
-            return(
-                <Link className="settings_nav_link" key={index} to={"/app/settings/" + item.url}>
-                    <SettingsNavItem key={index} onClick={this.navItemClicked}>
-                        {item.title}
-                    </SettingsNavItem>
-                </Link>
-            )
-        })
-
-        const renderRoutes = this.navItems.map((item,index) => {
-            if(item.requireAdmin && !this.accountInfo.is_admin) {
-                return null
-            }
-            return(
-                <Route exact path={"/app/settings/"+item.url} key={index}>
-                    {this.state.activeSetting && <OptionTitle>
-                        {this.state.activeSetting.title}
-                    </OptionTitle>}
-                    {React.createElement(item.component, {token: this.token}, null)}
-                </Route>
-            )
-        })
-
+    const renderNavItems = navItems.map((item,index) => {
+        if(item.requireAdmin && !accountInfo.is_admin) {
+            return null
+        }
         return(
-            <SettingsContentWrapper id="settings_content_wrapper">
-                <SettingsNavWrapper>
-                    <SettingsNav>
-
-                        <SettingsNavItem className="nav_title">
-                            Account Settings
-                        </SettingsNavItem>
-                        {renderNavItems}
-                    
-                    </SettingsNav>
-                </SettingsNavWrapper>
-                <SettingsOptions>
-                    
-                    <Switch>
-                        {renderRoutes}
-                    </Switch>
-                </SettingsOptions>
-            </SettingsContentWrapper>
+            <Link className="settings_nav_link" key={index} to={"/app/settings/" + item.url}>
+                <SettingsNavItem key={index} onClick={navItemClicked}>
+                    {item.title}
+                </SettingsNavItem>
+            </Link>
         )
-    }
+    })
+
+    const renderRoutes = navItems.map((item,index) => {
+        if(item.requireAdmin && !accountInfo.is_admin) {
+            return null
+        }
+        return(
+            <Route path={"/app/settings/"+item.url} key={index}>
+                {activeSetting && <OptionTitle>
+                    {activeSetting.title}
+                </OptionTitle>}
+                {React.createElement(item.component, {token: token}, null)}
+            </Route>
+        )
+    })
+
+    return(
+        <SettingsContentWrapper id="settings_content_wrapper">
+            <SettingsNavWrapper>
+                <SettingsNav>
+
+                    <SettingsNavItem className="nav_title">
+                        Account Settings
+                    </SettingsNavItem>
+                    {renderNavItems}
+                
+                </SettingsNav>
+            </SettingsNavWrapper>
+            <SettingsOptions>
+                
+                <Routes>
+                    {renderRoutes}
+                </Routes>
+            </SettingsOptions>
+        </SettingsContentWrapper>
+    )
 }
+export default SettingsContent

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import config from '../../config'
+import {config} from '../../config'
 import LoadingGear from './Gear-0.2s-200px.svg'
 
 const SpotifyCallbackWrapper = styled.div`
@@ -33,119 +33,89 @@ const SuccessText = styled.span`
     font-family:"Fira Code";
     font-size: 22px;
 `
-// const SaveMeButton = styled.a`
-//     display:flex;
-//     flex-direction: row;
-//     justify-content: center;
-//     align-items: center;
 
-//     margin-top: 50px;
 
-//     color: #202225;
-//     font-size: 30px;
-//     font-weight: 700;
-//     height: 50px;
-//     width: 200px;
+const SpotfiyCallback = () => {
 
-//     background: linear-gradient(var(--gradientDegree),var(--green) 0% ,var(--yellow) 50%,var(--pink) 100%);
-//     background-size: 200% 100%;
+    const [success, setSuccess] = useState(false)
+    const [successMessage, setSuccessMessage] = useState("")
+    const [error, setError] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
 
-//     border-radius: 8px;
+    useEffect(() => {
 
-//     cursor:pointer;
-
-//     text-decoration: none;
-
-//     transition: linear 0.2s all;
+        async function getSpotifyPlaylists() {
+            
+            const authCode = new URLSearchParams(window.location.search).get("code")
     
-//     &:hover{
-//         background-position-x: 100%;
-//     }
-
-// `
-export default class SpotfiyCallback extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            working: true,
-            success: false,
-            successMessage: "",
-        }
-        
-    }
+            
+            const redirectURI = window.location.origin + window.location.pathname
     
-    async componentDidMount() {
-
-        const authCode = new URLSearchParams(window.location.search).get("code")
-
-        
-        const redirectURI = window.location.origin + window.location.pathname
-
-        if (!authCode){
-            console.log("No code available.")
-            this.setState({error: {
-                text:"No code provided. Please use the spotify button inside music player."
-            }})
-            return
-        }
-        const response = await fetch(config.botdiz_server + '/playlists', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                code: authCode,
-                redirect_uri: redirectURI
-            })
-        }).then(data => data)
-        
-        const parsedResponse = await response.json()
-
-        if (parsedResponse.status === "success") {
-            this.setState({success: true, successMessage: parsedResponse.message})
-        } else if (parsedResponse.status === "error") {
-            this.setState({error: {
-                text: parsedResponse.message
-            }})
+            if (!authCode){
+                console.log("No code available.")
+                setError(true)
+                setErrorMessage("No code provided. Please use the spotify button inside music player.")
+                
+                return
+            }
+            const response = await fetch(config.botdiz_server + '/playlists', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    code: authCode,
+                    redirect_uri: redirectURI
+                })
+            }).then(data => data)
+            
+            const parsedResponse = await response.json()
+    
+            if (parsedResponse.status === "success") {
+                setSuccess(true)
+                setSuccessMessage(parsedResponse.message)
+            } else if (parsedResponse.status === "error") {
+                setError(true)
+                setErrorMessage(parsedResponse.message)
+                
+            }
         }
 
-    }
+        getSpotifyPlaylists()
+    }, [])
+    
 
-
-   
-
-    render() {
-
-        if(this.state.error) {
-            return(
-                <SpotifyCallbackWrapper>
-                    <ErrorText>
-                        {this.state.error.text}
-                    </ErrorText>
-                </SpotifyCallbackWrapper>
-            )
-        }
-
-        if(this.state.success) {
-
-            return(
-                <SpotifyCallbackWrapper>
-                    <SuccessText>
-                        {this.state.successMessage}. Close this window and refresh dashboard 
-                    </SuccessText>
-                    
-                </SpotifyCallbackWrapper>
-            )
-        }
-
+    if(error) {
         return(
             <SpotifyCallbackWrapper>
-                <LoadingGearIcon src={LoadingGear} />
-                <LoadingText>
-                    Getting playlists from Spotify
-                </LoadingText>
+                <ErrorText>
+                    {errorMessage}
+                </ErrorText>
             </SpotifyCallbackWrapper>
         )
     }
+
+    if(success) {
+
+        return(
+            <SpotifyCallbackWrapper>
+                <SuccessText>
+                    {successMessage}. Close this window and refresh dashboard 
+                </SuccessText>
+                
+            </SpotifyCallbackWrapper>
+        )
+    }
+
+    return(
+        <SpotifyCallbackWrapper>
+            <LoadingGearIcon src={LoadingGear} />
+            <LoadingText>
+                Getting playlists from Spotify
+            </LoadingText>
+        </SpotifyCallbackWrapper>
+    )
 }
+
+export default SpotfiyCallback

@@ -1,5 +1,5 @@
-import config from 'config';
-import React from 'react'
+import {config} from 'config';
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 
 const BotdizStatsWrapper = styled.div`
@@ -44,68 +44,62 @@ const StatsWrapper = styled.div`
     
     width: 100%;
 `;
-export default class BotdizStats extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            totalGuilds: 0,
-            totalPlaying: 0
-        }
-    }
+const BotdizStats = () => {
     
-    componentDidMount() {
-        this.getBotdizStats()
-    }
-
-    getBotdizStats = async () => {
-
-        try {
-            
-            const statsReply = await fetch(config.botdiz_server + "/botdizstats", {
-                method: "GET",
-                credentials: "include"
-            })
-            .then(reply => reply.json())
-            .catch(err => {console.log("Error while trying to fetch botdiz stats"); return})
+    const [totalGuilds, setTotalGuilds] = useState(0);
+    const [totalPlaying, setTotalPlaying] = useState(0);
 
 
-            this.setState({
-                totalGuilds: statsReply.result.total_guilds,
-                totalPlaying: statsReply.result.total_playing
-            })
-        } catch (error) {
-            
+    useEffect(() => {
+
+        const getBotdizStats = async () => {
+
+            try {
+                
+                const statsReply = await fetch(config.botdiz_server + "/botdizstats", {
+                    method: "GET",
+                    credentials: "include"
+                })
+                .then(reply => reply.json())
+    
+                setTotalGuilds(statsReply.result.total_guilds)
+                setTotalPlaying(statsReply.result.total_playing)
+            } catch (error) {
+                console.log("Error while trying to fetch botdiz stats");
+            }
         }
-    }
-    render() {
 
-        return (
-            <BotdizStatsWrapper>
-                <StatsWrapper>
-                    <Stat
-                        color="pink-purple"
-                    >
-                        <StatTitle>
-                            Total Guilds:
-                        </StatTitle>
-                        <StatValue>
-                            {this.state.totalGuilds}
-                        </StatValue>
-                    </Stat>
-                    <Stat
-                        color={"purple-cyan"}
-                    >
-                        <StatTitle>
-                            Total Playing:
-                        </StatTitle>
-                        <StatValue>
-                            {this.state.totalPlaying}
-                        </StatValue>
-                    </Stat>
+        getBotdizStats()
 
-                </StatsWrapper>
-            </BotdizStatsWrapper>
-        )
-    }
+    }, [])
+    
+    return (
+        <BotdizStatsWrapper>
+            <StatsWrapper>
+                <Stat
+                    color="pink-purple"
+                >
+                    <StatTitle>
+                        Total Guilds:
+                    </StatTitle>
+                    <StatValue>
+                        {totalGuilds}
+                    </StatValue>
+                </Stat>
+                <Stat
+                    color={"purple-cyan"}
+                >
+                    <StatTitle>
+                        Total Playing:
+                    </StatTitle>
+                    <StatValue>
+                        {totalPlaying}
+                    </StatValue>
+                </Stat>
+
+            </StatsWrapper>
+        </BotdizStatsWrapper>
+    )
 }
+
+export default BotdizStats

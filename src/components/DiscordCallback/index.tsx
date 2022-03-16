@@ -1,7 +1,7 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import config from '../../config'
-import LoadingGear from './Gear-0.2s-200px.svg'
+import { config } from '../../config'
+const LoadingGear = require("./Gear-0.2s-200px.svg") as string;
 
 const DiscordCallbackWrapper = styled.div`
     height: 100%;
@@ -34,6 +34,7 @@ const ErrorText = styled.span`
     padding: 0 10%;
 
     text-align: center;
+    word-break: keep-all;
 `
 const SuccessText = styled.span`
     color: #00b85f;
@@ -70,31 +71,25 @@ const SaveMeButton = styled.a`
     }
 
 `
-export default class DiscordCallback extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            working: true,
-            success: false,
-            successMessage: "",
-        }
-        
-    }
+export const DiscordCallback: React.FC = () => {
+   
+  
+    const [success, setSuccess] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     
-    async componentDidMount() {
-
+    const DiscordCallbackInit = async () => {
         const authCode = new URLSearchParams(window.location.search).get("code")
-
-        
 
         if (!authCode){
             console.log("No code available.")
-            this.setState({error: {
-                text:"No code provided"
-            }})
+            setError(true);
+            setErrorMessage("No code available.");
+          
             return
         }
-        const response = await fetch(config.botdiz_server + '/discordlogin', {
+        const response  = await fetch(config.botdiz_server + '/discordlogin', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -109,7 +104,10 @@ export default class DiscordCallback extends React.Component {
 
         console.log(parsedResponse)
         if (parsedResponse.result === "OK") {
-            this.setState({success: true, successMessage: "Login successful"})
+            setSuccess(true);
+            setError(false);
+            setSuccessMessage("Login successful");
+
             let botdizUrl;
             if (process.env.NODE_ENV === "development") {
                 botdizUrl = "http://localhost:3000/app"
@@ -118,15 +116,21 @@ export default class DiscordCallback extends React.Component {
             }
             window.open(botdizUrl,"_self")
         } else if (parsedResponse.status === "error") {
-            this.setState({error: {
-                text: parsedResponse.message
-            }})
+            setSuccess(false);
+            setError(true);
+            setErrorMessage(parsedResponse.message);
+            
+            
         }
-
     }
+    useEffect(() => {
+
+        DiscordCallbackInit()
+        
+    }, [])
 
 
-    handleSaveMe = async () => {
+    const handleSaveMe = async () => {
         let botdizUrl;
             if (process.env.NODE_ENV === "development") {
                 botdizUrl = "http://localhost:3000/app"
@@ -136,41 +140,41 @@ export default class DiscordCallback extends React.Component {
             window.open(botdizUrl,"_self")
     }
 
-    render() {
-
-        if(this.state.error) {
-            return(
-                <DiscordCallbackWrapper>
-                    <ErrorText style={{"word-break": "keep-all"}}>
-                        Failed to login via Discord. Try again later. 
-                        <br />Contact oddiz if issue persists
-                    </ErrorText>
-                    <SaveMeButton onClick={this.handleSaveMe}>
-                        Retry
-                    </SaveMeButton>
-                </DiscordCallbackWrapper>
-            )
-        }
-
-        if(this.state.success) {
-
-            return(
-                <DiscordCallbackWrapper>
-                    <SuccessText>
-                        {this.state.successMessage} You can now close this window. 
-                    </SuccessText>
-                    
-                </DiscordCallbackWrapper>
-            )
-        }
-
+    if(error) {
         return(
             <DiscordCallbackWrapper>
-                <LoadingGearIcon src={LoadingGear} />
-                <LoadingText>
-                    Logging in with Discord
-                </LoadingText>
+                <ErrorText>
+                    Failed to login via Discord.
+
+                    Reason: {errorMessage} 
+                    <br />Contact oddiz if issue persists
+                </ErrorText>
+                <SaveMeButton onClick={handleSaveMe}>
+                    Retry
+                </SaveMeButton>
             </DiscordCallbackWrapper>
         )
     }
+
+    if(success) {
+
+        return(
+            <DiscordCallbackWrapper>
+                <SuccessText>
+                    {successMessage} You can now close this window. 
+                </SuccessText>
+                
+            </DiscordCallbackWrapper>
+        )
+    }
+
+    return(
+        <DiscordCallbackWrapper>
+            <LoadingGearIcon src={LoadingGear} />
+            <LoadingText>
+                Logging in with Discord
+            </LoadingText>
+        </DiscordCallbackWrapper>
+    )
+    
 }

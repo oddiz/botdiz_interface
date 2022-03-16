@@ -1,4 +1,6 @@
+import { accountData } from 'components/App/Atoms';
 import React from 'react'
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import SettingsContent from './SettingsContent/SettingsContent'
 
@@ -48,39 +50,28 @@ const UserName = styled.span`
     color: white;
 `;
 
-export default class SettingsPage extends React.Component {
-    constructor(props) {
-        super(props)
+const SettingsPage = () => {
+    
 
-        this.state = {
+    const accountInfo = useRecoilValue(accountData);
 
-        }
+    return (
+        <SettingsPageWrapper id="settings_page_wrapper">
+            <SettingsPageContent id="settings_page_content">
+                
+                <AccountInfoHeader>
+                    <ProfilePic src={accountInfo.avatarURL} alt="Profile Pic" />
+                    <UserName>
+                        {accountInfo.username}
+                    </UserName>
+                </AccountInfoHeader>
 
-        this.accountInfo = props.accountInfo;
-        this.token = props.token;
-    }
+                <SettingsContent />
 
-    render() {
-        return (
-            <SettingsPageWrapper id="settings_page_wrapper">
-                <SettingsPageContent id="settings_page_content">
-                    
-                    <AccountInfoHeader>
-                        <ProfilePic src={this.accountInfo.avatarURL} alt="Profile Pic" />
-                        <UserName>
-                            {this.accountInfo.username}
-                        </UserName>
-                    </AccountInfoHeader>
-
-                    <SettingsContent 
-                        token={this.token}
-                        accountInfo={this.accountInfo}
-                        location={this.props.location}
-                    />
-
-                    
-                </SettingsPageContent>
-            </SettingsPageWrapper>
-        )
-    }
+                
+            </SettingsPageContent>
+        </SettingsPageWrapper>
+    )
 }
+
+export default SettingsPage

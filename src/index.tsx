@@ -4,36 +4,43 @@ import './index.css';
 import App from './components/App/App';
 import reportWebVitals from './reportWebVitals';
 import './fonts/Whitney/whitney.css'
-import { BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import SpotifyCallback from './components/SpotifyCallback'
-import DiscordLogin from './components/DiscordCallback'
+import { DiscordCallback } from './components/DiscordCallback'
 import NotFoundPage from './404'
+import { RecoilRoot } from 'recoil'
 
+
+declare global {
+    interface Window {
+        gtag: any
+    }
+}
 
 ReactDOM.render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Switch>
-                <Route exact path="/spotifycallback">
-                    <SpotifyCallback /> 
-                </Route>
-                <Route exact path="/discordlogin">
-                    <DiscordLogin />
-                </Route>
-                <Route path='/app' component={App} >
-                </Route>
-                <Route exact path='/404'>
-                    <NotFoundPage />
-                </Route>
-                <Route exact path={['/']}>
-                    <Redirect to='/app' />
-                </Route>
-                <Route>
-                    <Redirect to='/404' />
-                </Route>
+        <RecoilRoot>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/app' element={<App />} />
+                    <Route path="/spotifycallback" element= {<SpotifyCallback />} />
+                    <Route path="/discordlogin" element={<DiscordCallback />} />
+                    <Route path='/404' element={<NotFoundPage />} />
+                    <Route path='/' element={
+                        <Navigate replace to='/app' />
+                    } />
+                    <Route
+                        path="*"
+                        element={
+                            <Navigate replace to='/404' />
+                        }
+                    />
 
-            </Switch>
-        </BrowserRouter>
+                </Routes>
+                
+                
+            </BrowserRouter>
+        </RecoilRoot>
     </React.StrictMode>,
     document.getElementById('root')
 );
@@ -43,6 +50,7 @@ ReactDOM.render(
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals(sendToGoogleAnalytics);
 
+//@ts-ignore
 function sendToGoogleAnalytics({name, delta, value, id}) {
     // Assumes the global `gtag()` function exists, see:
     // https://developers.google.com/analytics/devguides/collection/ga4

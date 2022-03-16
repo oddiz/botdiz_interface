@@ -1,23 +1,12 @@
+import { IPlayerInfo } from "components/App/AppContent/Dashboard/MusicPlayer/Atoms";
 
-/**
- * 
- * @param {object} message - Payload to send to the server. {
- *   type: "GET"
- *   token:  
- *   command:
- *   params:
- * } 
- * @param {function} onSuccess - function to be called if successful
- * @param {*} onError - function to be called if not successful
- */
-export async function sendGetCommand (websocket, message, onSuccess, onError) {
 
-}
-
-export function shortenString(text, maxWidth, fontSize, fontFamily) {
-    function getTextWidth (text){
+export function shortenString(text: string, maxWidth: number, fontSize:string, fontFamily: string) {
+    
+    function getTextWidth (text: string){
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
+        if (!context) return
         const font = fontSize+ " " + fontFamily
         context.font = font
         
@@ -29,13 +18,13 @@ export function shortenString(text, maxWidth, fontSize, fontFamily) {
     // }
 
     const textWidth = getTextWidth(text)
-    if (textWidth > maxWidth) {
+    if (textWidth && textWidth > maxWidth) {
         let counter = 0;
 
         let newText = text.substring(0,counter) + "..."
         let newTextWidth = getTextWidth(newText)
         
-        while (newTextWidth < maxWidth) {
+        while (newTextWidth && newTextWidth < maxWidth) {
 
             counter ++
             newText = text.substring(0,counter) + "..."
@@ -53,3 +42,39 @@ export function shortenString(text, maxWidth, fontSize, fontFamily) {
     }
     
 }
+
+export const formatStreamTime = (playerInfo: IPlayerInfo) => {
+    const streamTime = playerInfo.streamTime || 0;
+    const streamHours = Math.floor((streamTime / (60 * 60)) % 60);
+    const streamMins = Math.floor((streamTime / 60) % 60);
+    const streamSecs = Math.floor(streamTime % 60);
+
+    const videoLenght = playerInfo.videoLength || 0; //secs
+    const videoHours = Math.floor((videoLenght / (60 * 60)) % 60);
+    const videoMins = Math.floor((videoLenght / 60) % 60);
+    const videoSecs = Math.floor(videoLenght % 60);
+
+    const percentage = ((streamTime * 100) / videoLenght).toFixed(1) || 0;
+
+    let formattedStreamTime, formattedVideoLength;
+    if (videoHours > 0) {
+        formattedStreamTime = `${streamHours}:${streamMins
+            .toString()
+            .padStart(2, '0')}:${streamSecs.toString().padStart(2, '0')}`;
+        formattedVideoLength = `${videoHours}:${videoMins
+            .toString()
+            .padStart(2, '0')}:${videoSecs.toString().padStart(2, '0')}`;
+    } else {
+        formattedStreamTime = `${streamMins}:${streamSecs
+            .toString()
+            .padStart(2, '0')}`;
+        formattedVideoLength = `${videoMins}:${videoSecs
+            .toString()
+            .padStart(2, '0')}`;
+    }
+    return {
+        formattedStreamTime: formattedStreamTime,
+        formattedVideoLenght: formattedVideoLength,
+        percentage: percentage,
+    };
+};
