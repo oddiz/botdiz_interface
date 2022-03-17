@@ -199,6 +199,7 @@ function ChatRoom(props: { activeChannelMessages: ChatRoomMessage[] | null }) {
             </MessageWrapper>
         )
     })
+    console.log(mappedMessages)
     return(
         <ChatRoomWrapper className="" key={messages.length}>
             <Scrollbars
@@ -238,9 +239,91 @@ const ChatContent = () => {
     const activeChannel = useRecoilValue(activeTextChannelState)
     const { token, websocket } = useRecoilValue(connectionState)
     const [activeChannelMessages, setActiveChannelMessages] = useState<ChatRoomMessage[] |null | "unauthorized">(null)
-    const [listeners, setListeners] = useState([])
 
     useEffect(() => {
+        const getChannelMessages = async() => {
+            if (!activeChannel) {
+                console.log("No active channels")
+                return
+            }
+            if (!activeGuild) return
+    
+            if (!websocket) {
+                console.log("No websocket")
+                return
+            }
+            const message = JSON.stringify({
+                type:"get",
+                token: token,
+                command: "RPC_getTextChannelContent",
+                params: [activeGuild?.id, activeChannel?.id]
+            })
+    
+            websocket.send(message)
+    
+            websocket.onmessage = (reply) => {
+                let parsedReply;
+                
+                try {
+                    parsedReply = JSON.parse(reply.data)
+                } catch (error) {
+                    console.log("Unable to parse reply")
+                    return
+                }
+    
+                
+                if(parsedReply.result && parsedReply.command === "RPC_getTextChannelContent") {
+                    
+                    if(parsedReply.result.status === "unauthorized") {
+                        console.log("Not authorized to see the channel content")
+                        setActiveChannelMessages("unauthorized")
+                        return
+                    }
+    
+                    if(parsedReply.result.status ==="failed") {
+                        console.log("failed to get channel messages")
+                        return
+                    }
+                    
+                    if(parsedReply.result.status === "success") {
+                        setActiveChannelMessages(parsedReply.result.messages)
+    
+                        return
+                    }
+    
+                }
+    
+                if (parsedReply.event === "new_message" && (activeChannelMessages !== "unauthorized")) {
+                    const newMessage = parsedReply as WebsocketNewMessageEvent
+                    let currentMessages = activeChannelMessages || []
+                    
+                    
+                    currentMessages.unshift(newMessage.message)
+                    setActiveChannelMessages(currentMessages)
+                    
+                }
+            }
+        }
+        const setupListener = async() => {
+
+            const guildId = activeChannel?.id
+            if (!guildId) return
+            if (!websocket) return
+            const message = JSON.stringify({
+                type: `addTextChannelListener`,
+                token: token,
+                command:`RPC_listenTextChannel`,
+                //need guildid, channelid
+                guildId: guildId,
+                channelId: activeChannel.id
+            })
+    
+            websocket.send(message)
+    
+            
+    
+        }
+        if(!token || !websocket) return
         getChannelMessages()
         setupListener()
       return () => {
@@ -250,97 +333,18 @@ const ChatContent = () => {
             token: token
         }))
       }
-    }, [])
+    }, [token, websocket])
     
    
 
-    const setupListener = async() => {
-
-        const guildId = activeChannel?.id
-        if (!guildId) return
-        if (!websocket) return
-        const message = JSON.stringify({
-            type: `addTextChannelListener`,
-            token: token,
-            command:`RPC_listenTextChannel`,
-            //need guildid, channelid
-            guildId: guildId,
-            channelId: activeChannel.id
-        })
-
-        websocket.send(message)
-
-        
-
-    }
+    
 
     type WebsocketNewMessageEvent = {
         event: 'new_message',
         listenerId: string,
         message: ChatRoomMessage
     }
-    const getChannelMessages = async() => {
-        if (!activeChannel) {
-            console.log("No active channels")
-            return
-        }
-
-        if (!websocket) {
-            console.log("No websocket")
-            return
-        }
-        const message = JSON.stringify({
-            type:"get",
-            token: token,
-            command: "RPC_getTextChannelContent",
-            params: [activeGuild?.id, activeChannel?.id]
-        })
-
-        websocket.send(message)
-
-        websocket.onmessage = (reply) => {
-            let parsedReply;
-            
-            try {
-                parsedReply = JSON.parse(reply.data)
-            } catch (error) {
-                console.log("Unable to parse reply")
-                return
-            }
-
-            
-            if(parsedReply.result && parsedReply.command === "RPC_getTextChannelContent") {
-                
-                if(parsedReply.result.status === "unauthorized") {
-                    console.log("Not authorized to see the channel content")
-                    setActiveChannelMessages("unauthorized")
-                    return
-                }
-
-                if(parsedReply.result.status ==="failed") {
-                    console.log("failed to get channel messages")
-                    return
-                }
-                
-                if(parsedReply.result.status === "success") {
-                    setActiveChannelMessages(parsedReply.result.messages)
-
-                    return
-                }
-
-            }
-
-            if (parsedReply.event === "new_message" && (activeChannelMessages !== "unauthorized")) {
-                const newMessage = parsedReply as WebsocketNewMessageEvent
-                let currentMessages = activeChannelMessages || []
-                
-                
-                currentMessages.unshift(newMessage.message)
-                setActiveChannelMessages(currentMessages)
-                
-            }
-        }
-    }
+    
 
     if(activeChannelMessages === "unauthorized") {
         return(

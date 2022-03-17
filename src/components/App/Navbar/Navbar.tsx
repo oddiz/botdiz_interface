@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import "./Navbar.css";
@@ -131,22 +131,26 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
 	if (initialLocation === "/app") {
 		initialLocation = "/app/dashboard";
 	}
-	let initialIndex = null,
-		initialMenuItem = null;
-	for (const [index, menuItem] of menuItems.entries()) {
-		if (menuItem.link === initialLocation) {
-			initialIndex = index;
-			initialMenuItem = menuItem;
-		}
-	}
-
+    
     const [activePage, setActivePageState] = useRecoilState(activePageState);
+    
+    useEffect(() => {
+        let initialIndex = null,
+            initialMenuItem = null;
+        for (const [index, menuItem] of menuItems.entries()) {
+            if (menuItem.link === initialLocation) {
+                initialIndex = index;
+                initialMenuItem = menuItem;
+            }
+        }
 
-    setActivePageState({
-        index: initialIndex,
-        name: initialMenuItem?.value || null,
-    })
-
+        setActivePageState({
+            index: initialIndex,
+            name: initialMenuItem?.value || null,
+        })
+      
+    }, [])
+    
 
 
 	const handleClick = async (event: React.MouseEvent<HTMLElement>) => {

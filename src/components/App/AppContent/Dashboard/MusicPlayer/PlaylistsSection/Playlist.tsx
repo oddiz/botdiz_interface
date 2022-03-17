@@ -104,53 +104,58 @@ const Playlist = () => {
     const activeGuild = useRecoilValue(activeGuildState)
     const inVoiceChannel = useRecoilValue(inVoiceChannelState)
     
-    let lastClickedPlaylist: HTMLElement | null = null;
+    let lastClickedPlaylist = useRef<HTMLElement | null>(null);
 
-    useEffect(() => {
-        const listenWebsocketReply = async (reply: MessageEvent) => {
+    const listenWebsocketReply = async (reply: MessageEvent) => {
 
-                
-            let parsedReply;
             
-            try {
-                parsedReply = JSON.parse(reply.data)
-                
-            } catch (error) {
-                console.log(error)
-                return
-            }
-    
-            if (parsedReply.command !== "RPC_addSpotifyPlaylist") {
-                //only listen to add spotify playlist command replies
-                return
-            }
-    
-    
-            if (parsedReply.status === "success") {
-                setProcessingPlaylist(false)
-                if (lastClickedPlaylist) {
-                    lastClickedPlaylist.classList.remove("loading")
-                    lastClickedPlaylist.classList.add("success")
-                }
-    
-            } else if (parsedReply.status === "failed") {
-                toast.error('Failed to add playlist');
-                if (lastClickedPlaylist) {
-                    lastClickedPlaylist.classList.remove("loading")
-                    lastClickedPlaylist.classList.remove("failed")
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                    lastClickedPlaylist.classList.add("failed")
-                }
-                setProcessingPlaylist(false)
-            }
-        }
-      websocket?.addEventListener("message", listenWebsocketReply)
-
-      return () => {
+        let parsedReply;
         
-        websocket?.removeEventListener("message", listenWebsocketReply)
-      }
-    }, [lastClickedPlaylist, websocket])
+        try {
+            parsedReply = JSON.parse(reply.data)
+            
+        } catch (error) {
+            console.log(error)
+            return
+        }
+
+        if (parsedReply.command !== "RPC_addSpotifyPlaylist") {
+            //only listen to add spotify playlist command replies
+            return
+        }
+
+
+        if (parsedReply.status === "success") {
+            setProcessingPlaylist(false)
+            if (lastClickedPlaylist.current) {
+                lastClickedPlaylist.current.classList.remove("loading")
+                lastClickedPlaylist.current.classList.add("success")
+            }
+
+        } else if (parsedReply.status === "failed") {
+            toast.error('Failed to add playlist');
+            if (lastClickedPlaylist.current) {
+                lastClickedPlaylist.current.classList.remove("loading")
+                lastClickedPlaylist.current.classList.remove("failed")
+                await new Promise(resolve => setTimeout(resolve, 50));
+                lastClickedPlaylist.current.classList.add("failed")
+            }
+            setProcessingPlaylist(false)
+        }
+    }
+    useEffect(() => {
+        
+        websocket?.addEventListener("message", listenWebsocketReply)
+
+        getPlaylists()
+
+        return () => {
+            
+            websocket?.removeEventListener("message", listenWebsocketReply)
+        }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [websocket])
     
     
     const getPlaylists = async () => {
@@ -252,7 +257,7 @@ const Playlist = () => {
             setControlsDisabled(false)
         }
         
-        lastClickedPlaylist = clickedElement
+        lastClickedPlaylist.current = clickedElement
     }
 
     const handleSpotifyButton = async () => {

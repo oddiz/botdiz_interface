@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { SongInfo } from './Footer/SongInfo';
@@ -18,9 +18,12 @@ import {
     controlsDisabledState,
     formattedStreamTimeState,
     inVoiceChannelState,
+    IPlayerInfo,
     playerInfoState,
+    QueueTrack,
 } from './Atoms';
 import { act } from 'react-dom/test-utils';
+import { areArraysEqual } from 'components/helpers';
 
 // width: ${props => props.percentage}%;  //will get this value from props
 
@@ -127,82 +130,100 @@ const MusicPlayer = () => {
     const { websocket, token } = useRecoilValue(connectionState);
     const activeGuild = useRecoilValue(activeGuildState);
     const [addSongVisible, setAddSongVisible] = useState(false);
+    const websocketPlayerInfo = useRef<IPlayerInfo | null>(null);
+    const queueCache = useRef<QueueTrack[]>([])
 
-    useEffect(() => {
-        const setupMusicPlayerListener = async () => {
-            const guildId = activeGuild?.id;
-    
-            if (!guildId) {
-                console.log('No idle guilds');
+    const setupMusicPlayerListener = async () => {
+        const guildId = activeGuild?.id;
+
+        if (!guildId) {
+            console.log('No idle guilds');
+            return;
+        }
+        if (!websocket) {
+            console.log('No websocket');
+            return;
+        }
+
+        const message = JSON.stringify({
+            type: 'listenMusicPlayer',
+            listenerId: guildId,
+            token: token,
+            command: 'RPC_ListenMusicPlayer',
+            //params guildid
+            guildId: guildId,
+        });
+
+        websocket.send(message);
+
+        websocket.onmessage = (reply) => {
+            let parsedReply;
+
+            try {
+                parsedReply = JSON.parse(reply.data);
+            } catch (error) {
+                console.log('Unable to parse reply');
                 return;
             }
-            if (!websocket) {
-                console.log('No websocket');
-                return;
-            }
-    
-            const message = JSON.stringify({
-                type: 'listenMusicPlayer',
-                listenerId: guildId,
-                token: token,
-                command: 'RPC_ListenMusicPlayer',
-                //params guildid
-                guildId: guildId,
-            });
-    
-            websocket.send(message);
-    
-            websocket.onmessage = (reply) => {
-                let parsedReply;
-    
-                try {
-                    parsedReply = JSON.parse(reply.data);
-                } catch (error) {
-                    console.log('Unable to parse reply');
-                    return;
+            if (parsedReply.event === 'musicplayer_update') {
+                const {
+                    currentTitle,
+                    streamTime,
+                    videoLength,
+                    audioPlayerStatus,
+                    videoThumbnailUrl,
+                    skipVoteData,
+                    queue
+                } = parsedReply.message;
+
+                const newWebsocketInfo = {
+                    currentTitle: currentTitle,
+                    streamTime: streamTime,
+                    videoLength: videoLength,
+                    audioPlayerStatus: audioPlayerStatus,
+                    videoThumbnailUrl: videoThumbnailUrl,
+                    skipVoteData: skipVoteData,
                 }
-                if (parsedReply.event === 'musicplayer_update') {
-                    const {
-                        currentTitle,
-                        streamTime,
-                        videoLength,
-                        audioPlayerStatus,
-                        videoThumbnailUrl,
-                        skipVoteData,
-                    } = parsedReply.message;
-                    setPlayerInfo({
-                        currentTitle: currentTitle,
-                        streamTime: streamTime,
-                        videoLength: videoLength,
-                        audioPlayerStatus: audioPlayerStatus,
-                        videoThumbnailUrl: videoThumbnailUrl,
-                        skipVoteData: skipVoteData,
-                    });
+                
+                
+                 
+                if (JSON.stringify(websocketPlayerInfo.current) !== JSON.stringify(newWebsocketInfo)) {
+                    setPlayerInfo(newWebsocketInfo);
+                    websocketPlayerInfo.current = newWebsocketInfo
+                }
+                
+                
+                
+                if(!areArraysEqual(queueCache.current, queue)) {
+                    //if arrays are not equal, update queue
                     setQueue(parsedReply.message.queue);
+                    queueCache.current = queue
                 }
-    
-                if (
-                    parsedReply.event === 'exec_command_status' &&
-                    parsedReply.status === 'failed'
-                ) {
-                    toast.error(parsedReply.message);
-                }
-    
-                const RpcCommands = [
-                    'RPC_pausePlayer',
-                    'RPC_resumePlayer',
-                    'RPC_skipSong',
-                    'RPC_stopPlayer',
-                    'RPC_deleteQueueSong',
-                    'RPC_playCommand',
-                    'RPC_addSpotifyPlaylist',
-                ];
-    
-                if (RpcCommands.includes(parsedReply.command)) {
-                    setControlsDisabled(false);
-                }
-            };
+            }
+
+            if (
+                parsedReply.event === 'exec_command_status' &&
+                parsedReply.status === 'failed'
+            ) {
+                toast.error(parsedReply.message);
+            }
+
+            const RpcCommands = [
+                'RPC_pausePlayer',
+                'RPC_resumePlayer',
+                'RPC_skipSong',
+                'RPC_stopPlayer',
+                'RPC_deleteQueueSong',
+                'RPC_playCommand',
+                'RPC_addSpotifyPlaylist',
+            ];
+
+            if (RpcCommands.includes(parsedReply.command)) {
+                setControlsDisabled(false);
+            }
         };
+    };
+    useEffect(() => {
         if (websocket?.readyState === WebSocket.OPEN) {
             setupMusicPlayerListener();
         }
@@ -214,12 +235,9 @@ const MusicPlayer = () => {
                 })
             );
         };
-    }, [websocket, activeGuild, token, setPlayerInfo, setQueue, setControlsDisabled]);
+    }, [websocket, token, activeGuild]);
 
     
-
-    
-
     const addSongClicked = async () => {
         if (!inVoiceChannel) {
             return;

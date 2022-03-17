@@ -4,10 +4,11 @@ import GuildBar from './GuildBar'
 import GuildOptions from './GuildOptions'
 import ChatPage from './Chat/ChatPage'
 import MusicPlayer from './MusicPlayer/MusicPlayer'
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { accountData, connectionState } from 'components/App/Atoms';
 import SpotifyApi from 'spotify-web-api-node'
 import NoGuilds from './NoGuilds';
+import { activeGuildState } from './Atoms';
 
 const DashboardWrapper = styled.div`
     width: 100%;
@@ -72,12 +73,14 @@ const Dashboard = () => {
     const [allGuilds, setAllGuilds] = useState<InterfaceGuildObject[] | null>([])
     const [activeOption, setActiveOption] = useState("")
     
-    const [activeGuild, setActiveGuild] = useState<InterfaceGuildObject | null>(null)
+    const [activeGuild, setActiveGuild] = useRecoilState<InterfaceGuildObject | null>(activeGuildState)
     const {websocket, token} = useRecoilValue(connectionState)
     let _isMounted = useRef(false)
 
     useEffect(() => {
         _isMounted.current = true;
+
+        if ( !(websocket && token)) return
         const getGuilds = async () => {
         
             if(!websocket) {
@@ -97,7 +100,6 @@ const Dashboard = () => {
         if(websocket?.readyState === WebSocket.OPEN) {
             websocket.addEventListener("message", websocketDashboardListener, {once:true})
 
-            console.log(allGuilds)
             getGuilds()
         }
 
@@ -108,9 +110,11 @@ const Dashboard = () => {
             }
         }
 
-    }, [websocket, allGuilds, token])
+    }, [websocket, token])
+
 
     const websocketDashboardListener = (reply: MessageEvent<any>) => {
+        if ((allGuilds && allGuilds.length > 0 )|| allGuilds === null) return
         //console.log("reply recieved" ,reply)
         let parsedReply;
 
@@ -122,7 +126,6 @@ const Dashboard = () => {
             return
         }
         
-        console.log(parsedReply)
 
         if(!parsedReply.result) {
             console.log("Reply is not valid or empty: ", parsedReply)
@@ -155,13 +158,6 @@ const Dashboard = () => {
     }
 
     
-
-    
-
-    
-
-    
-
     const RenderGuildOptionContent = () => {
         switch (activeOption) {
             case "Chat":
@@ -198,8 +194,8 @@ const Dashboard = () => {
         const parentOfParentClicked = clickedElement.parentElement?.parentElement 
         if ( !parentOfParentClicked) return
         const activeIndex = [...parentOfParentClicked.children].indexOf(clickedElement.parentElement);
-        
         if(allGuilds) {
+            console.log(allGuilds[activeIndex]);
             setActiveGuild(allGuilds[activeIndex])
             setActiveOption("Music Player")
         }

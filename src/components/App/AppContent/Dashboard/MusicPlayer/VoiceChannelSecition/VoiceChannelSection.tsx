@@ -7,6 +7,7 @@ import { connectionState } from 'components/App/Atoms'
 import { activeGuildState } from '../../Atoms'
 import { audioPlayerStatusState, inVoiceChannelState } from '../Atoms'
 import { GuildMember, Collection } from 'discord.js'
+import { ReactComponent as VolumeIcon } from "./VolumeIcon.svg"
 const ChannelName = styled.div`
     padding-bottom:6px;
     margin-left: 6px;
@@ -71,19 +72,21 @@ const ChannelMember = styled.span`
 interface VoiceChannelProps {
     voiceChannelClicked: (event: React.MouseEvent<HTMLDivElement>) => void;
     channelName: string;
-    channelMembers: Collection<string, GuildMember>;
+    channelMembers: IVoiceChannel["members"];
 }
 const VoiceChannel = (props: VoiceChannelProps) => {
-    const volumeIcon = require("./VolumeIcon.svg") as string
-
     const botdizDiscordId = config.botdiz_discordId
+
     const renderChannelMembers = props.channelMembers.map((member,index) => {
+
         return(
-            <ChannelMember key={index} className={member.user.id === botdizDiscordId? "emphasis drac-bg-animated" : ""}>
+            <ChannelMember key={index} className={member.userId === botdizDiscordId? "emphasis drac-bg-animated" : ""}>
                 {member.displayName}
             </ChannelMember>
         )
     })
+
+    
 
     function getTextWidth(text: string) {
         const canvas = document.createElement('canvas');
@@ -123,7 +126,7 @@ const VoiceChannel = (props: VoiceChannelProps) => {
         <VoiceChannelWrapper onClick={props.voiceChannelClicked}>
             <VoiceChannelTitleWrapper>
                 <HashtagDiv>
-                    {volumeIcon} 
+                    <VolumeIcon /> 
                 </HashtagDiv>
                 <ChannelName>
                     {channelName}
@@ -149,18 +152,20 @@ const VoiceChannelSectionWrapper = styled.div`
     font-size:14px;
 
 `
-
+interface FixedGuildMember extends GuildMember {
+    userId: string
+}
 export interface IVoiceChannel {
     name: string;
     id: string;
-    members: Collection<string, GuildMember>;
+    members: FixedGuildMember[] ;
 }
 const VoiceChannelSection = () => {
 
     const { token , websocket } = useRecoilValue(connectionState)
     const activeGuild = useRecoilValue(activeGuildState)
     const guildId = activeGuild?.id
-    const audioPlayerStatus = useRecoilValue(audioPlayerStatusState)
+    
     const [voiceChannels, setVoiceChannels] = useState<IVoiceChannel[]>([])
     const [, setInvoiceChannel] = useRecoilState(inVoiceChannelState)
     
@@ -228,22 +233,22 @@ const VoiceChannelSection = () => {
         return () => {
             websocket?.removeEventListener("message", voiceChannelSectionListener)
         }
-    }, [guildId, token, websocket])
+    }, [])
 
     useEffect(() => {
         const botdizDiscordId = config.botdiz_discordId
 
         let botFound = false
-        for (const voiceChannel of voiceChannels) {
-            const botMember = voiceChannel.members.get(botdizDiscordId)
-            if (botMember) {
-                botFound = true
-            } 
-        }
-
-        setInvoiceChannel(botFound)
+            for (const voiceChannel of voiceChannels) {
+                const botMember = voiceChannel.members.find(member => member.userId === botdizDiscordId)
+                if (botMember) {
+                    botFound = true
+                } 
+            }
+    
+            setInvoiceChannel(botFound)
       
-    }, [audioPlayerStatus, setInvoiceChannel, voiceChannels])
+    }, [voiceChannels])
         
     
 
@@ -271,8 +276,8 @@ const VoiceChannelSection = () => {
     
     const guildVoiceChannels = voiceChannels
 
-    let voiceChannelRender;
-    if (guildVoiceChannels) {
+    let voiceChannelRender = null;
+    if (guildVoiceChannels && guildVoiceChannels.length > 0) {
         voiceChannelRender = guildVoiceChannels.map((channel,index) => {
             return(
                 <VoiceChannel 
@@ -281,6 +286,7 @@ const VoiceChannelSection = () => {
                     channelName={channel.name}
                     channelMembers={channel.members}
                 />
+
             )
         })
 
@@ -293,7 +299,10 @@ const VoiceChannelSection = () => {
                 autoHideTimeout={1500}
                 autoHideDuration={200}
             >
-                {voiceChannelRender}
+            <div>
+            {voiceChannelRender}
+
+            </div>
             </Scrollbars>
         </VoiceChannelSectionWrapper>
     )   

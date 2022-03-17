@@ -1,5 +1,5 @@
 /* eslint-disable no-extend-native */
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { IoPlaySkipForward } from 'react-icons/io5';
 import styled from 'styled-components';
@@ -10,31 +10,25 @@ import {
     audioPlayerCurrentSongState,
     audioPlayerQueueState,
     controlsDisabledState,
+    playerInfoState,
     QueueTrack,
 } from './Atoms';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../Atoms';
 
 
-const areArraysEqual = (array1: any[], array2: any[]) => {
 
-    if (!array1 || !array2) return false;
 
-    // compare lengths - can save a lot of time
-    if (array1.length !== array2.length) return false;
-
-    for (var i = 0, l = array1.length; i < l; i++) {
-        // Check if we have nested arrays
-        if (array1[i] instanceof Array && array2[i] instanceof Array) {
-            // recurse into the nested arrays
-            if (!array1[i].equals(array2[i])) return false;
-        } else if (array1[i] !== array2[i]) {
-            // Warning - two different object instances will never be equal: {x:20} != {x:20}
-            return false;
-        }
-    }
-    return true;
-}
+function useDidUpdateEffect(fn: any, inputs:any) {
+    const didMountRef = useRef(false);
+  
+    useEffect(() => {
+      if (didMountRef.current) { 
+        return fn();
+      }
+      didMountRef.current = true;
+    }, inputs);
+  }
 
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
@@ -64,15 +58,14 @@ const QueueWrapper = styled.div`
 `;
 
 export const Queue = () => {
-    const currentSong = useRecoilValue(audioPlayerCurrentSongState);
-
+    const playerInfo = useRecoilValue(playerInfoState);
 
     return (
         <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
             <QueueWrapper>
                 <h2>Queue</h2>
                 <h4>Current Song</h4>
-                {currentSong.title && <CurrentSong />}
+                {playerInfo.currentTitle && <CurrentSong />}
                 <h4>Next Up</h4>
                 <NextUp />
             </QueueWrapper>
@@ -169,9 +162,9 @@ function NextUp() {
     
     const [queue, setQueue] = useRecoilState(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
-    const guildId = useRecoilValue(activeGuildState)?.id;
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
     const activeGuild = useRecoilValue(activeGuildState)
+    const [sortableQueue, setSortableQueue] = useState<QueueTrack[] | null>([]);
 
     const queueDeleteClicked = async (event: React.MouseEvent<SVGElement>) => {
 
@@ -260,23 +253,36 @@ function NextUp() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queue]);
     */
-
-    useEffect(() => {
-        const updateQueue = () => {
-            const message = JSON.stringify({
-                type: 'exec',
-                token: token,
-                command: 'RPC_updateQueue',
-                params: [guildId, queue],
-            });
     
-            websocket?.send(message);
-        };
+    useEffect(() => {
+        
+        setQueue([])
+      
+    }, [activeGuild])
+    
+    
+    
+    
+    
+    const updateQueue = () => {
+        if(!activeGuild?.id) return
+
+        const message = JSON.stringify({
+            type: 'exec',
+            token: token,
+            command: 'RPC_updateQueue',
+            params: [activeGuild.id, sortableQueue],
+        });
+
+        websocket?.send(message);
+    };
+    useDidUpdateEffect(() => {
+        console.log("time to update")
 
         updateQueue()
     
       
-    }, [guildId, queue, token, websocket])
+    }, [sortableQueue])
     
     type InterfaceQueueItem = ItemInterface & QueueTrack;
 
@@ -327,9 +333,7 @@ function NextUp() {
             <ReactSortable
                 list={parsedQueueSongs}
                 setList={
-                    setQueue as React.Dispatch<
-                        React.SetStateAction<QueueTrack[]>
-                    >
+                    setSortableQueue
                 }
                 animation={200}
             >

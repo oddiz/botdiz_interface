@@ -145,6 +145,7 @@ const App = () => {
     
     useEffect(() => {
         async function run() {
+            
             if (sessionValidated === null) {
                 //haven't tried to validate session yet
 
@@ -153,8 +154,14 @@ const App = () => {
                 //session is not validated
                 console.log("session is not validated")
                 return
-            } else {
+            } else if (sessionValidated && connection.websocket) {
+                console.log("session is validated and websocket is connected");
+                return
+            } else if (sessionValidated) {
+
+                console.log("Setting up websocket.");
                 setupWebsocket();
+                
             }
 			//    .catch(err => console.log(err, "Error while trying to get token."))
 
@@ -202,7 +209,8 @@ const App = () => {
     }
 
     return (
-        <BrowserRouter>
+            
+            <AppWrapper id="app_wrapper" key={Math.floor(Math.random() * 10000)}>
             <ToastContainer
                 position="top-center"
                 autoClose={3000}
@@ -214,29 +222,27 @@ const App = () => {
                 draggable
                 pauseOnHover
             />
-            
-            <AppWrapper id="app_wrapper" key={Math.floor(Math.random() * 10000)}>
-                <Navbar
-                    key={connection.websocket?.readyState + "_navbar"}
-                    setupWebsocket={setupWebsocket}
-                />
 
+            <Navbar
+                setupWebsocket={setupWebsocket}
+            />
                 <AppContentWrapper id="app_content_wrapper">
                     <Routes>
-                    <Route path="/app/dashboard" element={<Dashboard />} />
+                        <Route path="dashboard" element={<Dashboard />} />
 
-                    <Route path="/app/myguilds" element={<MyGuilds />} />
-                    <Route path="/app/settings" element={<Settings />} />
-                    <Route path="/app/stats" element={<BotdizStats />} />
-                    <Route path="/app" element={<Navigate replace to="/app/dashboard" />} />
+                        <Route path="/app/myguilds" element={<MyGuilds />} />
+                        <Route path="/app/settings" element={<Settings />} />
+                        <Route path="/app/stats" element={<BotdizStats />} />
+                        <Route path="*" element={
+                            <Navigate replace to="dashboard" />
+                        } />
                         
-                    <Route element={<Navigate replace to="/404" />} />
+                        <Route element={<Navigate replace to="/404" />} />
         
                        
                     </Routes>
                 </AppContentWrapper>
             </AppWrapper>
-        </BrowserRouter>
     );
 }
 

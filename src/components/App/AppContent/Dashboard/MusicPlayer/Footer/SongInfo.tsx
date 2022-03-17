@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 import { playerInfoState } from '../Atoms'
 
@@ -37,13 +37,14 @@ export function SongInfo () {
     const songTitle = playerInfo.currentTitle
     return(
         <SongInfoWrapper>
-            <VideoImg 
+            {imgUrl && <VideoImg 
                 src={imgUrl}
                 alt={songTitle + " thumbnail"} 
-            />
-            <SongTitle>
+            />}
+
+            { songTitle && <SongTitle>
                 {songTitle}
-            </SongTitle>
+            </SongTitle>}
 
         </SongInfoWrapper>
     )

@@ -22,7 +22,7 @@ ReactDOM.render(
         <RecoilRoot>
             <BrowserRouter>
                 <Routes>
-                    <Route path='/app' element={<App />} />
+                    <Route path='/app/*' element={<App />} />
                     <Route path="/spotifycallback" element= {<SpotifyCallback />} />
                     <Route path="/discordlogin" element={<DiscordCallback />} />
                     <Route path='/404' element={<NotFoundPage />} />

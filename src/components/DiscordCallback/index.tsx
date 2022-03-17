@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { config } from '../../config'
-const LoadingGear = require("./Gear-0.2s-200px.svg") as string;
+import LoadingGear from "./Gear-0.2s-200px.svg"
 
 const DiscordCallbackWrapper = styled.div`
     height: 100%;
