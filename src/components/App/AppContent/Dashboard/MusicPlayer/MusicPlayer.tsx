@@ -11,7 +11,7 @@ import Playlist from './PlaylistsSection/Playlist';
 import { SkipVote } from './Footer/SkipVote';
 import { toast } from 'react-toastify';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { accountData, connectionState } from 'components/App/Atoms';
+import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../Atoms';
 import {
     audioPlayerQueueState,
@@ -22,8 +22,8 @@ import {
     playerInfoState,
     QueueTrack,
 } from './Atoms';
-import { act } from 'react-dom/test-utils';
 import { areArraysEqual } from 'components/helpers';
+import { useCallback } from 'react';
 
 // width: ${props => props.percentage}%;  //will get this value from props
 
@@ -120,20 +120,22 @@ const AddSongIcon = styled(IoAddCircleOutline)`
 `;
 const MusicPlayer = () => {
     const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
-    const [inVoiceChannel, ] =
-        useRecoilState(inVoiceChannelState);
-    const [, setControlsDisabled] = useRecoilState(
-        controlsDisabledState
-    );
-    const [queue, setQueue] = useRecoilState(audioPlayerQueueState);
+    const [inVoiceChannel] = useRecoilState(inVoiceChannelState);
+    const [, setControlsDisabled] = useRecoilState(controlsDisabledState);
+    const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
 
     const { websocket, token } = useRecoilValue(connectionState);
     const activeGuild = useRecoilValue(activeGuildState);
     const [addSongVisible, setAddSongVisible] = useState(false);
+    
+    
     const websocketPlayerInfo = useRef<IPlayerInfo | null>(null);
-    const queueCache = useRef<QueueTrack[]>([])
+    const queueCache = useRef<QueueTrack[]>([]);
+    const musicPlayerListenerSet = useRef(false)
 
-    const setupMusicPlayerListener = async () => {
+    const setupMusicPlayerListener = useCallback(() => {
+        if (musicPlayerListenerSet.current) return
+        
         const guildId = activeGuild?.id;
 
         if (!guildId) {
@@ -144,6 +146,7 @@ const MusicPlayer = () => {
             console.log('No websocket');
             return;
         }
+        console.log("setting up music player");
 
         const message = JSON.stringify({
             type: 'listenMusicPlayer',
@@ -173,7 +176,7 @@ const MusicPlayer = () => {
                     audioPlayerStatus,
                     videoThumbnailUrl,
                     skipVoteData,
-                    queue
+                    queue,
                 } = parsedReply.message;
 
                 const newWebsocketInfo = {
@@ -183,21 +186,26 @@ const MusicPlayer = () => {
                     audioPlayerStatus: audioPlayerStatus,
                     videoThumbnailUrl: videoThumbnailUrl,
                     skipVoteData: skipVoteData,
-                }
-                
-                
-                 
-                if (JSON.stringify(websocketPlayerInfo.current) !== JSON.stringify(newWebsocketInfo)) {
+                };
+
+                if (
+                    JSON.stringify(websocketPlayerInfo.current) !==
+                    JSON.stringify(newWebsocketInfo)
+                ) {
+                    websocketPlayerInfo.current = newWebsocketInfo;
                     setPlayerInfo(newWebsocketInfo);
-                    websocketPlayerInfo.current = newWebsocketInfo
                 }
-                
-                
-                
-                if(!areArraysEqual(queueCache.current, queue)) {
-                    //if arrays are not equal, update queue
-                    setQueue(parsedReply.message.queue);
-                    queueCache.current = queue
+
+                if (
+                    !areArraysEqual(queueCache.current, queue) ||
+                    queueState.guildId !== activeGuild.id
+                ) {
+                    //if arrays are not equal and active guild is changed, update queue
+                    queueCache.current = queue;
+                    setQueueState({
+                        queue: queue,
+                        guildId: activeGuild.id,
+                    });
                 }
             }
 
@@ -222,22 +230,31 @@ const MusicPlayer = () => {
                 setControlsDisabled(false);
             }
         };
-    };
+    }, [activeGuild?.id, queueState.guildId, setControlsDisabled, setPlayerInfo, setQueueState, token, websocket, musicPlayerListenerSet]) 
+
     useEffect(() => {
         if (websocket?.readyState === WebSocket.OPEN) {
             setupMusicPlayerListener();
+            musicPlayerListenerSet.current = true;
+            
         }
+
+    }, [websocket, token, setupMusicPlayerListener]);
+    
+    useEffect(() => {
+        
         return () => {
+            console.log("clearing music player listener");
             websocket?.send(
                 JSON.stringify({
                     type: 'clearListeners',
                     token: token,
                 })
             );
-        };
-    }, [websocket, token, activeGuild]);
-
+        }
+    }, [token, websocket])
     
+
     const addSongClicked = async () => {
         if (!inVoiceChannel) {
             return;
@@ -295,7 +312,7 @@ const MusicPlayer = () => {
 
             websocket.send(message);
             const startTime = new Date().getTime();
-            const cachedQueueLength = queue.length;
+            const cachedQueueLength = queueState.queue.length;
             const cachedCurrentTitle = playerInfo.currentTitle;
             queueLock = true;
 
@@ -303,7 +320,7 @@ const MusicPlayer = () => {
             async function waitForSongChange() {
                 const time = new Date().getTime();
                 if (
-                    cachedQueueLength === queue.length &&
+                    cachedQueueLength === queueState.queue.length &&
                     cachedCurrentTitle === playerInfo.currentTitle &&
                     time < startTime + 1000 * 10
                 ) {
@@ -325,8 +342,6 @@ const MusicPlayer = () => {
         }
     };
 
-    
-
     const formattedTime = useRecoilValue(formattedStreamTimeState);
 
     return (
@@ -345,9 +360,7 @@ const MusicPlayer = () => {
                         <AddSongIcon
                             id="add_song_icon"
                             onClick={addSongClicked}
-                            className={
-                                inVoiceChannel ? '' : 'disabled'
-                            }
+                            className={inVoiceChannel ? '' : 'disabled'}
                         />
                         {addSongVisible && (
                             <AddSong
@@ -364,9 +377,7 @@ const MusicPlayer = () => {
                         {formattedTime.formattedStreamTime}
                     </CurrentTime>
                     <ProgressBar />
-                    <TotalTime>
-                        {formattedTime.formattedVideoLenght}
-                    </TotalTime>
+                    <TotalTime>{formattedTime.formattedVideoLenght}</TotalTime>
                 </SongSliderWrapper>
             </MPFooterWrapper>
         </MusicPlayerWrapper>

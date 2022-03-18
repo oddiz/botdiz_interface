@@ -73,8 +73,8 @@ const WebsocketStatus: React.FC = () => {
                 if (parsedReply.event === "pong") {
                     const newLatency = new Date().getTime() - lastSentPingTime
                     if(_isMountedRef.current) {
-                        setLastLatency(newLatency)
-                        setLatency(newLatency > 1000? 999 : latency)
+                        setLastLatency(latency)
+                        setLatency(newLatency > 1000? 999 : newLatency)
                     }
                 }
     
@@ -96,8 +96,7 @@ const WebsocketStatus: React.FC = () => {
             clearInterval(pingInterval)
         }
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [lastSentPingTime, latency, websocket])
     
     return(
         <WebsocketStatusWrapper id="websocket_status">

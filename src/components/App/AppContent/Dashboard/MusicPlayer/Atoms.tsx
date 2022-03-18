@@ -99,8 +99,11 @@ export const formattedStreamTimeState = selector({
 
 
 export const audioPlayerQueueState = atom({
-    key: "playerQueueState",
-    default: [] as QueueTrack[],
+    key: "audioPlayerQueueState",
+    default:{ 
+        queue: [] as QueueTrack[],
+        guildId: "0"
+    },
 })
 export const inVoiceChannelState = atom({
     key: "inVoiceChannelState",

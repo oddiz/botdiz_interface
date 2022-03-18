@@ -7,7 +7,7 @@ import AddUser from './AddUser/AddUser'
 import Profile from './Profile/Profile'
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
-import { accountData, connectionState } from 'components/App/Atoms';
+import { accountData } from 'components/App/Atoms';
 
 const SettingsOptions = styled.div`
     flex-grow: 1;
@@ -94,7 +94,6 @@ type NavItem = {
 const SettingsContent = () => {
     const location = useLocation();
     const initialLocation = location.pathname.split("/")[3]
-    const { token } = useRecoilValue(connectionState)
     const accountInfo = useRecoilValue(accountData);
     const [activeSetting, setActiveSetting] = useState<NavItem | null>(null)
 
@@ -165,12 +164,7 @@ const SettingsContent = () => {
             return null
         }
         return(
-            <Route path={"/app/settings/"+item.url} key={index}>
-                {activeSetting && <OptionTitle>
-                    {activeSetting.title}
-                </OptionTitle>}
-                {React.createElement(item.component, {token: token}, null)}
-            </Route>
+            <Route path={"settings/"+item.url} key={index} element={item.component} />
         )
     })
 
@@ -188,6 +182,10 @@ const SettingsContent = () => {
             </SettingsNavWrapper>
             <SettingsOptions>
                 
+                {activeSetting && 
+                <OptionTitle>
+                    {activeSetting.title}
+                </OptionTitle>}
                 <Routes>
                     {renderRoutes}
                 </Routes>

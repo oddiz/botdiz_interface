@@ -1,9 +1,10 @@
 import { connectionState } from 'components/App/Atoms'
 import { IoPlayCircle, IoPauseCircle, IoPlaySkipForward, IoStopCircle,IoShuffle } from 'react-icons/io5'
+import { toast } from 'react-toastify'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 import { activeGuildState } from '../../Atoms'
-import { audioPlayerStatusState, controlsDisabledState } from '../Atoms'
+import { audioPlayerStatusState, controlsDisabledState, playerInfoState } from '../Atoms'
 
 const SkipButton = styled(IoPlaySkipForward)`
     font-size: 1.5em;
@@ -132,7 +133,7 @@ export function PlayerControls () {
     const { token, websocket } = useRecoilValue(connectionState)
     const guildId = useRecoilValue(activeGuildState)?.id
     const audioPlayerStatus = useRecoilValue(audioPlayerStatusState)
-
+    const audioPlayerInfo = useRecoilValue(playerInfoState)
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
 
     function shuffleClicked () {
@@ -166,6 +167,10 @@ export function PlayerControls () {
     }
     function playClicked () {
         if(controlsDisabled) {
+            return
+        }
+        if(!audioPlayerInfo.currentTitle) {
+            toast.info("Botdiz is not playing")
             return
         }
         setControlsDisabled(true)

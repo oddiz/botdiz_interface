@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components'
 import GuildBar from './GuildBar'
 import GuildOptions from './GuildOptions'
 import ChatPage from './Chat/ChatPage'
 import MusicPlayer from './MusicPlayer/MusicPlayer'
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { accountData, connectionState } from 'components/App/Atoms';
+import { connectionState } from 'components/App/Atoms';
 import SpotifyApi from 'spotify-web-api-node'
 import NoGuilds from './NoGuilds';
 import { activeGuildState } from './Atoms';
@@ -76,6 +76,52 @@ const Dashboard = () => {
     const [activeGuild, setActiveGuild] = useRecoilState<InterfaceGuildObject | null>(activeGuildState)
     const {websocket, token} = useRecoilValue(connectionState)
     let _isMounted = useRef(false)
+    
+    const websocketDashboardListener = useCallback(
+        (reply: MessageEvent<any>) => {
+            if ((allGuilds && allGuilds.length > 0 )|| allGuilds === null) return
+            //console.log("reply recieved" ,reply)
+            let parsedReply;
+    
+            try {
+                parsedReply = JSON.parse(reply.data)
+                
+            } catch (error) {
+                console.log(error)
+                return
+            }
+            
+    
+            if(!parsedReply.result) {
+                console.log("Reply is not valid or empty: ", parsedReply)
+                return
+            }
+            //get Guild command
+            if(parsedReply.command === "RPC_getGuilds") {
+                if (parsedReply.result.length === 0) {
+                    setAllGuilds(null)
+    
+                    return
+                }
+                const replyGuilds = parsedReply.result as AllowedGuild[]
+                const mappedGuilds = replyGuilds.map( GuildObj => {
+                    return {
+                        id: GuildObj.id,
+                        icon: GuildObj.icon,
+                        dj_access: GuildObj.dj_access,
+                        administrator: GuildObj.administrator,
+                        owner: GuildObj.owner
+                    }
+                })
+                if (_isMounted.current){
+                    setAllGuilds(mappedGuilds)
+                }
+            } else {
+                console.log("Reply is not recognized", parsedReply)
+            }
+        },
+      [allGuilds],
+    )
 
     useEffect(() => {
         _isMounted.current = true;
@@ -110,52 +156,11 @@ const Dashboard = () => {
             }
         }
 
-    }, [websocket, token])
+    }, [websocket, token, websocketDashboardListener])
 
 
-    const websocketDashboardListener = (reply: MessageEvent<any>) => {
-        if ((allGuilds && allGuilds.length > 0 )|| allGuilds === null) return
-        //console.log("reply recieved" ,reply)
-        let parsedReply;
-
-        try {
-            parsedReply = JSON.parse(reply.data)
-            
-        } catch (error) {
-            console.log(error)
-            return
-        }
-        
-
-        if(!parsedReply.result) {
-            console.log("Reply is not valid or empty: ", parsedReply)
-            return
-        }
-        //get Guild command
-        if(parsedReply.command === "RPC_getGuilds") {
-            if (parsedReply.result.length === 0) {
-                setAllGuilds(null)
-
-                return
-            }
-            console.log("Guilds recieved: ", parsedReply.result)
-            const replyGuilds = parsedReply.result as AllowedGuild[]
-            const mappedGuilds = replyGuilds.map( GuildObj => {
-                return {
-                    id: GuildObj.id,
-                    icon: GuildObj.icon,
-                    dj_access: GuildObj.dj_access,
-                    administrator: GuildObj.administrator,
-                    owner: GuildObj.owner
-                }
-            })
-            if (_isMounted.current){
-                setAllGuilds(mappedGuilds)
-            }
-        } else {
-            console.log("Reply is recognized", parsedReply)
-        }
-    }
+    
+     
 
     
     const RenderGuildOptionContent = () => {

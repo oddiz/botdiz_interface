@@ -1,9 +1,10 @@
-import { Button, Select, Switch, Text } from "@dracula/dracula-ui";
+import { Button, Select, Text } from "@dracula/dracula-ui";
 import { connectionState } from "components/App/Atoms";
 import { config } from "config";
 import React, { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
+import Switch from 'react-switch';
 import { SettingContentWrapper, SettingDescription, SettingSubtitle, SubmitButtonWrapper } from "./MyGuildsContent";
 
 interface DbGuildSubscriptions {
@@ -196,13 +197,15 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
                 >
                     Active:
                 </Text>
-                <Switch
+                <Switch 
                     checked={epicSubActive}
                     onChange={handleEpicSubSwitch}
                     height={22}
                     width={44}
                     name={"epic_active_switch"}
-                    color={"cyanGreen"}
+                    offColor={"#42464D"}
+                    onColor={"#2fcc6f"}
+                    onHandleColor="#FFFFFF"    
                 />
             </ActiveSwitch>
             {epicSelectReady && (

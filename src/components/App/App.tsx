@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./AppContent/Dashboard/Dashboard";
 import MyGuilds from "./AppContent/MyGuilds/MyGuilds";
@@ -8,7 +8,6 @@ import Navbar from "./Navbar/Navbar";
 import Login from "../Login/Login";
 import { config } from "../../config";
 import styled from "styled-components";
-import NotFoundPage from "../../404";
 import BotdizStats from "./AppContent/BotdizStats/BotdizStats";
 import { ToastContainer } from "react-toastify";
 import { useRecoilState } from "recoil";
@@ -155,7 +154,7 @@ const App = () => {
                 console.log("session is not validated")
                 return
             } else if (sessionValidated && connection.websocket) {
-                console.log("session is validated and websocket is connected");
+                
                 return
             } else if (sessionValidated) {
 
@@ -230,9 +229,9 @@ const App = () => {
                     <Routes>
                         <Route path="dashboard" element={<Dashboard />} />
 
-                        <Route path="/app/myguilds" element={<MyGuilds />} />
-                        <Route path="/app/settings" element={<Settings />} />
-                        <Route path="/app/stats" element={<BotdizStats />} />
+                        <Route path="myguilds" element={<MyGuilds />} />
+                        <Route path="settings/*" element={<Settings />} />
+                        <Route path="stats" element={<BotdizStats />} />
                         <Route path="*" element={
                             <Navigate replace to="dashboard" />
                         } />

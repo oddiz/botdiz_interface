@@ -5,8 +5,8 @@ import Scrollbars from 'react-custom-scrollbars'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { connectionState } from 'components/App/Atoms'
 import { activeGuildState } from '../../Atoms'
-import { audioPlayerStatusState, inVoiceChannelState } from '../Atoms'
-import { GuildMember, Collection } from 'discord.js'
+import { inVoiceChannelState } from '../Atoms'
+import { GuildMember } from 'discord.js'
 import { ReactComponent as VolumeIcon } from "./VolumeIcon.svg"
 const ChannelName = styled.div`
     padding-bottom:6px;
@@ -200,6 +200,14 @@ const VoiceChannelSection = () => {
                 console.log("Tried to get voice channels but there was no websocket")
                 return
             }
+            if (!token) {
+                console.log("No token")
+                return
+            }
+            if (!guildId) {
+                console.log("No guildId")
+                return
+            }
             const message = JSON.stringify({
                 type: "get",
                 token: token,
@@ -208,6 +216,8 @@ const VoiceChannelSection = () => {
             })
     
             websocket.send(message)
+            
+            
         }
 
         const setupChannelListener = () => {
@@ -216,14 +226,15 @@ const VoiceChannelSection = () => {
                 console.log("Tried to setup channel listener but there was no websocket")
                 return
             }
-            const message = JSON.stringify({
+
+            const messageSubVoiceUpdates = JSON.stringify({
                 type: `addVoiceChannelListener`,
                 guildId: guildId,
                 token: token,
                 command:`RPC_listenVoiceChannels`,
             })
     
-            websocket.send(message)
+            websocket.send(messageSubVoiceUpdates)
         }
 
         websocket?.addEventListener("message", voiceChannelSectionListener)
@@ -232,8 +243,12 @@ const VoiceChannelSection = () => {
 
         return () => {
             websocket?.removeEventListener("message", voiceChannelSectionListener)
+            
         }
-    }, [])
+    }, [guildId, token, websocket])
+
+    
+    
 
     useEffect(() => {
         const botdizDiscordId = config.botdiz_discordId
@@ -248,7 +263,7 @@ const VoiceChannelSection = () => {
     
             setInvoiceChannel(botFound)
       
-    }, [voiceChannels])
+    }, [setInvoiceChannel, voiceChannels])
         
     
 

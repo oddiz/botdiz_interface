@@ -95,7 +95,6 @@ const TextChannelComponent = (props: TextChannelProps) => {
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (!event) return
 
-        console.log(event)
         const clickedElement = event.currentTarget
         if(!clickedElement || !clickedElement.parentElement) return
         const activeIndex = [...clickedElement.parentElement.children].indexOf(clickedElement);

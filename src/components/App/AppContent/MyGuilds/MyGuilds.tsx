@@ -5,6 +5,8 @@ import Scrollbars from 'react-custom-scrollbars'
 import {IoRefresh} from 'react-icons/io5'
 
 import GuildsContent from './MyGuildsContent'
+import { useRecoilValue } from 'recoil';
+import { connectionState } from 'components/App/Atoms';
 
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
@@ -52,6 +54,7 @@ const MyGuilds = () => {
     const [discordGuilds, setDiscordGuilds] = useState<BotdizGuild[]>([])
     const [refreshButtonKey, setRefreshButtonKey] = useState(0)
     const [refreshButtonHidden, setRefreshButtonHidden] = useState(true)
+    const { token } = useRecoilValue(connectionState)
 
     const getDiscordGuilds = async () => {
         let discordGuildsReply: DiscordGuildsResponse = await fetch(config.botdiz_server+"/discordguilds", {
@@ -74,10 +77,11 @@ const MyGuilds = () => {
     }
 
     useEffect(() => {
+        if (!token) return
         getDiscordGuilds()
     
       
-    }, [])
+    }, [token])
     
 
     

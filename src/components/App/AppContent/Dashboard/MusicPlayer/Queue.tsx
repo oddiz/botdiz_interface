@@ -160,10 +160,11 @@ const SkipIcon = styled(IoPlaySkipForward)`
 
 function NextUp() {
     
-    const [queue, setQueue] = useRecoilState(audioPlayerQueueState);
+    const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
     const activeGuild = useRecoilValue(activeGuildState)
+
     const [sortableQueue, setSortableQueue] = useState<QueueTrack[] | null>([]);
 
     const queueDeleteClicked = async (event: React.MouseEvent<SVGElement>) => {
@@ -254,16 +255,6 @@ function NextUp() {
     }, [queue]);
     */
     
-    useEffect(() => {
-        
-        setQueue([])
-      
-    }, [activeGuild])
-    
-    
-    
-    
-    
     const updateQueue = () => {
         if(!activeGuild?.id) return
 
@@ -277,22 +268,27 @@ function NextUp() {
         websocket?.send(message);
     };
     useDidUpdateEffect(() => {
-        console.log("time to update")
 
-        updateQueue()
+        if(queueState.guildId === activeGuild?.id) {
+            console.log("time to update")
+    
+            updateQueue()
+        }
     
       
     }, [sortableQueue])
     
     type InterfaceQueueItem = ItemInterface & QueueTrack;
 
-    const parsedQueueSongs: InterfaceQueueItem[] = queue.map((song, index) => {
+    const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map((song, index) => {
         return {
             ...song,
             id: index,
         };
     });
+    if(queueState.guildId === activeGuild?.id) {
 
+    }
     const queueSongs = parsedQueueSongs.map((song, index) => {
         //const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/0.jpg`
 
@@ -337,7 +333,7 @@ function NextUp() {
                 }
                 animation={200}
             >
-                {queueSongs}
+                    {queueSongs}
             </ReactSortable>
         </NextUpWrapper>
     );
