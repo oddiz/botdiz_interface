@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import ChatContent from './ChatRoomContent'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import { activeGuildState } from 'components/App/AppContent/Dashboard/Atoms'
+import { useRecoilValue } from 'recoil'
 import { ChatPageErrorMessageState } from './Atoms'
 import ChannelsBar from './TextChannelsBar'
 

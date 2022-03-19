@@ -1,5 +1,5 @@
 /* eslint-disable no-extend-native */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { IoPlaySkipForward } from 'react-icons/io5';
 import styled from 'styled-components';
@@ -19,7 +19,7 @@ import { activeGuildState } from '../Atoms';
 
 
 
-function useDidUpdateEffect(fn: any, inputs:any) {
+function useDidUpdateEffect(fn: any, inputs:any[]) {
     const didMountRef = useRef(false);
   
     useEffect(() => {
@@ -27,6 +27,7 @@ function useDidUpdateEffect(fn: any, inputs:any) {
         return fn();
       }
       didMountRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, inputs);
   }
 
@@ -160,7 +161,7 @@ const SkipIcon = styled(IoPlaySkipForward)`
 
 function NextUp() {
     
-    const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
+    const queueState = useRecoilValue(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
     const activeGuild = useRecoilValue(activeGuildState)

@@ -312,7 +312,10 @@ const ChatContent = () => {
     useEffect(() => {
         if (!websocket) return
         if (!activeChannel) return
-        websocket.onmessage = textChannelListener
+        websocket.addEventListener("message", textChannelListener)
+        return () => {
+            websocket.removeEventListener("message", textChannelListener)
+        }
         
     }, [textChannelListener, websocket, activeChannel])
     

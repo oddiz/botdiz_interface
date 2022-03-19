@@ -98,3 +98,27 @@ export const areArraysEqual = (array1: any[], array2: any[]) => {
     }
     return true;
 }
+
+export const returnInitials = (name: string) => {
+    const names = name.split(" ");
+    let initials = "";
+    names.forEach(name => {
+        initials += name[0];
+    });
+    return initials.toUpperCase();
+}
+
+export const makeImageUrl = (
+    guildID: string,
+    hash: string,
+    { format = 'webp', size } = { size: 128 }
+) => {
+    const root = 'https://cdn.discordapp.com';
+    if (hash) {
+        return `${root}/icons/${guildID}/${hash}.${format}${
+            size ? `?size=${size}` : ''
+        }`;
+    } else {
+        return 'https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png';
+    }
+}

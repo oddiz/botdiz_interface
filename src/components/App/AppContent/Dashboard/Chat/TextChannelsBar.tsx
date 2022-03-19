@@ -169,6 +169,46 @@ const ChannelsBar = () => {
     let textChannelRender
 
     useEffect(() => {
+        const textChannelsWebsocketHandler = (reply: MessageEvent) => {
+            let parsedReply;
+            try {
+                parsedReply = JSON.parse(reply.data) as getTextChannelsReturn
+            } catch (error) {
+                console.log("Unable to parse reply")
+            }
+            if(!parsedReply) return
+
+            if(parsedReply.command !== "RPC_getTextChannels") {
+                return
+            }
+
+            if (parsedReply.result.status === "unauthorized") {
+                setErrorMessage("You are not authorized to view text channels!")
+
+                return
+            }
+            
+            if (parsedReply.result.status === "success") {
+                setTextChannels(parsedReply.result.channels)
+                setErrorMessage(null)
+            }
+            
+            if (parsedReply.result.status === "failed") {
+                setErrorMessage("Failed to get text channels")
+            }
+            
+        }
+       if (!websocket) return
+
+        websocket.addEventListener('message', textChannelsWebsocketHandler)
+        
+        return () => {
+          websocket.removeEventListener('message', textChannelsWebsocketHandler)
+      }
+    }, [setErrorMessage, setTextChannels, websocket])
+    
+
+    useEffect(() => {
 
         const getTextChannels = async () => {
             if(!activeGuild){
@@ -185,36 +225,8 @@ const ChannelsBar = () => {
             })
             
             websocket.send(message)
-    
-            websocket.onmessage = (reply) => {
-                let parsedReply;
-                try {
-                    parsedReply = JSON.parse(reply.data) as getTextChannelsReturn
-                } catch (error) {
-                    console.log("Unable to parse reply")
-                }
-                if(!parsedReply) return
-
-                if(parsedReply.command !== "RPC_getTextChannels") {
-                    return
-                }
-    
-                if (parsedReply.result.status === "unauthorized") {
-                    setErrorMessage("You are not authorized to view text channels!")
-    
-                    return
-                }
-                
-                if (parsedReply.result.status === "success") {
-                    setTextChannels(parsedReply.result.channels)
-                    setErrorMessage(null)
-                }
-                
-                if (parsedReply.result.status === "failed") {
-                    setErrorMessage("Failed to get text channels")
-                }
-                
-            }
+            
+            
         }
 
         getTextChannels()

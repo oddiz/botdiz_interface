@@ -98,7 +98,7 @@ const Playlist = () => {
     const [processingPlaylist, setProcessingPlaylist] = useState<boolean>(false);
     const [playlistRefreshHidden, setPlaylistRefreshHidden] = useState<boolean>(true);
     
-    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
+    const [, setControlsDisabled] = useRecoilState(controlsDisabledState)
     
     const { websocket, token } = useRecoilValue(connectionState)
     const activeGuild = useRecoilValue(activeGuildState)

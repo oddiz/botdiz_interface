@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import "./Navbar.css";
@@ -111,7 +111,7 @@ export interface MenuItemType {
 	link: string;
 }
 const Navbar = (props: { setupWebsocket: () => void }) => {
-	const menuItems: MenuItemType[] = [
+	const menuItems = useRef<MenuItemType[]>([
 		{
 			value: "Dashboard",
 			link: "/app/dashboard",
@@ -124,7 +124,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
 			value: "Botdiz Stats",
 			link: "/app/stats",
 		},
-	];
+	])
 
 	let initialLocation = window.location.pathname;
 
@@ -137,7 +137,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
     useEffect(() => {
         let initialIndex = null,
             initialMenuItem = null;
-        for (const [index, menuItem] of menuItems.entries()) {
+        for (const [index, menuItem] of menuItems.current.entries()) {
             if (menuItem.link === initialLocation) {
                 initialIndex = index;
                 initialMenuItem = menuItem;
@@ -149,7 +149,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
             name: initialMenuItem?.value || null,
         })
       
-    }, [])
+    }, [initialLocation, setActivePageState])
     
 
 
@@ -165,7 +165,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
 	};
 
 
-	const navbarItems = menuItems.map((item, index) => (
+	const navbarItems = menuItems.current.map((item, index) => (
 		<NavLink
 			className={`${activePage.index === index ? "active" : ""}`}
 			key={item.value + Math.floor(Math.random() * 1000)}
@@ -188,7 +188,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
 					className={typeof activePage.index === "number" ? "" : "hide"}
 					activeIndex={activePage.index}
 					activeName={activePage.name}
-					menuItems={menuItems}
+					menuItems={menuItems.current}
 				/>
 			</div>
 			<Status

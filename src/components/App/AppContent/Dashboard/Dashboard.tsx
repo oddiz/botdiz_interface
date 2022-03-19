@@ -57,9 +57,10 @@ export interface AllowedGuild {
 export interface InterfaceGuildObject {
     id: string;
     icon: string;
-    dj_access?: boolean,
-    administrator?: boolean ,
-    owner: boolean
+    dj_access?: boolean;
+    administrator?: boolean;
+    owner: boolean;
+    name:string;
 }
 
 export interface DbSpotifyData {
@@ -71,11 +72,17 @@ export interface DbSpotifyData {
 const Dashboard = () => {
 
     const [allGuilds, setAllGuilds] = useState<InterfaceGuildObject[] | null>([])
-    const [activeOption, setActiveOption] = useState("")
     
     const [activeGuild, setActiveGuild] = useRecoilState<InterfaceGuildObject | null>(activeGuildState)
+    const [activeOption, setActiveOption] = useState(activeGuild? "Music Player": "")
     const {websocket, token} = useRecoilValue(connectionState)
     let _isMounted = useRef(false)
+
+    useEffect(() => {
+
+        
+
+    },[activeGuild])
     
     const websocketDashboardListener = useCallback(
         (reply: MessageEvent<any>) => {
@@ -110,7 +117,8 @@ const Dashboard = () => {
                         icon: GuildObj.icon,
                         dj_access: GuildObj.dj_access,
                         administrator: GuildObj.administrator,
-                        owner: GuildObj.owner
+                        owner: GuildObj.owner,
+                        name: GuildObj.name
                     }
                 })
                 if (_isMounted.current){
@@ -163,7 +171,7 @@ const Dashboard = () => {
      
 
     
-    const RenderGuildOptionContent = () => {
+    const RenderGuildOptionContent = useCallback(() => {
         switch (activeOption) {
             case "Chat":
                 
@@ -183,7 +191,7 @@ const Dashboard = () => {
         }
 
         
-    }
+    },[activeOption])
 
     const guildOptionsClickHandler = (event: React.MouseEvent<HTMLDivElement>) => {
         const target = event.target as HTMLElement
@@ -216,6 +224,7 @@ const Dashboard = () => {
         )
     }
 
+    
     return (
         <DashboardWrapper id="dashboard_wrapper" >
             <GuildBar

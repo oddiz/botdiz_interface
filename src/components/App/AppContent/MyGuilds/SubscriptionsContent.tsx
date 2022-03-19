@@ -1,7 +1,7 @@
 import { Button, Select, Text } from "@dracula/dracula-ui";
 import { connectionState } from "components/App/Atoms";
 import { config } from "config";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
 import Switch from 'react-switch';
@@ -27,18 +27,10 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
     const channelSwitchRef = useRef<HTMLSelectElement>(null)
 
     const guildId = props.guildId;
-    useEffect(() => {
-        websocket?.addEventListener("message", listenWebsocket);
-		getTextChannels()
-    
-      return () => {
-        websocket?.removeEventListener("message", listenWebsocket);
-      }
-      
-    }, [])
     
     
-	const getSubscriptions = async () => {
+    
+	const getSubscriptions = useCallback(async () => {
 		try {
 			const reply = await fetch(config.botdiz_server + "/botdizguild/subscriptions/" + guildId, {
 				method: "GET",
@@ -75,7 +67,7 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
 		} catch (error) {
 			console.log(error);
 		}
-	};
+	}, [guildId, textChannels])
     type unauthorizedResponse = {
         status: 'unauthorized';
     }
@@ -89,7 +81,7 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
     }
     type getTextChannelsReturn = getTextChannelsSuccess | getTextChannelsFailed | unauthorizedResponse
 
-	const listenWebsocket = async (reply: MessageEvent) => {
+	const listenWebsocket = useCallback(async (reply: MessageEvent) => {
 		let parsedReply;
 		try {
 			parsedReply = JSON.parse(reply.data);
@@ -112,8 +104,8 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
         }
 
 		await getSubscriptions();
-	};
-	const getTextChannels = async () => {
+	}, [getSubscriptions])
+	const getTextChannels = useCallback(async () => {
 		if (!guildId) {
 			return;
 		}
@@ -125,7 +117,7 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
 		});
 
 		websocket?.send(message);
-	};
+	}, [guildId, websocket, token]);
 	const epicDealChannelSelected: React.ChangeEventHandler<HTMLSelectElement> = async (event) => {
 		let selectedChannelId;
 		for (const channel of textChannels) {
@@ -178,6 +170,16 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
             setSaveStatus("❌")
 		}
 	};
+    
+    useEffect(() => {
+        websocket?.addEventListener("message", listenWebsocket);
+		getTextChannels()
+    
+      return () => {
+        websocket?.removeEventListener("message", listenWebsocket);
+      }
+      
+    }, [getTextChannels, listenWebsocket, websocket])
     const renderTextChannels = textChannels.map((textChannel, index) => (
         <option key={index}>{textChannel.name}</option>
     ));
