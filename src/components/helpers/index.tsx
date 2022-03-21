@@ -1,4 +1,3 @@
-import { IPlayerInfo } from "components/App/AppContent/Dashboard/MusicPlayer/Atoms";
 
 
 export function shortenString(text: string, maxWidth: number, fontSize:string, fontFamily: string) {
@@ -43,18 +42,19 @@ export function shortenString(text: string, maxWidth: number, fontSize:string, f
     
 }
 
-export const formatStreamTime = (playerInfo: IPlayerInfo) => {
-    const streamTime = playerInfo.streamTime || 0;
-    const streamHours = Math.floor((streamTime / (60 * 60)) % 60);
-    const streamMins = Math.floor((streamTime / 60) % 60);
-    const streamSecs = Math.floor(streamTime % 60);
+export const formatStreamTime = (streamTime = 0, videoLength = 0) => {
+    const sTimeInSec = streamTime / 1000
+    const vTimeInSec = videoLength / 1000
 
-    const videoLenght = playerInfo.videoLength || 0; //secs
-    const videoHours = Math.floor((videoLenght / (60 * 60)) % 60);
-    const videoMins = Math.floor((videoLenght / 60) % 60);
-    const videoSecs = Math.floor(videoLenght % 60);
+    const streamHours = Math.floor((sTimeInSec / (60 * 60)) % 60);
+    const streamMins = Math.floor((sTimeInSec / 60) % 60);
+    const streamSecs = Math.floor(sTimeInSec % 60);
 
-    const percentage = ((streamTime * 100) / videoLenght).toFixed(1) || 0;
+    const videoHours = Math.floor((vTimeInSec / (60 * 60)) % 60);
+    const videoMins = Math.floor((vTimeInSec / 60) % 60);
+    const videoSecs = Math.floor(vTimeInSec % 60);
+
+    const percentage = ((sTimeInSec * 100) / vTimeInSec).toFixed(3) || "0";
 
     let formattedStreamTime, formattedVideoLength;
     if (videoHours > 0) {

@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components';
 import {config} from 'config'
 import Scrollbars from 'react-custom-scrollbars'
 import {IoRefresh} from 'react-icons/io5'
 
 import GuildsContent from './MyGuildsContent'
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
+import { discordGuildsState } from './Atoms';
 
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
@@ -51,12 +52,15 @@ type DiscordGuildsResponse = {
 const MyGuilds = () => {
     
     const [activeGuild, setActiveGuild] = useState<BotdizGuild | null>(null)
-    const [discordGuilds, setDiscordGuilds] = useState<BotdizGuild[]>([])
+    const [discordGuilds, setDiscordGuilds] = useRecoilState(discordGuildsState)
     const [refreshButtonKey, setRefreshButtonKey] = useState(0)
     const [refreshButtonHidden, setRefreshButtonHidden] = useState(true)
     const { token } = useRecoilValue(connectionState)
 
-    const getDiscordGuilds = async () => {
+    const getDiscordGuilds = useCallback(async () => {
+
+        if(discordGuilds.length > 0) return
+
         let discordGuildsReply: DiscordGuildsResponse = await fetch(config.botdiz_server+"/discordguilds", {
             method: "GET",
             credentials: "include"
@@ -74,14 +78,14 @@ const MyGuilds = () => {
 
             
         }
-    }
+    }, [discordGuilds.length, setDiscordGuilds])
 
     useEffect(() => {
         if (!token) return
         getDiscordGuilds()
     
       
-    }, [token])
+    }, [getDiscordGuilds, token])
     
 
     

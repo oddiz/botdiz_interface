@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../../Atoms';
-import { formattedStreamTimeState, playerInfoState } from '../Atoms';
+import { currentSongState, formattedStreamTimeState } from '../Atoms';
 
 let lastSeekEvent = 0;
 
@@ -57,14 +57,15 @@ const PlayerDot = styled.div`
 function ProgressBar () {
     const { token, websocket } = useRecoilValue(connectionState);
     const activeGuild = useRecoilValue(activeGuildState);
-    const playerInfo = useRecoilValue(playerInfoState);
+    const currentSong = useRecoilValue(currentSongState);
     const formattedTime = useRecoilValue(formattedStreamTimeState);
     const OuterBarRef = useRef<HTMLDivElement>(null);
 
     const onProgressbarClick = (clickedPercentage: number) => {
         if (!websocket) return;
         if (!activeGuild) return;
-        const videoLenghtInMs = playerInfo.videoLength * 1000;
+        const videoLenghtInMs = currentSong?.info.length
+        if (!videoLenghtInMs) return;
         const seekTo = Math.floor((videoLenghtInMs * clickedPercentage) / 100);
 
         const RPCMessage = JSON.stringify({

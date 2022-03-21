@@ -1,29 +1,65 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { SongInfo } from './Footer/SongInfo';
 import { PlayerControls } from './Footer/PlayerControls';
 import { Queue } from './Queue';
-import ProgressBar from './Footer/ProgressBar';
+import MuiProgressBar from './Footer/MuiProgressBar';
 import VoiceChannelSection from './VoiceChannelSecition/VoiceChannelSection';
 import AddSong from './Footer/AddSong';
 import Playlist from './PlaylistsSection/Playlist';
 import { SkipVote } from './Footer/SkipVote';
+
 import { toast } from 'react-toastify';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../Atoms';
 import {
     audioPlayerQueueState,
+    BotdizShoukakuTrack,
     controlsDisabledState,
+    currentSongState,
     formattedStreamTimeState,
     inVoiceChannelState,
     IPlayerInfo,
-    playerInfoState,
     QueueTrack,
+    SkipVoteData,
+    streamTimeState,
+    skipVoteDataState,
+    audioPlayerStatusState,
+    AudioPlayerStatus,
 } from './Atoms';
 import { areArraysEqual } from 'components/helpers';
 import { useCallback } from 'react';
+import { PlayerUpdate } from 'shoukaku';
+
+export interface QueueUpdateEvent {
+    op: 'queueUpdate';
+    queue: QueueTrack[];
+    guildId: string;
+}
+export interface SkipVoteEvent {
+    op: 'skipVoteUpdate';
+    skipVoteData: SkipVoteData;
+    guildId: string;
+}
+export interface CurrentSongUpdateEvent {
+    op: 'currentSongUpdate';
+    currentSong: BotdizShoukakuTrack | null;
+    guildId: string;
+}
+export interface PlayerStatusUpdateEvent {
+    op: 'playerStatusUpdate';
+    status: AudioPlayerStatus;
+    guildId: string;
+}
+export interface CurrentSongUpdateEvent {
+    op: 'currentSongUpdate';
+    currentSong: BotdizShoukakuTrack | null;
+    guildId: string;
+}
+
 
 // width: ${props => props.percentage}%;  //will get this value from props
 
@@ -119,23 +155,25 @@ const AddSongIcon = styled(IoAddCircleOutline)`
     }
 `;
 const MusicPlayer = () => {
-    const [playerInfo, setPlayerInfo] = useRecoilState(playerInfoState);
     const [inVoiceChannel] = useRecoilState(inVoiceChannelState);
     const [, setControlsDisabled] = useRecoilState(controlsDisabledState);
     const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
+    const [currentSong, setCurrentSong] = useRecoilState(currentSongState);
+    const [, setStreamTime] = useRecoilState(streamTimeState);
+    const [, setSkipVoteData] = useRecoilState(skipVoteDataState);
+    const [, setPlayerStatus] = useRecoilState(audioPlayerStatusState);
 
     const { websocket, token } = useRecoilValue(connectionState);
     const activeGuild = useRecoilValue(activeGuildState);
     const [addSongVisible, setAddSongVisible] = useState(false);
-    
-    
+
     const websocketPlayerInfo = useRef<IPlayerInfo | null>(null);
     const queueCache = useRef<QueueTrack[]>([]);
-    const musicPlayerListenerSet = useRef(false)
+    const musicPlayerListenerSet = useRef(false);
 
     const setupMusicPlayerListener = useCallback(() => {
-        if (musicPlayerListenerSet.current) return
-        
+        if (musicPlayerListenerSet.current) return;
+
         const guildId = activeGuild?.id;
 
         if (!guildId) {
@@ -146,7 +184,7 @@ const MusicPlayer = () => {
             console.log('No websocket');
             return;
         }
-        console.log("setting up music player");
+        console.log('setting up music player');
 
         const message = JSON.stringify({
             type: 'listenMusicPlayer',
@@ -168,6 +206,43 @@ const MusicPlayer = () => {
                 console.log('Unable to parse reply');
                 return;
             }
+
+            switch (parsedReply.op) {
+                case 'playerUpdate':
+                    const updateReply = parsedReply as PlayerUpdate;
+
+                    setStreamTime(updateReply.state.position);
+                    break;
+
+                case 'skipVoteUpdate':
+                    const skipVoteReply = parsedReply as SkipVoteEvent;
+
+                    setSkipVoteData(skipVoteReply.skipVoteData);
+                    break;
+                case 'currentSongUpdate':
+                    const currentSongReply =
+                        parsedReply as CurrentSongUpdateEvent;
+
+                    setCurrentSong(currentSongReply.currentSong);
+                    break;
+                case 'playerStatusUpdate':
+                    const playerStatusReply =
+                        parsedReply as PlayerStatusUpdateEvent;
+
+                    setPlayerStatus(playerStatusReply.status);
+                    break;
+                case 'queueUpdate':
+                    const queueReply = parsedReply as QueueUpdateEvent;
+
+                    setQueueState({
+                        queue: queueReply.queue,
+                        guildId: queueReply.guildId,
+                    });
+                    break;
+                default:
+                    break;
+            }
+
             if (parsedReply.event === 'musicplayer_update') {
                 const {
                     currentTitle,
@@ -193,7 +268,6 @@ const MusicPlayer = () => {
                     JSON.stringify(newWebsocketInfo)
                 ) {
                     websocketPlayerInfo.current = newWebsocketInfo;
-                    setPlayerInfo(newWebsocketInfo);
                 }
 
                 if (
@@ -230,30 +304,26 @@ const MusicPlayer = () => {
                 setControlsDisabled(false);
             }
         };
-    }, [activeGuild?.id, queueState.guildId, setControlsDisabled, setPlayerInfo, setQueueState, token, websocket, musicPlayerListenerSet]) 
+    }, [activeGuild?.id, websocket, token, setStreamTime, setSkipVoteData, setCurrentSong, setPlayerStatus, setQueueState, queueState.guildId, setControlsDisabled]);
 
     useEffect(() => {
         if (websocket?.readyState === WebSocket.OPEN) {
             setupMusicPlayerListener();
             musicPlayerListenerSet.current = true;
-            
         }
-
     }, [websocket, token, setupMusicPlayerListener]);
-    
+
     useEffect(() => {
-        
         return () => {
-            console.log("clearing music player listener");
+            console.log('clearing music player listener');
             websocket?.send(
                 JSON.stringify({
                     type: 'clearListeners',
                     token: token,
                 })
             );
-        }
-    }, [token, websocket])
-    
+        };
+    }, [token, websocket]);
 
     const addSongClicked = async () => {
         if (!inVoiceChannel) {
@@ -313,7 +383,7 @@ const MusicPlayer = () => {
             websocket.send(message);
             const startTime = new Date().getTime();
             const cachedQueueLength = queueState.queue.length;
-            const cachedCurrentTitle = playerInfo.currentTitle;
+            const cachedCurrentTitle = currentSong?.info.title;
             queueLock = true;
 
             //wait for a song to be added to queue
@@ -321,7 +391,7 @@ const MusicPlayer = () => {
                 const time = new Date().getTime();
                 if (
                     cachedQueueLength === queueState.queue.length &&
-                    cachedCurrentTitle === playerInfo.currentTitle &&
+                    cachedCurrentTitle === currentSong?.info.title &&
                     time < startTime + 1000 * 10
                 ) {
                     setTimeout(waitForSongChange, 250);
@@ -376,7 +446,7 @@ const MusicPlayer = () => {
                     <CurrentTime>
                         {formattedTime.formattedStreamTime}
                     </CurrentTime>
-                    <ProgressBar />
+                    <MuiProgressBar />
                     <TotalTime>{formattedTime.formattedVideoLenght}</TotalTime>
                 </SongSliderWrapper>
             </MPFooterWrapper>

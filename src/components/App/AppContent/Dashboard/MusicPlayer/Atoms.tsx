@@ -31,7 +31,7 @@ export interface SkipVoteData {
     userData: SkipVoteUserData | null;
     skipData: SkipData | null;
 }
-
+export type AudioPlayerStatus = 'PLAYING' | 'PAUSED' | 'STOPPED' | 'SKIPPING';
 export type QueueTrack = BotdizTrack | BotdizShoukakuTrack;
 
 export interface IPlayerInfo {
@@ -44,54 +44,37 @@ export interface IPlayerInfo {
     skipVoteData: SkipVoteData
 }
 
-type AudioPlayerStatus = "PLAYING" | "PAUSED" | "STOPPED" | "SKIPPING"
 
-export const playerInfoState = atom({
-    key: "playerInfoState",
+export const streamTimeState = atom({
+    key: "streamTimeState",
+    default: 0,
+})
+
+export const skipVoteDataState = atom({
+    key: "skipVoteState",
     default: {
-        currentTitle: "",
-        streamTime: 0,
-        videoLength: 0,
-        audioPlayerStatus: "STOPPED" as AudioPlayerStatus,
-        videoThumbnailUrl: "",
-        skipVoteData: {
-            voteActive: false,
-            userData: null,
-            skipData: null
-        }
-    } as IPlayerInfo,
+        voteActive: false,
+        userData: null,
+        skipData: null
+    } as SkipVoteData
 })
-export const audioPlayerStatusState = selector({
+export const audioPlayerStatusState = atom({
     key: "audioPlayerStatusState",
-    get: ({ get }) => get(playerInfoState).audioPlayerStatus,
-
+    default: "STOPPED" as AudioPlayerStatus,
 })
-interface ICurrentSong {
-    title: string,
-    videoThumbnailUrl: string,
-    videoLength: number,
-}
-export const audioPlayerCurrentSongState = selector<ICurrentSong>({
+
+export const currentSongState = atom({
     key: "audioPlayerCurrentSongState",
-    get: ({ get }) => {
-        const audioPlayer = get(playerInfoState)
+    default: null as BotdizShoukakuTrack | null
+})
 
-        return {
-            title: audioPlayer.currentTitle,
-            videoThumbnailUrl: audioPlayer.videoThumbnailUrl,
-            videoLength: audioPlayer.videoLength,
-        }
-    }
-})
-export const skipVoteDataState = selector({
-    key: "skipVoteData",
-    get: ({ get }) => get(playerInfoState).skipVoteData,
-})
 export const formattedStreamTimeState = selector({
     key: "formattedStreamTimeState",
     get: ({ get }) => {
-        const playerInfo = get(playerInfoState)
-        const streamTimeFormatted = formatStreamTime(playerInfo)
+        const currentSong = get(currentSongState)
+        const videoLength = currentSong?.info.length || 0
+        const streamTime = get(streamTimeState) || 0
+        const streamTimeFormatted = formatStreamTime(streamTime, videoLength)
 
         return streamTimeFormatted
     }

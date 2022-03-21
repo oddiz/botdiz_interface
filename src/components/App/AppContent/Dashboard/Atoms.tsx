@@ -5,3 +5,8 @@ export const activeGuildState= atom<InterfaceGuildObject | null>({
     key: "activeGuildState",
     default: null
 })
+
+export const allGuildsState = atom<InterfaceGuildObject[]>({
+    key: "dashboardGuildsState",
+    default: []
+})

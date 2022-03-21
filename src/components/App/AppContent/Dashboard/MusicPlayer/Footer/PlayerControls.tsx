@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import styled from 'styled-components'
 import { activeGuildState } from '../../Atoms'
-import { audioPlayerStatusState, controlsDisabledState, playerInfoState } from '../Atoms'
+import { audioPlayerStatusState, controlsDisabledState, currentSongState } from '../Atoms'
 
 const SkipButton = styled(IoPlaySkipForward)`
     font-size: 1.5em;
@@ -133,7 +133,7 @@ export function PlayerControls () {
     const { token, websocket } = useRecoilValue(connectionState)
     const guildId = useRecoilValue(activeGuildState)?.id
     const audioPlayerStatus = useRecoilValue(audioPlayerStatusState)
-    const audioPlayerInfo = useRecoilValue(playerInfoState)
+    const currentSong = useRecoilValue(currentSongState)
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
 
     function shuffleClicked () {
@@ -169,7 +169,7 @@ export function PlayerControls () {
         if(controlsDisabled) {
             return
         }
-        if(!audioPlayerInfo.currentTitle) {
+        if(!currentSong) {
             toast.info("Botdiz is not playing")
             return
         }

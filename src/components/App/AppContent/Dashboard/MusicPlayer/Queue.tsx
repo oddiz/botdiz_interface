@@ -1,5 +1,5 @@
 /* eslint-disable no-extend-native */
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { IoPlaySkipForward } from 'react-icons/io5';
 import styled from 'styled-components';
@@ -7,32 +7,13 @@ import Scrollbars from 'react-custom-scrollbars';
 import { ItemInterface, ReactSortable } from 'react-sortablejs';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
-    audioPlayerCurrentSongState,
     audioPlayerQueueState,
     controlsDisabledState,
-    playerInfoState,
+    currentSongState,
     QueueTrack,
 } from './Atoms';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../Atoms';
-
-
-
-
-function useDidUpdateEffect(fn: any, inputs:any[]) {
-    const didMountRef = useRef(false);
-  
-    useEffect(() => {
-      if (didMountRef.current) { 
-        return fn();
-      }
-      didMountRef.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, inputs);
-  }
-
-// Hide method from for-in loops
-Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
 
 const QueueWrapper = styled.div`
     padding-top: 0px;
@@ -59,14 +40,13 @@ const QueueWrapper = styled.div`
 `;
 
 export const Queue = () => {
-    const playerInfo = useRecoilValue(playerInfoState);
 
     return (
         <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
             <QueueWrapper>
                 <h2>Queue</h2>
                 <h4>Current Song</h4>
-                {playerInfo.currentTitle && <CurrentSong />}
+                <CurrentSong />
                 <h4>Next Up</h4>
                 <NextUp />
             </QueueWrapper>
@@ -110,16 +90,18 @@ const ListIndex = styled.span`
     font-size: 22px;
 `;
 function CurrentSong() {
-    const currentSong = useRecoilValue(audioPlayerCurrentSongState);
+    const currentSong = useRecoilValue(currentSongState);
 
+    if (!currentSong) return (<></>)
+    
     return (
         <SongWrapper>
             <ListIndex>1</ListIndex>
             <StyledThumbnail
-                src={currentSong.videoThumbnailUrl}
+                src={currentSong.thumbnail}
                 alt=""
             ></StyledThumbnail>
-            <SongTitle>{currentSong.title}</SongTitle>
+            <SongTitle>{currentSong.info.title}</SongTitle>
         </SongWrapper>
     );
 }
@@ -161,7 +143,7 @@ const SkipIcon = styled(IoPlaySkipForward)`
 
 function NextUp() {
     
-    const queueState = useRecoilValue(audioPlayerQueueState);
+    const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
     const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
     const activeGuild = useRecoilValue(activeGuildState)
@@ -258,7 +240,11 @@ function NextUp() {
     
     const updateQueue = () => {
         if(!activeGuild?.id) return
-
+        if(!sortableQueue) return
+        setQueueState({
+            queue: sortableQueue,
+            guildId: activeGuild.id
+        })
         const message = JSON.stringify({
             type: 'exec',
             token: token,
@@ -268,6 +254,7 @@ function NextUp() {
 
         websocket?.send(message);
     };
+    /*
     useDidUpdateEffect(() => {
 
         if(queueState.guildId === activeGuild?.id) {
@@ -278,7 +265,7 @@ function NextUp() {
     
       
     }, [sortableQueue])
-    
+    */
     type InterfaceQueueItem = ItemInterface & QueueTrack;
 
     const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map((song, index) => {
@@ -332,6 +319,7 @@ function NextUp() {
                 setList={
                     setSortableQueue
                 }
+                onEnd={updateQueue}
                 animation={200}
             >
                     {queueSongs}

@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
 import SpotifyApi from 'spotify-web-api-node'
 import NoGuilds from './NoGuilds';
-import { activeGuildState } from './Atoms';
+import { activeGuildState, allGuildsState } from './Atoms';
 
 const DashboardWrapper = styled.div`
     width: 100%;
@@ -71,7 +71,7 @@ export interface DbSpotifyData {
 }
 const Dashboard = () => {
 
-    const [allGuilds, setAllGuilds] = useState<InterfaceGuildObject[] | null>([])
+    const [allGuilds, setAllGuilds] = useRecoilState(allGuildsState)
     
     const [activeGuild, setActiveGuild] = useRecoilState<InterfaceGuildObject | null>(activeGuildState)
     const [activeOption, setActiveOption] = useState(activeGuild? "Music Player": "")
@@ -106,7 +106,7 @@ const Dashboard = () => {
             //get Guild command
             if(parsedReply.command === "RPC_getGuilds") {
                 if (parsedReply.result.length === 0) {
-                    setAllGuilds(null)
+                    setAllGuilds([])
     
                     return
                 }
@@ -128,7 +128,7 @@ const Dashboard = () => {
                 console.log("Reply is not recognized", parsedReply)
             }
         },
-      [allGuilds],
+      [allGuilds, setAllGuilds],
     )
 
     useEffect(() => {
@@ -140,6 +140,8 @@ const Dashboard = () => {
             if(!websocket) {
                 return
             }
+
+            if(allGuilds.length > 0) return
     
             const message = {
                 type:"get",
@@ -164,7 +166,7 @@ const Dashboard = () => {
             }
         }
 
-    }, [websocket, token, websocketDashboardListener])
+    }, [websocket, token, websocketDashboardListener, allGuilds.length])
 
 
     
