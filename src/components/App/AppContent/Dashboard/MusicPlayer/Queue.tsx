@@ -40,7 +40,6 @@ const QueueWrapper = styled.div`
 `;
 
 export const Queue = () => {
-
     return (
         <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
             <QueueWrapper>
@@ -92,8 +91,8 @@ const ListIndex = styled.span`
 function CurrentSong() {
     const currentSong = useRecoilValue(currentSongState);
 
-    if (!currentSong) return (<></>)
-    
+    if (!currentSong) return <></>;
+
     return (
         <SongWrapper>
             <ListIndex>1</ListIndex>
@@ -142,86 +141,89 @@ const SkipIcon = styled(IoPlaySkipForward)`
 `;
 
 function NextUp() {
-    
     const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
-    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
-    const activeGuild = useRecoilValue(activeGuildState)
+    const [controlsDisabled, setControlsDisabled] = useRecoilState(
+        controlsDisabledState,
+    );
+    const activeGuild = useRecoilValue(activeGuildState);
 
     const [sortableQueue, setSortableQueue] = useState<QueueTrack[] | null>([]);
 
     const queueDeleteClicked = async (event: React.MouseEvent<SVGElement>) => {
-
         if (controlsDisabled) {
             //already processing something
-            return
+            return;
         }
 
         if (!websocket) {
             //only possible if websocket connection is lost somehow
-            console.log("No websocket")
-            return
+            console.log('No websocket');
+            return;
         }
 
         if (!activeGuild) {
-            console.log("No active guild")
-            return
+            console.log('No active guild');
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
 
-        const clickedElement = event.currentTarget.parentElement
-        const clickedElementParent = clickedElement?.parentElement
-        if (!clickedElementParent) return
+        const clickedElement = event.currentTarget.parentElement;
+        const clickedElementParent = clickedElement?.parentElement;
+        if (!clickedElementParent) return;
         //index of song in queue array
-        const songIndex = [...clickedElementParent.children].indexOf(clickedElement);
-        
+        const songIndex = [...clickedElementParent.children].indexOf(
+            clickedElement,
+        );
 
         const RPCMessage = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_deleteQueueSong",
+            type: 'exec',
+            command: 'RPC_deleteQueueSong',
             //should take 2 params: guildid, index of to be deleted song
-            params: [activeGuild.id, songIndex]
-        })
-        
-        websocket.send(RPCMessage)
-    }
+            params: [activeGuild.id, songIndex],
+        });
+
+        websocket.send(RPCMessage);
+    };
 
     const queueSkipClicked = async (event: React.MouseEvent<SVGElement>) => {
         if (controlsDisabled) {
             //already processing something
-            return
+            return;
         }
 
         if (!websocket) {
             //only possible if websocket connection is lost somehow
-            console.log("No websocket")
-            return
+            console.log('No websocket');
+            return;
         }
 
         if (!activeGuild) {
-            console.log("No active guild")
-            return
+            console.log('No active guild');
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
 
-        const clickedElement = event.currentTarget.parentElement
-        const clickedElementParent = clickedElement?.parentElement
-        if (!clickedElementParent) return
+        const clickedElement = event.currentTarget.parentElement;
+        const clickedElementParent = clickedElement?.parentElement;
+        if (!clickedElementParent) return;
         //index of song in queue array
-        const activeIndex = [...clickedElementParent.children].indexOf(clickedElement);
+        const activeIndex = [...clickedElementParent.children].indexOf(
+            clickedElement,
+        );
 
         const RPCMessage = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_skipSong",
+            type: 'exec',
+            command: 'RPC_skipSong',
             //should take 2 params: guildid, skip amount
             //skip amount should be +1 accounting the current song
-            params: [activeGuild.id, activeIndex + 1]
-        })
+            params: [activeGuild.id, activeIndex + 1],
+        });
 
-        websocket.send(RPCMessage)
-    }
+        websocket.send(RPCMessage);
+    };
     /*
     useEffect(() => {
         const parseSongs = [];
@@ -237,14 +239,14 @@ function NextUp() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queue]);
     */
-    
+
     const updateQueue = () => {
-        if(!activeGuild?.id) return
-        if(!sortableQueue) return
+        if (!activeGuild?.id) return;
+        if (!sortableQueue) return;
         setQueueState({
             queue: sortableQueue,
-            guildId: activeGuild.id
-        })
+            guildId: activeGuild.id,
+        });
         const message = JSON.stringify({
             type: 'exec',
             token: token,
@@ -268,14 +270,15 @@ function NextUp() {
     */
     type InterfaceQueueItem = ItemInterface & QueueTrack;
 
-    const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map((song, index) => {
-        return {
-            ...song,
-            id: index,
-        };
-    });
-    if(queueState.guildId === activeGuild?.id) {
-
+    const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map(
+        (song, index) => {
+            return {
+                ...song,
+                id: index,
+            };
+        },
+    );
+    if (queueState.guildId === activeGuild?.id) {
     }
     const queueSongs = parsedQueueSongs.map((song, index) => {
         //const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/0.jpg`
@@ -287,9 +290,7 @@ function NextUp() {
                 key={index}
             >
                 <ListIndex>{index + 2}</ListIndex>
-                {thumbnailUrl && (
-                    <StyledThumbnail src={thumbnailUrl} alt="" />
-                )}
+                {thumbnailUrl && <StyledThumbnail src={thumbnailUrl} alt="" />}
                 <SongTitle>
                     {song.info?.title}
                     <i>
@@ -316,13 +317,11 @@ function NextUp() {
         <NextUpWrapper>
             <ReactSortable
                 list={parsedQueueSongs}
-                setList={
-                    setSortableQueue
-                }
+                setList={setSortableQueue}
                 onEnd={updateQueue}
                 animation={200}
             >
-                    {queueSongs}
+                {queueSongs}
             </ReactSortable>
         </NextUpWrapper>
     );

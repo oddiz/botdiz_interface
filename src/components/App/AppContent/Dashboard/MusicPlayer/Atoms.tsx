@@ -1,14 +1,13 @@
-import { formatStreamTime } from "components/helpers";
-import { GuildMember, User } from "discord.js";
-import { atom, selector } from "recoil";
-import { ShoukakuTrack } from 'shoukaku'
+import { formatStreamTime } from 'components/helpers';
+import { GuildMember, User } from 'discord.js';
+import { atom, selector } from 'recoil';
+import { ShoukakuTrack } from 'shoukaku';
 
 export interface BotdizTrack {
     info: {
         artist: string;
         trackName: string;
         title: string;
-        
     };
     isSpotify: boolean;
     recommendedSong?: boolean;
@@ -22,7 +21,7 @@ interface SkipData {
     currentSong: BotdizShoukakuTrack | null;
     invokedUser: GuildMember;
 }
-interface SkipVoteUserData{
+interface SkipVoteUserData {
     voiceChannelMembers: User[];
     votedUsers: string[];
 }
@@ -35,65 +34,62 @@ export type AudioPlayerStatus = 'PLAYING' | 'PAUSED' | 'STOPPED' | 'SKIPPING';
 export type QueueTrack = BotdizTrack | BotdizShoukakuTrack;
 
 export interface IPlayerInfo {
-    
-    currentTitle: string,
-    streamTime: number,
-    videoLength: number,
-    audioPlayerStatus: AudioPlayerStatus,
-    videoThumbnailUrl: string,
-    skipVoteData: SkipVoteData
+    currentTitle: string;
+    streamTime: number;
+    videoLength: number;
+    audioPlayerStatus: AudioPlayerStatus;
+    videoThumbnailUrl: string;
+    skipVoteData: SkipVoteData;
 }
 
-
 export const streamTimeState = atom({
-    key: "streamTimeState",
+    key: 'streamTimeState',
     default: 0,
-})
+});
 
 export const skipVoteDataState = atom({
-    key: "skipVoteState",
+    key: 'skipVoteState',
     default: {
         voteActive: false,
         userData: null,
-        skipData: null
-    } as SkipVoteData
-})
+        skipData: null,
+    } as SkipVoteData,
+});
 export const audioPlayerStatusState = atom({
-    key: "audioPlayerStatusState",
-    default: "STOPPED" as AudioPlayerStatus,
-})
+    key: 'audioPlayerStatusState',
+    default: 'STOPPED' as AudioPlayerStatus,
+});
 
 export const currentSongState = atom({
-    key: "audioPlayerCurrentSongState",
-    default: null as BotdizShoukakuTrack | null
-})
+    key: 'audioPlayerCurrentSongState',
+    default: null as BotdizShoukakuTrack | null,
+});
 
 export const formattedStreamTimeState = selector({
-    key: "formattedStreamTimeState",
+    key: 'formattedStreamTimeState',
     get: ({ get }) => {
-        const currentSong = get(currentSongState)
-        const videoLength = currentSong?.info.length || 0
-        const streamTime = get(streamTimeState) || 0
-        const streamTimeFormatted = formatStreamTime(streamTime, videoLength)
+        const currentSong = get(currentSongState);
+        const videoLength = currentSong?.info.length || 0;
+        const streamTime = get(streamTimeState) || 0;
+        const streamTimeFormatted = formatStreamTime(streamTime, videoLength);
 
-        return streamTimeFormatted
-    }
-})
-
+        return streamTimeFormatted;
+    },
+});
 
 export const audioPlayerQueueState = atom({
-    key: "audioPlayerQueueState",
-    default:{ 
+    key: 'audioPlayerQueueState',
+    default: {
         queue: [] as QueueTrack[],
-        guildId: "0"
+        guildId: '0',
     },
-})
+});
 export const inVoiceChannelState = atom({
-    key: "inVoiceChannelState",
+    key: 'inVoiceChannelState',
     default: false,
-})
+});
 
 export const controlsDisabledState = atom({
-    key: "controlsDisabledState",
+    key: 'controlsDisabledState',
     default: false,
-})
+});

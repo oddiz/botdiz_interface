@@ -15,10 +15,6 @@ const ChatWrapper = styled.div`
 
 `
 
-
-
-
-
 const ChatPage = () => {
     
     const errorMessage = useRecoilValue(ChatPageErrorMessageState)

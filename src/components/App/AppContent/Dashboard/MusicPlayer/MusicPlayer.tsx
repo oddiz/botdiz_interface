@@ -60,7 +60,6 @@ export interface CurrentSongUpdateEvent {
     guildId: string;
 }
 
-
 // width: ${props => props.percentage}%;  //will get this value from props
 
 const TotalTime = styled.span`
@@ -304,7 +303,18 @@ const MusicPlayer = () => {
                 setControlsDisabled(false);
             }
         };
-    }, [activeGuild?.id, websocket, token, setStreamTime, setSkipVoteData, setCurrentSong, setPlayerStatus, setQueueState, queueState.guildId, setControlsDisabled]);
+    }, [
+        activeGuild?.id,
+        websocket,
+        token,
+        setStreamTime,
+        setSkipVoteData,
+        setCurrentSong,
+        setPlayerStatus,
+        setQueueState,
+        queueState.guildId,
+        setControlsDisabled,
+    ]);
 
     useEffect(() => {
         if (websocket?.readyState === WebSocket.OPEN) {
@@ -320,7 +330,7 @@ const MusicPlayer = () => {
                 JSON.stringify({
                     type: 'clearListeners',
                     token: token,
-                })
+                }),
             );
         };
     }, [token, websocket]);
@@ -349,7 +359,7 @@ const MusicPlayer = () => {
     let queueLock = false;
 
     const searchBoxKeyboardHandler = async (
-        event: React.KeyboardEvent<HTMLDivElement>
+        event: React.KeyboardEvent<HTMLDivElement>,
     ) => {
         if (!websocket) return;
         if (!activeGuild) return;
@@ -369,7 +379,7 @@ const MusicPlayer = () => {
                 return;
             }
             const searchElement = document.getElementById(
-                'music_search_input'
+                'music_search_input',
             ) as HTMLInputElement | undefined;
             const searchInput = searchElement?.value;
 

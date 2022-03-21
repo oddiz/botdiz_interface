@@ -35,10 +35,7 @@ ReactDOM.render(
                             <Navigate replace to='/404' />
                         }
                     />
-
                 </Routes>
-                
-                
             </BrowserRouter>
         </RecoilRoot>
     </React.StrictMode>,
