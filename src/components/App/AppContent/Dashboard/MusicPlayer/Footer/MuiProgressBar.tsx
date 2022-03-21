@@ -9,12 +9,14 @@ import Slider from '@mui/material/Slider';
 let lastSeekEvent = 0;
 
 const ProgressBarWrapper = styled.div`
-display: flex;
-flex-direction: column;
-align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 0 10px;
     width: 60%;
     height: 23px;
+
+    overflow: hidden;
 
     cursor: ${lastSeekEvent + 1000 > Date.now()? "no-drop" : "pointer"};
     
@@ -66,41 +68,40 @@ function MuiProgressBar () {
     return(
         <ProgressBarWrapper>
             <Slider
-					aria-label="time-indicator"
-					size="small"
-					value={dragging? position: parseFloat(formattedTime.percentage) * 1000}
-					min={0}
-					step={1}
-					max={100 * 1000}
-					onChange={onChangeHandler}
-                    onChangeCommitted = {onChangeEnded}                    
-					sx={{
-						color: "#b3b3b3",
-						height: 4,
-                        transition: "linear 0.2s all",
-						"& .MuiSlider-thumb": {
-							width: 8,
-							height: 8,
-							transition: "0.3s cubic-bezier(.47,1.64,.41,.8)",
-							"&:before": {
-								boxShadow: "0 2px 12px 0 rgba(0,0,0,0.4)",
-							},
-							"&:hover, &.Mui-focusVisible": {
-								boxShadow: `0px 0px 0px 8px ${
-									"rgb(255 255 255 / 16%)"
-								}`,
-							},
-							"&.Mui-active": {
-								width: 20,
-								height: 20,
-							},
-						},
-						"& .MuiSlider-rail": {
-							opacity: 0.28,
-						},
+                aria-label="time-indicator"
+                size="small"
+                value={dragging? position: parseFloat(formattedTime.percentage) * 1000}
+                min={0}
+                step={1}
+                max={100 * 1000}
+                onChange={onChangeHandler}
+                onChangeCommitted = {onChangeEnded}                    
+                sx={{
+                    color: "#b3b3b3",
+                    height: 4,
+                    transition: "linear 0.2s all",
+                    "& .MuiSlider-thumb": {
+                        width: 8,
+                        height: 8,
+                        transition: "0.3s cubic-bezier(.47,1.64,.41,.8)",
+                        "&:before": {
+                            boxShadow: "0 2px 12px 0 rgba(0,0,0,0.4)",
+                        },
+                        "&:hover, &.Mui-focusVisible": {
+                            boxShadow: `0px 0px 0px 8px ${
+                                "rgb(255 255 255 / 16%)"
+                            }`,
+                        },
+                        "&.Mui-active": {
+                            width: 20,
+                            height: 20,
+                        },
+                    },
+                    "& .MuiSlider-rail": {
+                        opacity: 0.28,
+                    },
 					}}
 				/>
-            
         </ProgressBarWrapper>
     )
 }
