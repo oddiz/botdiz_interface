@@ -69,22 +69,20 @@ const Login = () => {
     const reCaptchaKey = process.env.REACT_APP_RECAPTCHA_SITEKEY;
 
     if (!reCaptchaKey) {
-        console.error("No reCaptcha Key found in server.")
+        console.error('No reCaptcha Key found in server.');
 
         return (
             <div className="login_wrapper">
                 Error with reCaptcha token. Please try again.
             </div>
-        ) 
+        );
     }
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (
-        event
+        event,
     ) => {
         event.preventDefault();
         if (loading) {
             console.log('Already trying to log in');
-
-            
         }
 
         setLoading(true);
@@ -95,13 +93,12 @@ const Login = () => {
         if (!reCaptchaToken) {
             console.log('No reCaptcha token');
             setLoading(false);
-            
+
             return (
                 <div className="login_wrapper">
                     Error with reCaptcha token. Please try again.
                 </div>
-            ) 
-            
+            );
         }
 
         const credentials: ICredentials = {
@@ -112,8 +109,6 @@ const Login = () => {
 
         if (!(credentials.username && credentials.password)) {
             setLoginError('Cannot leave username or password empty');
-
-            
         }
         const response = await loginUser(credentials);
         console.log(response);
@@ -199,9 +194,7 @@ const Login = () => {
                                 style={{ marginLeft: 0 }}
                                 m="xxs"
                                 onChange={(input) => {
-                                    setPassword(
-                                        input.target.value,
-                                    );
+                                    setPassword(input.target.value);
                                 }}
                                 type="password"
                             />

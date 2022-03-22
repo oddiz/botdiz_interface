@@ -1,17 +1,27 @@
-import { connectionState } from 'components/App/Atoms'
-import { IoPlayCircle, IoPauseCircle, IoPlaySkipForward, IoStopCircle,IoShuffle } from 'react-icons/io5'
-import { toast } from 'react-toastify'
-import { useRecoilState, useRecoilValue } from 'recoil'
-import styled from 'styled-components'
-import { activeGuildState } from '../../Atoms'
-import { audioPlayerStatusState, controlsDisabledState, currentSongState } from '../Atoms'
+import { connectionState } from 'components/App/Atoms';
+import {
+    IoPlayCircle,
+    IoPauseCircle,
+    IoPlaySkipForward,
+    IoStopCircle,
+    IoShuffle,
+} from 'react-icons/io5';
+import { toast } from 'react-toastify';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import styled from 'styled-components';
+import { activeGuildState } from '../../Atoms';
+import {
+    audioPlayerStatusState,
+    controlsDisabledState,
+    currentSongState,
+} from '../Atoms';
 
 const SkipButton = styled(IoPlaySkipForward)`
     font-size: 1.5em;
     color: #b3b3b3;
 
     margin: 0 5px;
-    
+
     cursor: pointer;
 
     &:hover {
@@ -22,7 +32,7 @@ const SkipButton = styled(IoPlaySkipForward)`
         cursor: not-allowed;
         color: #72767d;
     }
-`
+`;
 const PauseButton = styled(IoPauseCircle)`
     font-size: 3.5em;
     color: white;
@@ -34,10 +44,8 @@ const PauseButton = styled(IoPauseCircle)`
     &.disabled {
         cursor: not-allowed;
         color: #72767d;
-
     }
-
-`
+`;
 const PlayButton = styled(IoPlayCircle)`
     font-size: 3.5em;
     color: white;
@@ -49,10 +57,8 @@ const PlayButton = styled(IoPlayCircle)`
     &.disabled {
         cursor: not-allowed;
         color: #72767d;
-
     }
-
-`
+`;
 const StopButton = styled(IoStopCircle)`
     font-size: 2em;
     color: #ff9580d5;
@@ -62,14 +68,13 @@ const StopButton = styled(IoStopCircle)`
     cursor: pointer;
 
     &:hover {
-        color: #ff9580
+        color: #ff9580;
     }
     &.disabled {
         cursor: not-allowed;
         color: #72767d;
-
     }
-`
+`;
 const ShuffleButton = styled(IoShuffle)`
     font-size: 1.7em;
     color: white;
@@ -78,16 +83,15 @@ const ShuffleButton = styled(IoShuffle)`
     cursor: pointer;
 
     &:hover {
-        color: #00b85fBF
+        color: #00b85fbf;
     }
     &:active {
         transform: translateY(2px);
     }
     &.active {
         color: #00b85f;
-
     }
-`
+`;
 
 // phantom button to center elements
 const PhantomButton = styled(IoShuffle)`
@@ -100,16 +104,15 @@ const PhantomButton = styled(IoShuffle)`
     cursor: pointer;
 
     &:hover {
-        color: #ff9580
+        color: #ff9580;
     }
     &.disabled {
         cursor: not-allowed;
         color: #72767d;
-
     }
-`
+`;
 const PlayerControlsWrapper = styled.div`
-    height:100%;
+    height: 100%;
     justify-self: center;
     display: flex;
     position: relative;
@@ -117,129 +120,144 @@ const PlayerControlsWrapper = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-`
+`;
 const Loading = styled.div`
     width: 100vw;
     height: 3px;
 
-    position:absolute;
+    position: absolute;
     top: 0;
 
     animation: animatedGradient 3s ease infinite alternate;
-`
+`;
 
-export function PlayerControls () {
-    
-    const { token, websocket } = useRecoilValue(connectionState)
-    const guildId = useRecoilValue(activeGuildState)?.id
-    const audioPlayerStatus = useRecoilValue(audioPlayerStatusState)
-    const currentSong = useRecoilValue(currentSongState)
-    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState)
+export function PlayerControls() {
+    const { token, websocket } = useRecoilValue(connectionState);
+    const guildId = useRecoilValue(activeGuildState)?.id;
+    const audioPlayerStatus = useRecoilValue(audioPlayerStatusState);
+    const currentSong = useRecoilValue(currentSongState);
+    const [controlsDisabled, setControlsDisabled] = useRecoilState(
+        controlsDisabledState,
+    );
 
-    function shuffleClicked () {
-        if(controlsDisabled) {
-            return
+    function shuffleClicked() {
+        if (controlsDisabled) {
+            return;
         }
         const message = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_shuffleQueue",
+            type: 'exec',
+            command: 'RPC_shuffleQueue',
             //should take 1 param: guildid
-            params: [guildId]
-        })
+            params: [guildId],
+        });
 
-        websocket?.send(message)
+        websocket?.send(message);
     }
-    function pauseClicked () {
-        if(controlsDisabled) {
-            return
+    function pauseClicked() {
+        if (controlsDisabled) {
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
         const message = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_pausePlayer",
+            type: 'exec',
+            command: 'RPC_pausePlayer',
             //should take 1 param: guildid
-            params: [guildId]
-        })
+            params: [guildId],
+        });
 
-        websocket?.send(message)
+        websocket?.send(message);
     }
-    function playClicked () {
-        if(controlsDisabled) {
-            return
+    function playClicked() {
+        if (controlsDisabled) {
+            return;
         }
-        if(!currentSong) {
-            toast.info("Botdiz is not playing")
-            return
+        if (!currentSong) {
+            toast.info('Botdiz is not playing');
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
 
         const message = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_resumePlayer",
+            type: 'exec',
+            command: 'RPC_resumePlayer',
             //should take 3 params: guildid
-            params: [guildId]
-        })
+            params: [guildId],
+        });
 
-        websocket?.send(message)
+        websocket?.send(message);
     }
-    
-    function stopClicked () {
-        if(controlsDisabled) {
-            return
+
+    function stopClicked() {
+        if (controlsDisabled) {
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
 
         const message = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_stopPlayer",
+            type: 'exec',
+            command: 'RPC_stopPlayer',
             //should take 3 params: guildid
-            params: [guildId]
-        })
+            params: [guildId],
+        });
 
-        websocket?.send(message)
+        websocket?.send(message);
     }
-    function skipClicked () {
-        if(controlsDisabled) {
-            return
+    function skipClicked() {
+        if (controlsDisabled) {
+            return;
         }
-        setControlsDisabled(true)
+        setControlsDisabled(true);
 
         const message = JSON.stringify({
             token: token,
-            type: "exec",
-            command: "RPC_skipSong",
+            type: 'exec',
+            command: 'RPC_skipSong',
             //should take 3 params: guildid
-            params: [guildId, 1]
-        })
+            params: [guildId, 1],
+        });
 
-        websocket?.send(message)
+        websocket?.send(message);
     }
     let PlayPause;
-    if (audioPlayerStatus === "PLAYING") {
+    if (audioPlayerStatus === 'PLAYING') {
         PlayPause = (
-            <PauseButton onClick={pauseClicked} className={controlsDisabled? "disabled":""} />
-            )
-        } else {
+            <PauseButton
+                onClick={pauseClicked}
+                className={controlsDisabled ? 'disabled' : ''}
+            />
+        );
+    } else {
         PlayPause = (
-            <PlayButton onClick={playClicked} className={controlsDisabled? "disabled":""} />
-        )
+            <PlayButton
+                onClick={playClicked}
+                className={controlsDisabled ? 'disabled' : ''}
+            />
+        );
     }
 
     return (
         <PlayerControlsWrapper>
             {controlsDisabled && <Loading className="drac-bg-animated" />}
-            <ShuffleButton onClick={shuffleClicked} className={controlsDisabled? "disabled":""}/>
-            <StopButton onClick={stopClicked} className={controlsDisabled? "disabled":""} />
+            <ShuffleButton
+                onClick={shuffleClicked}
+                className={controlsDisabled ? 'disabled' : ''}
+            />
+            <StopButton
+                onClick={stopClicked}
+                className={controlsDisabled ? 'disabled' : ''}
+            />
             {PlayPause}
-            <SkipButton onClick={skipClicked} className={controlsDisabled? "disabled":""} />
+            <SkipButton
+                onClick={skipClicked}
+                className={controlsDisabled ? 'disabled' : ''}
+            />
             <PhantomButton />
             {/* <PlayPauseButton />
             <SkipButton /> */}
         </PlayerControlsWrapper>
-    )
-
+    );
 }

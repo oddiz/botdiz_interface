@@ -145,7 +145,7 @@ const GuildsContent = (props: {
                         'Content-Type': 'application/json',
                     },
                     credentials: 'include',
-                }
+                },
             ).then((reply) => reply.json());
 
             if (reply.status === 'success') {
@@ -156,7 +156,8 @@ const GuildsContent = (props: {
         } catch (error) {
             console.log(
                 'Error while trying to get guild info with guild id: ',
-                guildId, error
+                guildId,
+                error,
             );
             return null;
         }
@@ -207,7 +208,7 @@ const GuildsContent = (props: {
             {
                 method: 'GET',
                 credentials: 'include',
-            }
+            },
         ).then((reply) => reply.json());
 
         if (reply.status === 'success') {
@@ -244,7 +245,6 @@ const GuildsContent = (props: {
     const handleMPAccessButton = async () => {
         if (!activeGuild) return;
 
-
         const reply = await fetch(
             config.botdiz_server + `/botdizguild/${activeGuild.id}`,
             {
@@ -256,7 +256,7 @@ const GuildsContent = (props: {
                 body: JSON.stringify({
                     dj_roles: djRoles,
                 }),
-            }
+            },
         ).then((reply) => reply.json());
 
         if (reply.status === 'success') {
@@ -265,7 +265,7 @@ const GuildsContent = (props: {
         } else {
             console.log(
                 'Error while trying to save guild info with guild id: ',
-                activeGuild.id
+                activeGuild.id,
             );
             console.log('Reason: ' + reply.message);
             setMPSubmitButtonDisabled(true);
@@ -464,15 +464,15 @@ function RoleCheckBox(props: {
     };
     return (
         <CheckBoxWrapper>
-            <Switch 
-                id={roleId} 
+            <Switch
+                id={roleId}
                 checked={checked}
                 onChange={handleSwitch}
                 height={22}
                 width={44}
                 name={roleName}
-                offColor={"#42464D"}
-                onColor={roleColor === "#FFFFFF"? "#2fcc6f" : roleColor}
+                offColor={'#42464D'}
+                onColor={roleColor === '#FFFFFF' ? '#2fcc6f' : roleColor}
                 onHandleColor="#FFFFFF"
             />
             <CheckBoxLabel

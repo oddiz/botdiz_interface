@@ -102,11 +102,10 @@ class Modal extends React.Component {
 interface AddSongProps {
     backdropClicked: (event: React.MouseEvent<HTMLDivElement>) => Promise<void>;
     searchBoxKeyboardHandler: (
-        event: React.KeyboardEvent<HTMLDivElement>
+        event: React.KeyboardEvent<HTMLDivElement>,
     ) => Promise<void>;
 }
 const AddSong = (props: AddSongProps) => {
-
     const [processing, setProcessing] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const searchInput = useRef<HTMLInputElement>(null);

@@ -345,7 +345,8 @@ const MusicPlayer = () => {
     };
 
     const backdropClicked = async (event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.currentTarget.id === 'search_backdrop') {
+        const clickTarget = event.target as HTMLDivElement;
+        if (clickTarget.id === 'search_backdrop') {
             document
                 .getElementById('music_search_wrapper')
                 ?.classList.remove('visible');

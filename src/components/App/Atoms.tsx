@@ -6,31 +6,31 @@ export interface ConnectionState {
     websocket: WebSocket | null;
 }
 export const connectionState = atom({
-    key: "connectionState",
+    key: 'connectionState',
     default: {
-        token:null,
+        token: null,
         websocket: null,
-    } as ConnectionState
-})
+    } as ConnectionState,
+});
 
 export const accountData = atom({
-    key: "accountData",
+    key: 'accountData',
     default: {
-        username: "",
-        avatarURL: "",
+        username: '',
+        avatarURL: '',
         is_admin: false,
-        user_id: ""
-    } as ValidateUserData
-})
+        user_id: '',
+    } as ValidateUserData,
+});
 
 interface ActivePageData {
     index: number | null;
     name: string | null;
 }
 export const activePageState = atom({
-    key: "activePageState",
+    key: 'activePageState',
     default: {
         index: null,
-        name: null
-    } as ActivePageData
-})
+        name: null,
+    } as ActivePageData,
+});

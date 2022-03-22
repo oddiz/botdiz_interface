@@ -1,11 +1,16 @@
-import { Button, Select, Text } from "@dracula/dracula-ui";
-import { connectionState } from "components/App/Atoms";
-import { config } from "config";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
-import styled from "styled-components";
+import { Button, Select, Text } from '@dracula/dracula-ui';
+import { connectionState } from 'components/App/Atoms';
+import { config } from 'config';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import styled from 'styled-components';
 import Switch from 'react-switch';
-import { SettingContentWrapper, SettingDescription, SettingSubtitle, SubmitButtonWrapper } from "./MyGuildsContent";
+import {
+    SettingContentWrapper,
+    SettingDescription,
+    SettingSubtitle,
+    SubmitButtonWrapper,
+} from './MyGuildsContent';
 
 interface DbGuildSubscriptions {
     type: string;
@@ -14,172 +19,186 @@ interface DbGuildSubscriptions {
     last_posted_channel: string;
     last_posted_content_hash: string;
 }
-const SubscriptionsContent = (props: { guildId: string; }) => {
-	
-    const [textChannels, setTextChannels] = useState<getTextChannelsSuccess["channels"]>([]);
+const SubscriptionsContent = (props: { guildId: string }) => {
+    const [textChannels, setTextChannels] = useState<
+        getTextChannelsSuccess['channels']
+    >([]);
     const [epicSubActive, setEpicSubActive] = useState(false);
-    const [epicSubChannelName, setEpicSubChannelName] = useState("default");
-    const [epicSubChannelId, setEpicSubChannelId] = useState<string | null>(null);
-    const [epicSubSubmitButtonDisabled, setEpicSubSubmitButtonDisabled] = useState(true);
+    const [epicSubChannelName, setEpicSubChannelName] = useState('default');
+    const [epicSubChannelId, setEpicSubChannelId] = useState<string | null>(
+        null,
+    );
+    const [epicSubSubmitButtonDisabled, setEpicSubSubmitButtonDisabled] =
+        useState(true);
     const [epicSelectReady, setEpicSelectReady] = useState(false);
-    const [ saveStatus, setSaveStatus ] = useState("");
-    const { token , websocket } = useRecoilValue(connectionState) 
-    const channelSwitchRef = useRef<HTMLSelectElement>(null)
+    const [saveStatus, setSaveStatus] = useState('');
+    const { token, websocket } = useRecoilValue(connectionState);
+    const channelSwitchRef = useRef<HTMLSelectElement>(null);
 
     const guildId = props.guildId;
-    
-    
-    
-	const getSubscriptions = useCallback(async () => {
-		try {
-			const reply = await fetch(config.botdiz_server + "/botdizguild/subscriptions/" + guildId, {
-				method: "GET",
-				credentials: "include",
-			}).then((reply) => reply.json());
 
-            if (reply.status === "failed") return
+    const getSubscriptions = useCallback(async () => {
+        try {
+            const reply = await fetch(
+                config.botdiz_server + '/botdizguild/subscriptions/' + guildId,
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                },
+            ).then((reply) => reply.json());
 
-			const guildSubs: DbGuildSubscriptions[] = reply.result;
-			let epicSubActive = false;
-			let epicSubChannelId = null;
-			let epicSubChannelName = "default";
+            if (reply.status === 'failed') return;
 
-			for (const sub of guildSubs) {
-				if (sub.type === "epic_deals") {
-					epicSubActive = sub.active || false;
-					epicSubChannelId = sub.subscribed_channel;
-					for (const textChannel of textChannels) {
-						if (parseInt(sub.subscribed_channel) === parseInt(textChannel.id)) {
-							epicSubChannelName = textChannel.name;
-						}
-					}
-					break;
-				}
-			}
+            const guildSubs: DbGuildSubscriptions[] = reply.result;
+            let epicSubActive = false;
+            let epicSubChannelId = null;
+            let epicSubChannelName = 'default';
 
-            
-			
-            setEpicSubActive(epicSubActive)
-            setEpicSubChannelName(epicSubChannelName)
-            setEpicSubChannelId(epicSubChannelId)
-            setEpicSelectReady(true)
+            for (const sub of guildSubs) {
+                if (sub.type === 'epic_deals') {
+                    epicSubActive = sub.active || false;
+                    epicSubChannelId = sub.subscribed_channel;
+                    for (const textChannel of textChannels) {
+                        if (
+                            parseInt(sub.subscribed_channel) ===
+                            parseInt(textChannel.id)
+                        ) {
+                            epicSubChannelName = textChannel.name;
+                        }
+                    }
+                    break;
+                }
+            }
 
-		} catch (error) {
-			console.log(error);
-		}
-	}, [guildId, textChannels])
+            setEpicSubActive(epicSubActive);
+            setEpicSubChannelName(epicSubChannelName);
+            setEpicSubChannelId(epicSubChannelId);
+            setEpicSelectReady(true);
+        } catch (error) {
+            console.log(error);
+        }
+    }, [guildId, textChannels]);
     type unauthorizedResponse = {
         status: 'unauthorized';
-    }
+    };
     type getTextChannelsSuccess = {
-        status: 'success',
-        channels: { name: string, id: string }[];
-    }
+        status: 'success';
+        channels: { name: string; id: string }[];
+    };
     type getTextChannelsFailed = {
-        status: 'failed',
-        command: 'RPC_getTextChannels'
-    }
-    type getTextChannelsReturn = getTextChannelsSuccess | getTextChannelsFailed | unauthorizedResponse
+        status: 'failed';
+        command: 'RPC_getTextChannels';
+    };
+    type getTextChannelsReturn =
+        | getTextChannelsSuccess
+        | getTextChannelsFailed
+        | unauthorizedResponse;
 
-	const listenWebsocket = useCallback(async (reply: MessageEvent) => {
-		let parsedReply;
-		try {
-			parsedReply = JSON.parse(reply.data);
-		} catch (error) {
-			console.log("Unable to parse reply");
+    const listenWebsocket = useCallback(
+        async (reply: MessageEvent) => {
+            let parsedReply;
+            try {
+                parsedReply = JSON.parse(reply.data);
+            } catch (error) {
+                console.log('Unable to parse reply');
 
-            return
-		}
+                return;
+            }
 
-		if (parsedReply.command !== "RPC_getTextChannels") return
-        
-        const textChannelsReply: getTextChannelsReturn = parsedReply.result;
-        
-        if (textChannelsReply.status === "unauthorized") {
-            console.error("Unauthorized");
+            if (parsedReply.command !== 'RPC_getTextChannels') return;
+
+            const textChannelsReply: getTextChannelsReturn = parsedReply.result;
+
+            if (textChannelsReply.status === 'unauthorized') {
+                console.error('Unauthorized');
+                return;
+            }
+            if (textChannelsReply.status === 'success') {
+                setTextChannels(textChannelsReply.channels);
+            }
+
+            await getSubscriptions();
+        },
+        [getSubscriptions],
+    );
+    const getTextChannels = useCallback(async () => {
+        if (!guildId) {
             return;
         }
-        if(textChannelsReply.status === "success") {
-            setTextChannels(textChannelsReply.channels)
+        const message = JSON.stringify({
+            type: 'get',
+            token: token,
+            command: 'RPC_getTextChannels',
+            params: [guildId],
+        });
+
+        websocket?.send(message);
+    }, [guildId, websocket, token]);
+    const epicDealChannelSelected: React.ChangeEventHandler<
+        HTMLSelectElement
+    > = async (event) => {
+        let selectedChannelId;
+        for (const channel of textChannels) {
+            if (channel.name === event.target.value) {
+                selectedChannelId = channel.id;
+                break;
+            }
         }
 
-		await getSubscriptions();
-	}, [getSubscriptions])
-	const getTextChannels = useCallback(async () => {
-		if (!guildId) {
-			return;
-		}
-		const message = JSON.stringify({
-			type: "get",
-			token: token,
-			command: "RPC_getTextChannels",
-			params: [guildId],
-		});
-
-		websocket?.send(message);
-	}, [guildId, websocket, token]);
-	const epicDealChannelSelected: React.ChangeEventHandler<HTMLSelectElement> = async (event) => {
-		let selectedChannelId;
-		for (const channel of textChannels) {
-			if (channel.name === event.target.value) {
-				selectedChannelId = channel.id;
-				break;
-			}
-		}
-
-        if(!selectedChannelId) return
+        if (!selectedChannelId) return;
 
         setEpicSubSubmitButtonDisabled(false);
         setEpicSubChannelId(selectedChannelId);
+    };
 
-		
-	};
-
-	const handleEpicSubSwitch = async (checked: any) => {
-        console.log(checked)
-        setEpicSubActive(checked)
-		if (epicSubChannelId || !checked) {
+    const handleEpicSubSwitch = async (checked: any) => {
+        console.log(checked);
+        setEpicSubActive(checked);
+        if (epicSubChannelId || !checked) {
             setEpicSubSubmitButtonDisabled(false);
-		}
-	};
+        }
+    };
 
-	const handleEpicSubAccessButton: React.MouseEventHandler<HTMLButtonElement> = async () => {
-		console.log(channelSwitchRef.current?.value);
-		console.log(epicSubChannelId);
-		console.log(epicSubActive);
+    const handleEpicSubAccessButton: React.MouseEventHandler<
+        HTMLButtonElement
+    > = async () => {
+        console.log(channelSwitchRef.current?.value);
+        console.log(epicSubChannelId);
+        console.log(epicSubActive);
 
-		
-		const reply = await fetch(config.botdiz_server + `/botdizguild/subscriptions/${guildId}`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			credentials: "include",
-			body: JSON.stringify({
-				type: "epic_deals",
-				active: epicSubActive,
-				subscribed_channel: epicSubChannelId,
-			}),
-		}).then((reply) => reply.json());
+        const reply = await fetch(
+            config.botdiz_server + `/botdizguild/subscriptions/${guildId}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    type: 'epic_deals',
+                    active: epicSubActive,
+                    subscribed_channel: epicSubChannelId,
+                }),
+            },
+        ).then((reply) => reply.json());
 
-		if (reply.status === "success") {
+        if (reply.status === 'success') {
             setEpicSubSubmitButtonDisabled(true);
-            setSaveStatus("✔️")
-		} else {
+            setSaveStatus('✔️');
+        } else {
             setEpicSubSubmitButtonDisabled(true);
-            setSaveStatus("❌")
-		}
-	};
-    
+            setSaveStatus('❌');
+        }
+    };
+
     useEffect(() => {
-        websocket?.addEventListener("message", listenWebsocket);
-		getTextChannels()
-    
-      return () => {
-        websocket?.removeEventListener("message", listenWebsocket);
-      }
-      
-    }, [getTextChannels, listenWebsocket, websocket])
+        websocket?.addEventListener('message', listenWebsocket);
+        getTextChannels();
+
+        return () => {
+            websocket?.removeEventListener('message', listenWebsocket);
+        };
+    }, [getTextChannels, listenWebsocket, websocket]);
     const renderTextChannels = textChannels.map((textChannel, index) => (
         <option key={index}>{textChannel.name}</option>
     ));
@@ -187,27 +206,28 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
     return (
         <SettingContentWrapper>
             <SettingSubtitle>Epic Game Deals:</SettingSubtitle>
-            <SettingDescription style={{ fontSize: "12px" }}>
-                Every week epic games releases new set of free games. Get notification every cycle.
+            <SettingDescription style={{ fontSize: '12px' }}>
+                Every week epic games releases new set of free games. Get
+                notification every cycle.
             </SettingDescription>
             <ActiveSwitch>
                 <Text
                     style={{
-                        fontSize: "14px",
-                        marginRight: "10px",
+                        fontSize: '14px',
+                        marginRight: '10px',
                     }}
                 >
                     Active:
                 </Text>
-                <Switch 
+                <Switch
                     checked={epicSubActive}
                     onChange={handleEpicSubSwitch}
                     height={22}
                     width={44}
-                    name={"epic_active_switch"}
-                    offColor={"#42464D"}
-                    onColor={"#2fcc6f"}
-                    onHandleColor="#FFFFFF"    
+                    name={'epic_active_switch'}
+                    offColor={'#42464D'}
+                    onColor={'#2fcc6f'}
+                    onHandleColor="#FFFFFF"
                 />
             </ActiveSwitch>
             {epicSelectReady && (
@@ -239,18 +259,18 @@ const SubscriptionsContent = (props: { guildId: string; }) => {
             </SubmitButtonWrapper>
         </SettingContentWrapper>
     );
-}
+};
 const ActiveSwitch = styled.div`
-	display: flex;
-	flex-direction: row;
+    display: flex;
+    flex-direction: row;
 
-	align-items: center;
+    align-items: center;
 
-	margin-top: 10px;
+    margin-top: 10px;
 `;
 const ChannelSelector = styled.div`
-	margin-top: 20px;
-	width: 300px;
+    margin-top: 20px;
+    width: 300px;
 `;
 
 export default SubscriptionsContent;

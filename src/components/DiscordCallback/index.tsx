@@ -1,48 +1,45 @@
-import { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { config } from '../../config'
-import LoadingGear from "./Gear-0.2s-200px.svg"
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { config } from '../../config';
+import LoadingGear from './Gear-0.2s-200px.svg';
 
 const DiscordCallbackWrapper = styled.div`
     height: 100%;
     width: 100%;
 
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-`
+`;
 const LoadingGearIcon = styled.img`
-    height:70px;
+    height: 70px;
     width: 70px;
-
-
-`
+`;
 const LoadingText = styled.span`
     color: white;
-    font-family:"Fira Code";
+    font-family: 'Fira Code';
     font-size: 22px;
 
-    
     overflow-wrap: break-word;
-`
+`;
 const ErrorText = styled.span`
     color: var(--red);
-    font-family:"Fira Code";
+    font-family: 'Fira Code';
     font-size: 22px;
 
     padding: 0 10%;
 
     text-align: center;
     word-break: keep-all;
-`
+`;
 const SuccessText = styled.span`
     color: #00b85f;
-    font-family:"Fira Code";
+    font-family: 'Fira Code';
     font-size: 22px;
-`
+`;
 const SaveMeButton = styled.a`
-    display:flex;
+    display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -55,126 +52,117 @@ const SaveMeButton = styled.a`
     height: 50px;
     width: 200px;
 
-    background: linear-gradient(var(--gradientDegree),var(--green) 0% ,var(--yellow) 50%,var(--pink) 100%);
+    background: linear-gradient(
+        var(--gradientDegree),
+        var(--green) 0%,
+        var(--yellow) 50%,
+        var(--pink) 100%
+    );
     background-size: 200% 100%;
 
     border-radius: 8px;
 
-    cursor:pointer;
+    cursor: pointer;
 
     text-decoration: none;
 
     transition: linear 0.2s all;
-    
-    &:hover{
+
+    &:hover {
         background-position-x: 100%;
     }
-
-`
+`;
 export const DiscordCallback: React.FC = () => {
-   
-  
     const [success, setSuccess] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    
-    const DiscordCallbackInit = async () => {
-        const authCode = new URLSearchParams(window.location.search).get("code")
+    const [errorMessage, setErrorMessage] = useState('');
 
-        if (!authCode){
-            console.log("No code available.")
+    const DiscordCallbackInit = async () => {
+        const authCode = new URLSearchParams(window.location.search).get(
+            'code',
+        );
+
+        if (!authCode) {
+            console.log('No code available.');
             setError(true);
-            setErrorMessage("No code available.");
-          
-            return
+            setErrorMessage('No code available.');
+
+            return;
         }
-        const response  = await fetch(config.botdiz_server + '/discordlogin', {
-            method: "POST",
+        const response = await fetch(config.botdiz_server + '/discordlogin', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
             },
-            credentials: "include",
+            credentials: 'include',
             body: JSON.stringify({
                 code: authCode,
-            })
-        }).then(data => data)
-        
-        const parsedResponse = await response.json()
+            }),
+        }).then((data) => data);
 
-        console.log(parsedResponse)
-        if (parsedResponse.result === "OK") {
+        const parsedResponse = await response.json();
+
+        console.log(parsedResponse);
+        if (parsedResponse.result === 'OK') {
             setSuccess(true);
             setError(false);
-            setSuccessMessage("Login successful");
+            setSuccessMessage('Login successful');
 
             let botdizUrl;
-            if (process.env.NODE_ENV === "development") {
-                botdizUrl = "http://localhost:3000/app"
+            if (process.env.NODE_ENV === 'development') {
+                botdizUrl = 'http://localhost:3000/app';
             } else {
-                botdizUrl = "https://botdiz.kaansarkaya.com/app"
+                botdizUrl = 'https://botdiz.kaansarkaya.com/app';
             }
-            window.open(botdizUrl,"_self")
-        } else if (parsedResponse.status === "error") {
+            window.open(botdizUrl, '_self');
+        } else if (parsedResponse.status === 'error') {
             setSuccess(false);
             setError(true);
             setErrorMessage(parsedResponse.message);
-            
-            
         }
-    }
+    };
     useEffect(() => {
-
-        DiscordCallbackInit()
-        
-    }, [])
-
+        DiscordCallbackInit();
+    }, []);
 
     const handleSaveMe = async () => {
         let botdizUrl;
-            if (process.env.NODE_ENV === "development") {
-                botdizUrl = "http://localhost:3000/app"
-            } else {
-                botdizUrl = "https://botdiz.kaansarkaya.com/app"
-            }
-            window.open(botdizUrl,"_self")
-    }
+        if (process.env.NODE_ENV === 'development') {
+            botdizUrl = 'http://localhost:3000/app';
+        } else {
+            botdizUrl = 'https://botdiz.kaansarkaya.com/app';
+        }
+        window.open(botdizUrl, '_self');
+    };
 
-    if(error) {
-        return(
+    if (error) {
+        return (
             <DiscordCallbackWrapper>
                 <ErrorText>
-                    Failed to login via Discord.
-
-                    Reason: {errorMessage} 
-                    <br />Contact oddiz if issue persists
+                    Failed to login via Discord. Reason: {errorMessage}
+                    <br />
+                    Contact oddiz if issue persists
                 </ErrorText>
-                <SaveMeButton onClick={handleSaveMe}>
-                    Retry
-                </SaveMeButton>
+                <SaveMeButton onClick={handleSaveMe}>Retry</SaveMeButton>
             </DiscordCallbackWrapper>
-        )
+        );
     }
 
-    if(success) {
-
-        return(
+    if (success) {
+        return (
             <DiscordCallbackWrapper>
                 <SuccessText>
-                    {successMessage} You can now close this window. 
+                    {successMessage} You can now close this window.
                 </SuccessText>
-                
             </DiscordCallbackWrapper>
-        )
+        );
     }
 
-    return(
+    return (
         <DiscordCallbackWrapper>
             <LoadingGearIcon src={LoadingGear} />
-            <LoadingText>
-                Logging in with Discord
-            </LoadingText>
+            <LoadingText>Logging in with Discord</LoadingText>
         </DiscordCallbackWrapper>
-    )
-    
-}
+    );
+};

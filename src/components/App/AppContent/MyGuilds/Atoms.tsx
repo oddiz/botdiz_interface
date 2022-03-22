@@ -1,7 +1,7 @@
-import { atom } from "recoil";
-import { BotdizGuild } from "./MyGuilds";
+import { atom } from 'recoil';
+import { BotdizGuild } from './MyGuilds';
 
 export const discordGuildsState = atom({
-    key: "discordGuildsState",
-    default: [] as BotdizGuild[]
-})
+    key: 'discordGuildsState',
+    default: [] as BotdizGuild[],
+});

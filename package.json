@@ -6,6 +6,7 @@
     "@dracula/dracula-ui": "^0.8.1",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
+    "@mantine/hooks": "^4.0.7",
     "@mui/material": "^5.5.2",
     "@mui/styled-engine": "^5.5.2",
     "@testing-library/jest-dom": "^5.11.4",

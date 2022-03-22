@@ -141,7 +141,7 @@ function GuildIcon(props: GuildIconProps) {
     }, [activeGuild]);
 
     const guildIconClicked = async (
-        event: React.MouseEvent<HTMLDivElement, MouseEvent>
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     ) => {
         const eventTarget = event.currentTarget;
 
@@ -208,7 +208,7 @@ function GuildIcon(props: GuildIconProps) {
                 place="right"
                 type="dark"
                 effect="solid"
-                className='z_index_9999'
+                className="z_index_9999"
             >
                 <span style={{ whiteSpace: 'nowrap' }}>{guild.name}</span>
             </ReactTooltip>

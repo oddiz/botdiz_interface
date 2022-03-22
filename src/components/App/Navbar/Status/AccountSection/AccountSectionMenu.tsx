@@ -1,4 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Button } from '@dracula/dracula-ui';
 import { config } from '../../../../../config';
@@ -6,28 +5,9 @@ import MenuItems from './MenuItems';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { accountData, connectionState } from 'components/App/Atoms';
 import { accountSectionVisible } from './AccountSection';
+import { useClickOutside } from '@mantine/hooks';
 
-function listenForOutsideClicks(
-    listening: boolean,
-    setListening: React.Dispatch<React.SetStateAction<boolean>>,
-    menuRef: React.MutableRefObject<HTMLDivElement>,
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-) {
-    return () => {
-        if (listening) return;
-        if (!menuRef.current) return;
-        setListening(true);
-        [`click`, `touchstart`].forEach((type) => {
-            document.addEventListener(`click`, (evt) => {
-                const evtTarget = evt.target as HTMLElement;
-                if (menuRef.current.contains(evtTarget)) return;
-                setIsOpen(false);
-            });
-        });
-    };
-}
-
-const AccountMenuWrapper = styled.div<{isVisible: boolean}>`
+const AccountMenuWrapper = styled.div<{ isVisible: boolean }>`
     display: ${(props) => (props.isVisible ? 'inline' : 'none')};
     position: absolute;
     right: 5px;
@@ -64,24 +44,15 @@ const LogoutButton = styled.div`
     margin-top: auto;
 `;
 const AccountMenu = () => {
-    const AccountRef = useRef(null as unknown as HTMLDivElement);
     const { token } = useRecoilValue(connectionState);
     const { username } = useRecoilValue(accountData);
-    const [listening, setListening] = useState(false);
     const [menuVisible, setMenuVisible] = useRecoilState(accountSectionVisible);
 
-    //https://github.com/Pomax/react-onclickoutside
-
+    const sectionRef = useClickOutside(() => {
+        setMenuVisible(false);
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(
-        listenForOutsideClicks(
-            listening,
-            setListening,
-            AccountRef,
-            setMenuVisible
-        )
-    );
 
     const handleLogout = async () => {
         console.log('logoutclicked');
@@ -100,7 +71,7 @@ const AccountMenu = () => {
     };
 
     return (
-        <AccountMenuWrapper isVisible={menuVisible} ref={AccountRef}>
+        <AccountMenuWrapper isVisible={menuVisible} ref={sectionRef}>
             <Box
                 color="blackSecondary"
                 rounded="lg"

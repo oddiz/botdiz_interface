@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
-import "./App.css";
-import Dashboard from "./AppContent/Dashboard/Dashboard";
-import MyGuilds from "./AppContent/MyGuilds/MyGuilds";
-import Settings from "./AppContent/Settings/SettingsPage";
-import Navbar from "./Navbar/Navbar";
-import Login from "../Login/Login";
-import { config } from "../../config";
-import styled from "styled-components";
-import BotdizStats from "./AppContent/BotdizStats/BotdizStats";
-import { ToastContainer } from "react-toastify";
-import { useRecoilState } from "recoil";
-import { accountData, connectionState } from "./Atoms";
+import React, { useEffect, useState } from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import './App.css';
+import Dashboard from './AppContent/Dashboard/Dashboard';
+import MyGuilds from './AppContent/MyGuilds/MyGuilds';
+import Settings from './AppContent/Settings/SettingsPage';
+import Navbar from './Navbar/Navbar';
+import Login from '../Login/Login';
+import { config } from '../../config';
+import styled from 'styled-components';
+import BotdizStats from './AppContent/BotdizStats/BotdizStats';
+import { ToastContainer } from 'react-toastify';
+import { useRecoilState } from 'recoil';
+import { accountData, connectionState } from './Atoms';
 export interface ValidateUserData {
     username: string;
     avatarURL: string;
@@ -19,55 +19,60 @@ export interface ValidateUserData {
     user_id?: string;
 }
 
-type ValidateResponse = {
-    isValidated: true;
-    accountInfo: ValidateUserData;
-    token: string;
-} | {
-    isValidated: false;
-}
+type ValidateResponse =
+    | {
+          isValidated: true;
+          accountInfo: ValidateUserData;
+          token: string;
+      }
+    | {
+          isValidated: false;
+      };
 
 const AppWrapper = styled.div`
-	width: 100%;
-	height: 100vh;
+    width: 100%;
+    height: 100vh;
 
-	display: flex;
-	flex-direction: column;
-	background-color: #36393f;
+    display: flex;
+    flex-direction: column;
+    background-color: #36393f;
 `;
 const AppContentWrapper = styled.div`
-	flex-grow: 1;
-	flex-shrink: 1;
-	min-height: 250px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 250px;
 
-	overflow-y: visible;
-	overflow-x: hidden;
+    overflow-y: visible;
+    overflow-x: hidden;
 
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 `;
 
 let retryCounter = 0;
 
 const App = () => {
-
-    const [sessionValidated, setSessionValidated] = useState<boolean | null>(null);
+    const [sessionValidated, setSessionValidated] = useState<boolean | null>(
+        null,
+    );
     const [connection, setConnection] = useRecoilState(connectionState);
     const [, setAccountInfo] = useRecoilState(accountData);
     const [alreadyConnected, setAlreadyConnected] = useState(false);
     const [token, setToken] = useState<string | null>(null);
-	
-    
+
     const setupWebsocket = () => {
         try {
-            setAlreadyConnected(false)
-            if (connection && connection.websocket?.readyState === WebSocket.OPEN) {
+            setAlreadyConnected(false);
+            if (
+                connection &&
+                connection.websocket?.readyState === WebSocket.OPEN
+            ) {
                 connection.websocket.close();
 
                 return;
             }
-            console.log("Closed existing websocket");
+            console.log('Closed existing websocket');
         } catch (error) {
             //silently fail
         }
@@ -79,30 +84,33 @@ const App = () => {
 
         ws.onopen = () => {
             retryCounter = 0;
-            console.log("Connected to websocket");
-            setConnection(
-                { 
-                    websocket: ws,
-                    token: token 
-                }
-            );
+            console.log('Connected to websocket');
+            setConnection({
+                websocket: ws,
+                token: token,
+            });
 
             ws.onmessage = (message) => {
                 let parsedMessage;
                 try {
                     parsedMessage = JSON.parse(message.data);
                 } catch (error) {
-                    console.log("error while trying to parse ws message on App.js");
+                    console.log(
+                        'error while trying to parse ws message on App.js',
+                    );
                 }
 
-                if (parsedMessage.status === "error" && parsedMessage.message === "already connected") {
+                if (
+                    parsedMessage.status === 'error' &&
+                    parsedMessage.message === 'already connected'
+                ) {
                     setAlreadyConnected(true);
                 }
             };
         };
 
         ws.onclose = async (data) => {
-            console.log("Socket is closed.");
+            console.log('Socket is closed.');
 
             //check for validation
             //if not validated reload the window so login page shows
@@ -115,22 +123,24 @@ const App = () => {
             setConnection({ websocket: ws, token: token });
             if (retryCounter < 5) {
                 await setupWebsocket();
-                retryCounter ++;
+                retryCounter++;
             } else {
-                console.log("Tried to reconnect 5 times but failed. Reconnect manually.");
+                console.log(
+                    'Tried to reconnect 5 times but failed. Reconnect manually.',
+                );
                 return;
             }
         };
-    }
+    };
 
     const validateSession = async () => {
-        const response = await fetch(config.botdiz_server + "/validate", {
-            method: "GET",
-            credentials: "include",
+        const response = await fetch(config.botdiz_server + '/validate', {
+            method: 'GET',
+            credentials: 'include',
         }).then((data) => data);
 
         const responseBody: ValidateResponse = await response.json();
-        
+
         if (responseBody.isValidated) {
             setToken(responseBody.token);
             setSessionValidated(true);
@@ -140,37 +150,32 @@ const App = () => {
         }
 
         return responseBody;
-    }
-    
+    };
+
     useEffect(() => {
         async function run() {
-            
             if (sessionValidated === null) {
                 //haven't tried to validate session yet
 
                 await validateSession();
-            } else if(sessionValidated === false) {
+            } else if (sessionValidated === false) {
                 //session is not validated
-                console.log("session is not validated")
-                return
+                console.log('session is not validated');
+                return;
             } else if (sessionValidated && connection.websocket) {
-                
-                return
+                return;
             } else if (sessionValidated) {
-
-                console.log("Setting up websocket.");
+                console.log('Setting up websocket.');
                 setupWebsocket();
-                
             }
-			//    .catch(err => console.log(err, "Error while trying to get token."))
+            //    .catch(err => console.log(err, "Error while trying to get token."))
+        }
+        run();
 
-		}
-		run();
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [connection, sessionValidated, token])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [connection, sessionValidated, token]);
 
-	//const [token, setToken] = useState();
+    //const [token, setToken] = useState();
     if (!sessionValidated) {
         return <Login />;
     }
@@ -182,25 +187,28 @@ const App = () => {
         return (
             <div
                 style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
             >
                 <div
                     style={{
-                        width: "80%",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        textAlign: "center",
-                        paddingTop: "50px",
+                        width: '80%',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        textAlign: 'center',
+                        paddingTop: '50px',
                     }}
                 >
-                    <span style={{ fontSize: "64px", marginBottom: "20px" }}>⛔</span>
-                    <span style={{ fontSize: "36px", color: "var(--red)" }}>
-                        You are already connected to Dashboard on another window or tab!
+                    <span style={{ fontSize: '64px', marginBottom: '20px' }}>
+                        ⛔
+                    </span>
+                    <span style={{ fontSize: '36px', color: 'var(--red)' }}>
+                        You are already connected to Dashboard on another window
+                        or tab!
                     </span>
                 </div>
             </div>
@@ -208,8 +216,7 @@ const App = () => {
     }
 
     return (
-            
-            <AppWrapper id="app_wrapper" key={Math.floor(Math.random() * 10000)}>
+        <AppWrapper id="app_wrapper" key={Math.floor(Math.random() * 10000)}>
             <ToastContainer
                 position="top-center"
                 autoClose={3000}
@@ -222,27 +229,24 @@ const App = () => {
                 pauseOnHover
             />
 
-            <Navbar
-                setupWebsocket={setupWebsocket}
-            />
-                <AppContentWrapper id="app_content_wrapper">
-                    <Routes>
-                        <Route path="dashboard" element={<Dashboard />} />
+            <Navbar setupWebsocket={setupWebsocket} />
+            <AppContentWrapper id="app_content_wrapper">
+                <Routes>
+                    <Route path="dashboard" element={<Dashboard />} />
 
-                        <Route path="myguilds" element={<MyGuilds />} />
-                        <Route path="settings/*" element={<Settings />} />
-                        <Route path="stats" element={<BotdizStats />} />
-                        <Route path="*" element={
-                            <Navigate replace to="dashboard" />
-                        } />
-                        
-                        <Route element={<Navigate replace to="/404" />} />
-        
-                       
-                    </Routes>
-                </AppContentWrapper>
-            </AppWrapper>
+                    <Route path="myguilds" element={<MyGuilds />} />
+                    <Route path="settings/*" element={<Settings />} />
+                    <Route path="stats" element={<BotdizStats />} />
+                    <Route
+                        path="*"
+                        element={<Navigate replace to="dashboard" />}
+                    />
+
+                    <Route element={<Navigate replace to="/404" />} />
+                </Routes>
+            </AppContentWrapper>
+        </AppWrapper>
     );
-}
+};
 
-export default App
+export default App;

@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Link, Routes, Route } from 'react-router-dom'
-import { useLocation } from 'react-router'
-import './SettingsContent.css'
-import AddUser from './AddUser/AddUser'
-import Profile from './Profile/Profile'
+import { Link, Routes, Route } from 'react-router-dom';
+import { useLocation } from 'react-router';
+import './SettingsContent.css';
+import AddUser from './AddUser/AddUser';
+import Profile from './Profile/Profile';
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { accountData } from 'components/App/Atoms';
@@ -15,56 +15,49 @@ const SettingsOptions = styled.div`
     display: flex;
     flex-direction: column;
     padding: 0 3em;
-    
 `;
 const SettingsNavWrapper = styled.div`
     flex-shrink: 0;
 
-    
     width: 230px;
-    
 `;
 const SettingsNav = styled.div`
     display: flex;
     flex-direction: column;
-    
+
     width: 100%;
-    border: solid 1px #6F7582; 
+    border: solid 1px #6f7582;
     border-radius: 5px;
 `;
 const SettingsContentWrapper = styled.div`
     display: flex;
     flex-direction: row;
-    
+
     flex-grow: 1;
-    
+
     color: white;
 `;
 const SettingsNavItem = styled.div`
     box-sizing: border-box;
     width: 100%;
-    
 
-    
     padding: 10px 0;
     padding-left: 20px;
-    
-    &:hover{
-        background: #51555E;
+
+    &:hover {
+        background: #51555e;
         cursor: pointer;
     }
 
     &.nav_title {
         font-weight: 600;
-    border-bottom: solid 2px #6F7582;
-
+        border-bottom: solid 2px #6f7582;
     }
     &.nav_title:hover {
         background: initial;
         cursor: default;
     }
     &:last-child {
-        
     }
 `;
 const OptionTitle = styled.div`
@@ -74,13 +67,13 @@ const OptionTitle = styled.div`
     padding-bottom: 25px;
 
     &::after {
-        display:block;
-        content: "";
+        display: block;
+        content: '';
         width: 100%;
         height: 2px;
 
         margin-top: 10px;
-        background-color: #4B4F57;
+        background-color: #4b4f57;
         border-radius: 5px;
     }
 `;
@@ -90,107 +83,102 @@ type NavItem = {
     url: string;
     component: any;
     requireAdmin?: boolean;
-}
+};
 const SettingsContent = () => {
     const location = useLocation();
-    const initialLocation = location.pathname.split("/")[3]
+    const initialLocation = location.pathname.split('/')[3];
     const accountInfo = useRecoilValue(accountData);
-    const [activeSetting, setActiveSetting] = useState<NavItem | null>(null)
+    const [activeSetting, setActiveSetting] = useState<NavItem | null>(null);
 
     const navItems: NavItem[] = [
         {
-            title: "Profile",
-            url: "profile",
-            component: Profile
+            title: 'Profile',
+            url: 'profile',
+            component: Profile,
         },
         {
-            title: "Add User",
-            url: "adduser",
+            title: 'Add User',
+            url: 'adduser',
             component: AddUser,
-            requireAdmin: true
-        }
-    ]
+            requireAdmin: true,
+        },
+    ];
 
     useEffect(() => {
-        
-        
-        const initialItem = findSelectedOption(initialLocation)
+        const initialItem = findSelectedOption(initialLocation);
 
-        setActiveSetting(initialItem)
-      
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-    
+        setActiveSetting(initialItem);
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const findSelectedOption = useCallback((itemNameorUrl: string) => {
-
-        
-
         //find clicked item
         let clickedItem;
-        for(const item of navItems) {
-            if(item.title === itemNameorUrl ||item.url === itemNameorUrl) {
-                clickedItem = item
+        for (const item of navItems) {
+            if (item.title === itemNameorUrl || item.url === itemNameorUrl) {
+                clickedItem = item;
             }
         }
 
-        return clickedItem || null
-        
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[])
+        return clickedItem || null;
 
-    const navItemClicked: React.MouseEventHandler<HTMLDivElement>= (event) => {
-        const selectedItem = findSelectedOption(event.currentTarget.innerText)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-        setActiveSetting(selectedItem)
-    }
+    const navItemClicked: React.MouseEventHandler<HTMLDivElement> = (event) => {
+        const selectedItem = findSelectedOption(event.currentTarget.innerText);
 
-    const renderNavItems = navItems.map((item,index) => {
-        if(item.requireAdmin && !accountInfo.is_admin) {
-            return null
+        setActiveSetting(selectedItem);
+    };
+
+    const renderNavItems = navItems.map((item, index) => {
+        if (item.requireAdmin && !accountInfo.is_admin) {
+            return null;
         }
-        return(
-            <Link className="settings_nav_link" key={index} to={"/app/settings/" + item.url}>
+        return (
+            <Link
+                className="settings_nav_link"
+                key={index}
+                to={'/app/settings/' + item.url}
+            >
                 <SettingsNavItem key={index} onClick={navItemClicked}>
                     {item.title}
                 </SettingsNavItem>
             </Link>
-        )
-    })
+        );
+    });
 
-    const renderRoutes = navItems.map((item,index) => {
-        if(item.requireAdmin && !accountInfo.is_admin) {
-            return null
+    const renderRoutes = navItems.map((item, index) => {
+        if (item.requireAdmin && !accountInfo.is_admin) {
+            return null;
         }
-        return(
-            <Route path={"settings/"+item.url} key={index} element={item.component} />
-        )
-    })
+        return (
+            <Route
+                path={'settings/' + item.url}
+                key={index}
+                element={item.component}
+            />
+        );
+    });
 
-    return(
+    return (
         <SettingsContentWrapper id="settings_content_wrapper">
             <SettingsNavWrapper>
                 <SettingsNav>
-
                     <SettingsNavItem className="nav_title">
                         Account Settings
                     </SettingsNavItem>
                     {renderNavItems}
-                
                 </SettingsNav>
             </SettingsNavWrapper>
             <SettingsOptions>
-                
-                {activeSetting && 
-                <OptionTitle>
-                    {activeSetting.title}
-                </OptionTitle>}
-                <Routes>
-                    {renderRoutes}
-                </Routes>
+                {activeSetting && (
+                    <OptionTitle>{activeSetting.title}</OptionTitle>
+                )}
+                <Routes>{renderRoutes}</Routes>
             </SettingsOptions>
         </SettingsContentWrapper>
-    )
-}
-export default SettingsContent
+    );
+};
+export default SettingsContent;

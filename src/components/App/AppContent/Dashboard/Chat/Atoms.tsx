@@ -1,18 +1,17 @@
-import { atom } from "recoil";
-import { TextChannel } from "./TextChannelsBar";
-
+import { atom } from 'recoil';
+import { TextChannel } from './TextChannelsBar';
 
 export const activeTextChannelState = atom<TextChannel | null>({
-    key: "activeTextChannel",
-    default: null
-})
+    key: 'activeTextChannel',
+    default: null,
+});
 
 export const guildTextChannelsState = atom<TextChannel[]>({
-    key: "guildTextChannels",
-    default: []
-})
+    key: 'guildTextChannels',
+    default: [],
+});
 
 export const ChatPageErrorMessageState = atom<string | null>({
-    key: "ChatPageErrorMessage",
-    default: ""
-})
+    key: 'ChatPageErrorMessage',
+    default: '',
+});

@@ -1,14 +1,16 @@
-
-
-export function shortenString(text: string, maxWidth: number, fontSize:string, fontFamily: string) {
-    
-    function getTextWidth (text: string){
+export function shortenString(
+    text: string,
+    maxWidth: number,
+    fontSize: string,
+    fontFamily: string,
+) {
+    function getTextWidth(text: string) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        if (!context) return
-        const font = fontSize+ " " + fontFamily
-        context.font = font
-        
+        if (!context) return;
+        const font = fontSize + ' ' + fontFamily;
+        context.font = font;
+
         return context.measureText(text).width;
     }
 
@@ -16,35 +18,33 @@ export function shortenString(text: string, maxWidth: number, fontSize:string, f
     //     channelName = channelName.substring(0,21) + "..."
     // }
 
-    const textWidth = getTextWidth(text)
+    const textWidth = getTextWidth(text);
     if (textWidth && textWidth > maxWidth) {
         let counter = 0;
 
-        let newText = text.substring(0,counter) + "..."
-        let newTextWidth = getTextWidth(newText)
-        
+        let newText = text.substring(0, counter) + '...';
+        let newTextWidth = getTextWidth(newText);
+
         while (newTextWidth && newTextWidth < maxWidth) {
+            counter++;
+            newText = text.substring(0, counter) + '...';
+            newTextWidth = getTextWidth(newText);
 
-            counter ++
-            newText = text.substring(0,counter) + "..."
-            newTextWidth = getTextWidth(newText)
-
-            if(counter > 100) {
+            if (counter > 100) {
                 //avoid accidental infinite loop
-                break
+                break;
             }
         }
 
-        return newText       
+        return newText;
     } else {
-        return text
+        return text;
     }
-    
 }
 
 export const formatStreamTime = (streamTime = 0, videoLength = 0) => {
-    const sTimeInSec = streamTime / 1000
-    const vTimeInSec = videoLength / 1000
+    const sTimeInSec = streamTime / 1000;
+    const vTimeInSec = videoLength / 1000;
 
     const streamHours = Math.floor((sTimeInSec / (60 * 60)) % 60);
     const streamMins = Math.floor((sTimeInSec / 60) % 60);
@@ -54,7 +54,7 @@ export const formatStreamTime = (streamTime = 0, videoLength = 0) => {
     const videoMins = Math.floor((vTimeInSec / 60) % 60);
     const videoSecs = Math.floor(vTimeInSec % 60);
 
-    const percentage = ((sTimeInSec * 100) / vTimeInSec).toFixed(3) || "0";
+    const percentage = ((sTimeInSec * 100) / vTimeInSec).toFixed(3) || '0';
 
     let formattedStreamTime, formattedVideoLength;
     if (videoHours > 0) {
@@ -80,7 +80,6 @@ export const formatStreamTime = (streamTime = 0, videoLength = 0) => {
 };
 
 export const areArraysEqual = (array1: any[], array2: any[]) => {
-
     if (!array1 || !array2) return false;
 
     // compare lengths - can save a lot of time
@@ -97,21 +96,21 @@ export const areArraysEqual = (array1: any[], array2: any[]) => {
         }
     }
     return true;
-}
+};
 
 export const returnInitials = (name: string) => {
-    const names = name.split(" ");
-    let initials = "";
-    names.forEach(name => {
+    const names = name.split(' ');
+    let initials = '';
+    names.forEach((name) => {
         initials += name[0];
     });
     return initials.toUpperCase();
-}
+};
 
 export const makeImageUrl = (
     guildID: string,
     hash: string,
-    { format = 'webp', size } = { size: 128 }
+    { format = 'webp', size } = { size: 128 },
 ) => {
     const root = 'https://cdn.discordapp.com';
     if (hash) {
@@ -121,4 +120,4 @@ export const makeImageUrl = (
     } else {
         return 'https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png';
     }
-}
+};
