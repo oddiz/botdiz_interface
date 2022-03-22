@@ -6,9 +6,9 @@ import Scrollbars from 'react-custom-scrollbars';
 import { Button } from '@dracula/dracula-ui';
 import { useRecoilValue } from 'recoil';
 import { accountData } from 'components/App/Atoms';
-import { BotdizGuild } from './MyGuilds';
 import { Guild } from 'discord.js';
 import SubscriptionsContent from './SubscriptionsContent';
+import { BotdizGuild } from '../MyGuilds';
 
 const GuildsContentWrapper = styled.div`
     flex-grow: 1;

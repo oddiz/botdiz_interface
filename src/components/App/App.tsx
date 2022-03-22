@@ -49,6 +49,18 @@ const AppContentWrapper = styled.div`
     flex-direction: row;
     justify-content: center;
 `;
+const WebsocketError = styled.div`
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+`;
 
 let retryCounter = 0;
 
@@ -180,9 +192,6 @@ const App = () => {
         return <Login />;
     }
 
-    if (!(connection.websocket?.readyState === WebSocket.OPEN)) {
-        return <div></div>;
-    }
     if (alreadyConnected) {
         return (
             <div
@@ -231,19 +240,23 @@ const App = () => {
 
             <Navbar setupWebsocket={setupWebsocket} />
             <AppContentWrapper id="app_content_wrapper">
-                <Routes>
-                    <Route path="dashboard" element={<Dashboard />} />
+                {connection?.websocket?.readyState === WebSocket.CLOSED ? (
+                    <WebsocketError>Websocket not connected!</WebsocketError>
+                ) : (
+                    <Routes>
+                        <Route path="dashboard" element={<Dashboard />} />
 
-                    <Route path="myguilds" element={<MyGuilds />} />
-                    <Route path="settings/*" element={<Settings />} />
-                    <Route path="stats" element={<BotdizStats />} />
-                    <Route
-                        path="*"
-                        element={<Navigate replace to="dashboard" />}
-                    />
+                        <Route path="myguilds" element={<MyGuilds />} />
+                        <Route path="settings/*" element={<Settings />} />
+                        <Route path="stats" element={<BotdizStats />} />
+                        <Route
+                            path="*"
+                            element={<Navigate replace to="dashboard" />}
+                        />
 
-                    <Route element={<Navigate replace to="/404" />} />
-                </Routes>
+                        <Route element={<Navigate replace to="/404" />} />
+                    </Routes>
+                )}
             </AppContentWrapper>
         </AppWrapper>
     );

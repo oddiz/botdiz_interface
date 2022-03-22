@@ -10,7 +10,7 @@ import {
     SettingDescription,
     SettingSubtitle,
     SubmitButtonWrapper,
-} from './MyGuildsContent';
+} from './GuildsContent';
 
 interface DbGuildSubscriptions {
     type: string;
