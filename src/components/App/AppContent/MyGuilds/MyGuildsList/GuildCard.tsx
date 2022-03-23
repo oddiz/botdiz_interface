@@ -1,5 +1,4 @@
-import { Skeleton } from '@mui/material';
-import { useState } from 'react';
+import { StyledSkeleton } from 'components/App/App';
 import styled from 'styled-components';
 import { BotdizGuild } from '../MyGuilds';
 
@@ -66,63 +65,40 @@ const Seperator = styled.span`
     background: #55585f;
     border-radius: 10px;
 `;
+
 export const GuildCardSkeleton = () => {
     return (
         <GuildCardWrapper style={{ background: '' }}>
             <GuildIcon>
-                <Skeleton
+                <StyledSkeleton
                     animation="wave"
                     variant="circular"
                     width="68px"
                     height="68px"
-                    sx={{
-                        '&:after': {
-                            background:
-                                'linear-gradient(90deg, transparent, rgba(119, 118, 118, 0.14), transparent)',
-                        },
-                    }}
                     className="guild_card_skeleton"
                 />
             </GuildIcon>
             <GuildContent>
                 <GuildName>
-                    <Skeleton
+                    <StyledSkeleton
                         animation="wave"
                         variant="text"
                         width="200px"
                         height="40px"
-                        sx={{
-                            '&:after': {
-                                background:
-                                    'linear-gradient(90deg, transparent, rgba(119, 118, 118, 0.14), transparent)',
-                            },
-                        }}
                     />
                 </GuildName>
-                <Skeleton
+                <StyledSkeleton
                     animation="wave"
                     variant="text"
                     width="230px"
                     height="2px"
-                    sx={{
-                        '&:after': {
-                            background:
-                                'linear-gradient(90deg, transparent, rgba(119, 118, 118, 0.14), transparent)',
-                        },
-                    }}
                 />
                 <GuildBadgesWrapper>
-                    <Skeleton
+                    <StyledSkeleton
                         animation="wave"
                         variant="text"
                         width="200px"
                         height="20px"
-                        sx={{
-                            '&:after': {
-                                background:
-                                    'linear-gradient(90deg, transparent, rgba(119, 118, 118, 0.14), transparent)',
-                            },
-                        }}
                     />
                 </GuildBadgesWrapper>
             </GuildContent>

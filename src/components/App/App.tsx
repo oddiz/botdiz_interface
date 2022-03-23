@@ -12,6 +12,7 @@ import BotdizStats from './AppContent/BotdizStats/BotdizStats';
 import { ToastContainer } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import { accountData, connectionState } from './Atoms';
+import { Skeleton } from '@mui/material';
 export interface ValidateUserData {
     username: string;
     avatarURL: string;
@@ -29,42 +30,53 @@ type ValidateResponse =
           isValidated: false;
       };
 
-const AppWrapper = styled.div`
-    width: 100%;
-    height: 100vh;
-
-    display: flex;
-    flex-direction: column;
-    background-color: #36393f;
-`;
-const AppContentWrapper = styled.div`
-    flex-grow: 1;
-    flex-shrink: 1;
-    min-height: 250px;
-
-    overflow-y: visible;
-    overflow-x: hidden;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-`;
-const WebsocketError = styled.div`
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    color: #fff;
-    font-size: 1.5rem;
-    font-weight: bold;
+export const StyledSkeleton = styled(Skeleton)`
+    &&:after {
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(119, 118, 118, 0.14),
+            transparent
+        );
+    }
 `;
 
 let retryCounter = 0;
 
 const App = () => {
+    const AppWrapper = styled.div`
+        width: 100%;
+        height: 100vh;
+
+        display: flex;
+        flex-direction: column;
+        background-color: #36393f;
+    `;
+    const AppContentWrapper = styled.div`
+        flex-grow: 1;
+        flex-shrink: 1;
+        min-height: 250px;
+
+        overflow-y: visible;
+        overflow-x: hidden;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    `;
+    const WebsocketError = styled.div`
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: bold;
+    `;
+
     const [sessionValidated, setSessionValidated] = useState<boolean | null>(
         null,
     );
@@ -245,7 +257,6 @@ const App = () => {
                 ) : (
                     <Routes>
                         <Route path="dashboard" element={<Dashboard />} />
-
                         <Route path="myguilds" element={<MyGuilds />} />
                         <Route path="settings/*" element={<Settings />} />
                         <Route path="stats" element={<BotdizStats />} />

@@ -22,10 +22,9 @@ const VoiceChannelWrapper = styled.div`
     display: flex;
     flex-direction: column;
 
-    padding: 10px 0;
+    padding: 10px 5px;
     color: #72767d;
 
-    margin: 0 2px;
     border-radius: 4px;
 
     cursor: pointer;
@@ -108,13 +107,14 @@ const VoiceChannel = (props: VoiceChannelProps) => {
 
     const channelNameWidth = getTextWidth(channelName);
 
-    if (channelNameWidth && channelNameWidth > 150) {
+    const maxWidth = 130;
+    if (channelNameWidth && channelNameWidth > maxWidth) {
         let counter = 5;
 
         let newChannelName = channelName.substring(0, counter) + '...';
         let newChannelWidth = getTextWidth(newChannelName);
 
-        while (newChannelWidth && newChannelWidth < 150) {
+        while (newChannelWidth && newChannelWidth < maxWidth) {
             counter++;
             newChannelName = channelName.substring(0, counter) + '...';
             newChannelWidth = getTextWidth(newChannelName);
@@ -139,13 +139,13 @@ const VoiceChannel = (props: VoiceChannelProps) => {
 };
 
 const VoiceChannelSectionWrapper = styled.div`
-    height: 100%;
     width: 200px;
     flex-shrink: 0;
 
     background-color: #2f3136;
     display: flex;
     flex-direction: column;
+    border-top-left-radius: 5px;
 
     font-size: 14px;
 `;
@@ -276,9 +276,8 @@ const VoiceChannelSection = () => {
 
         if (!websocket) return;
         //index of song in queue array
-        const channelIndex = [...clickedEleParent.children].indexOf(
-            clickedElement,
-        );
+        const channelIndex =
+            [...clickedEleParent.children].indexOf(clickedElement) - 1;
 
         const clickedChannel = voiceChannels[channelIndex];
 
@@ -311,7 +310,8 @@ const VoiceChannelSection = () => {
     return (
         <VoiceChannelSectionWrapper id="voice_channels_wrapper">
             <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
-                <div>{voiceChannelRender}</div>
+                <div style={{ height: '20px', width: '100%' }} />
+                {voiceChannelRender}
             </Scrollbars>
         </VoiceChannelSectionWrapper>
     );

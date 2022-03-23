@@ -13,7 +13,7 @@ const GuildIconWrapper = styled.div`
     height: 48px;
 
     border-radius: 48px;
-    margin: 4px 0;
+    margin: 5px 0;
 
     cursor: pointer;
 
@@ -233,7 +233,7 @@ const GuildIconsBar = styled.div`
     flex-direction: column;
     flex-shrink: 0;
     align-items: center;
-    width: 64px;
+    width: 66px;
 
     background-color: #202225;
 `;
@@ -269,7 +269,7 @@ export default function GuildBar(props: GuildBarProps) {
     const [guildActive, setGuildActive] = useState(!!activeGuild);
 
     const guildBarClicked = () => {
-        setGuildActive(true);
+        setGuildActive(false);
     };
 
     const guildListRender = guildList.map((guild) => (

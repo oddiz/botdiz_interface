@@ -34,7 +34,7 @@ const GuildOptionsContent = styled.div`
     flex-grow: 1;
     height: calc(100% - var(--guild-options-height));
     border-top-left-radius: 5px;
-
+    overflow: hidden;
     background-color: #36393f;
 `;
 
@@ -214,9 +214,6 @@ const Dashboard = () => {
             <GuildBar allGuilds={allGuilds} GuildBarOnClick={GuildBarOnClick} />
 
             <DashboardContent>
-                {activeGuild && (
-                    <GuildOptions onClickFunc={guildOptionsClickHandler} />
-                )}
                 <GuildOptionsContent
                     id="guild_options_content"
                     key={activeGuild?.id}
