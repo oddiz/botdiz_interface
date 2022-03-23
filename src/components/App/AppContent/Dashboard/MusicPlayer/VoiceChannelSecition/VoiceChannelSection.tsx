@@ -71,20 +71,22 @@ interface VoiceChannelProps {
 const VoiceChannel = (props: VoiceChannelProps) => {
     const botdizDiscordId = config.botdiz_discordId;
 
-    const renderChannelMembers = props.channelMembers.map((member, index) => {
-        return (
-            <ChannelMember
-                key={index}
-                className={
-                    member.userId === botdizDiscordId
-                        ? 'emphasis drac-bg-animated'
-                        : ''
-                }
-            >
-                {member.displayName}
-            </ChannelMember>
-        );
-    });
+    const renderChannelMembers =
+        props.channelMembers &&
+        props.channelMembers.map((member, index) => {
+            return (
+                <ChannelMember
+                    key={index}
+                    className={
+                        member.userId === botdizDiscordId
+                            ? 'emphasis drac-bg-animated'
+                            : ''
+                    }
+                >
+                    {member.displayName}
+                </ChannelMember>
+            );
+        });
 
     function getTextWidth(text: string) {
         const canvas = document.createElement('canvas');
@@ -255,6 +257,7 @@ const VoiceChannelSection = () => {
 
         let botFound = false;
         for (const voiceChannel of voiceChannels) {
+            if (!voiceChannel.members) continue;
             const botMember = voiceChannel.members.find(
                 (member) => member.userId === botdizDiscordId,
             );
@@ -291,11 +294,9 @@ const VoiceChannelSection = () => {
         websocket.send(message);
     };
 
-    const guildVoiceChannels = voiceChannels;
-
     let voiceChannelRender = null;
-    if (guildVoiceChannels && guildVoiceChannels.length > 0) {
-        voiceChannelRender = guildVoiceChannels.map((channel, index) => {
+    if (voiceChannels && voiceChannels.length > 0) {
+        voiceChannelRender = voiceChannels.map((channel, index) => {
             return (
                 <VoiceChannel
                     key={index}
