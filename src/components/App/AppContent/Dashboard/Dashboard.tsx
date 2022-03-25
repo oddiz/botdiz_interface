@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import GuildBar from './GuildBar';
-import GuildOptions from './GuildOptions';
 import ChatPage from './Chat/ChatPage';
 import MusicPlayer from './MusicPlayer/MusicPlayer';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
-import SpotifyApi from 'spotify-web-api-node';
 import NoGuilds from './NoGuilds';
 import { activeGuildState, allGuildsState } from './Atoms';
 
@@ -176,15 +174,6 @@ const Dashboard = () => {
                 return <></>;
         }
     }, [activeOption]);
-
-    const guildOptionsClickHandler = (
-        event: React.MouseEvent<HTMLDivElement>,
-    ) => {
-        const target = event.target as HTMLElement;
-        const menuItem = target.innerText;
-
-        setActiveOption(menuItem);
-    };
 
     const GuildBarOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const clickedElement = event.target as HTMLElement;
