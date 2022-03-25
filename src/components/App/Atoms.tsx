@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { ValidateUserData } from './App';
+import { ValidateUserData } from '../../../../botdiz/server_src/routes/validate';
 
 export interface ConnectionState {
     token: string | null;

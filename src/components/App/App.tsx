@@ -13,22 +13,8 @@ import { ToastContainer } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import { accountData, connectionState } from './Atoms';
 import { Skeleton } from '@mui/material';
-export interface ValidateUserData {
-    username: string;
-    avatarURL: string;
-    is_admin: boolean;
-    user_id?: string;
-}
 
-type ValidateResponse =
-    | {
-          isValidated: true;
-          accountInfo: ValidateUserData;
-          token: string;
-      }
-    | {
-          isValidated: false;
-      };
+import { ValidateResponse } from '../../../../botdiz/server_src/routes/validate';
 
 export const StyledSkeleton = styled(Skeleton)`
     &&:after {
