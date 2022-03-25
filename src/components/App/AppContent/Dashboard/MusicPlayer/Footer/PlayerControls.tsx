@@ -14,6 +14,7 @@ import {
     audioPlayerStatusState,
     controlsDisabledState,
     currentSongState,
+    streamTimeState,
 } from '../Atoms';
 
 const SkipButton = styled(IoPlaySkipForward)`
@@ -139,6 +140,7 @@ export function PlayerControls() {
     const [controlsDisabled, setControlsDisabled] = useRecoilState(
         controlsDisabledState,
     );
+    const [, setStreamTime] = useRecoilState(streamTimeState);
 
     function shuffleClicked() {
         if (controlsDisabled) {
@@ -195,7 +197,7 @@ export function PlayerControls() {
             return;
         }
         setControlsDisabled(true);
-
+        setStreamTime(0);
         const message = JSON.stringify({
             token: token,
             type: 'exec',

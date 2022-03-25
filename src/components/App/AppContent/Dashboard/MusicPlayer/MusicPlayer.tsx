@@ -22,7 +22,6 @@ import {
     currentSongState,
     formattedStreamTimeState,
     inVoiceChannelState,
-    IPlayerInfo,
     QueueTrack,
     SkipVoteData,
     streamTimeState,
@@ -30,7 +29,6 @@ import {
     audioPlayerStatusState,
     AudioPlayerStatus,
 } from './Atoms';
-import { areArraysEqual } from 'components/helpers';
 import { useCallback } from 'react';
 import { PlayerUpdate } from 'shoukaku';
 
@@ -166,9 +164,8 @@ const MusicPlayer = () => {
     const activeGuild = useRecoilValue(activeGuildState);
     const [addSongVisible, setAddSongVisible] = useState(false);
 
-    const websocketPlayerInfo = useRef<IPlayerInfo | null>(null);
-    const queueCache = useRef<QueueTrack[]>([]);
     const musicPlayerListenerSet = useRef(false);
+    let queueLock = useRef(false);
 
     const setupMusicPlayerListener = useCallback(() => {
         if (musicPlayerListenerSet.current) return;
@@ -242,46 +239,6 @@ const MusicPlayer = () => {
                     break;
             }
 
-            if (parsedReply.event === 'musicplayer_update') {
-                const {
-                    currentTitle,
-                    streamTime,
-                    videoLength,
-                    audioPlayerStatus,
-                    videoThumbnailUrl,
-                    skipVoteData,
-                    queue,
-                } = parsedReply.message;
-
-                const newWebsocketInfo = {
-                    currentTitle: currentTitle,
-                    streamTime: streamTime,
-                    videoLength: videoLength,
-                    audioPlayerStatus: audioPlayerStatus,
-                    videoThumbnailUrl: videoThumbnailUrl,
-                    skipVoteData: skipVoteData,
-                };
-
-                if (
-                    JSON.stringify(websocketPlayerInfo.current) !==
-                    JSON.stringify(newWebsocketInfo)
-                ) {
-                    websocketPlayerInfo.current = newWebsocketInfo;
-                }
-
-                if (
-                    !areArraysEqual(queueCache.current, queue) ||
-                    queueState.guildId !== activeGuild.id
-                ) {
-                    //if arrays are not equal and active guild is changed, update queue
-                    queueCache.current = queue;
-                    setQueueState({
-                        queue: queue,
-                        guildId: activeGuild.id,
-                    });
-                }
-            }
-
             if (
                 parsedReply.event === 'exec_command_status' &&
                 parsedReply.status === 'failed'
@@ -312,7 +269,6 @@ const MusicPlayer = () => {
         setCurrentSong,
         setPlayerStatus,
         setQueueState,
-        queueState.guildId,
         setControlsDisabled,
     ]);
 
@@ -357,8 +313,6 @@ const MusicPlayer = () => {
         }
     };
 
-    let queueLock = false;
-
     const searchBoxKeyboardHandler = async (
         event: React.KeyboardEvent<HTMLDivElement>,
     ) => {
@@ -376,7 +330,7 @@ const MusicPlayer = () => {
         }
 
         if (pressedKey === 'Enter') {
-            if (queueLock) {
+            if (queueLock.current) {
                 return;
             }
             const searchElement = document.getElementById(
@@ -392,36 +346,15 @@ const MusicPlayer = () => {
             });
 
             websocket.send(message);
-            const startTime = new Date().getTime();
-            const cachedQueueLength = queueState.queue.length;
-            const cachedCurrentTitle = currentSong?.info.title;
-            queueLock = true;
-
-            //wait for a song to be added to queue
-            async function waitForSongChange() {
-                const time = new Date().getTime();
-                if (
-                    cachedQueueLength === queueState.queue.length &&
-                    cachedCurrentTitle === currentSong?.info.title &&
-                    time < startTime + 1000 * 10
-                ) {
-                    setTimeout(waitForSongChange, 250);
-                    return;
-                }
-
-                document
-                    .getElementById('music_search_wrapper')
-                    ?.classList.remove('visible');
-                document.querySelector('#root')?.classList.remove('blurred');
-                await new Promise((resolve) => setTimeout(resolve, 200));
-
-                setAddSongVisible(false);
-                queueLock = false;
-            }
-
-            waitForSongChange();
+            queueLock.current = true;
         }
     };
+
+    useEffect(() => {
+        setAddSongVisible(false);
+        document.querySelector('#root')?.classList.remove('blurred');
+        queueLock.current = false;
+    }, [currentSong, queueState]);
 
     const formattedTime = useRecoilValue(formattedStreamTimeState);
 
