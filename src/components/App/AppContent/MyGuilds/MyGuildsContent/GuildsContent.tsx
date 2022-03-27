@@ -6,7 +6,7 @@ import Scrollbars from 'react-custom-scrollbars';
 import { Button } from '@dracula/dracula-ui';
 import { useRecoilValue } from 'recoil';
 import { accountData } from 'components/App/Atoms';
-import { Guild } from 'discord.js';
+import { Guild, Client } from 'discord.js';
 import SubscriptionsContent from './SubscriptionsContent';
 import { BotdizGuild } from '../MyGuilds';
 
@@ -275,12 +275,15 @@ const GuildsContent = (props: {
 
     const addGuildButtonHandler = () => {
         let inviteLink;
+
         if (process.env.NODE_ENV === 'development') {
             inviteLink =
-                'https://discord.com/oauth2/authorize?client_id=857957046297034802&scope=bot+applications.commands&permissions=2184309832';
+                'https://discord.com/oauth2/authorize?client_id=857957046297034802&scope=bot+applications.commands&permissions=2184309832&guild_id=' +
+                activeGuild?.id;
         } else {
             inviteLink =
-                'https://discord.com/oauth2/authorize?client_id=851497395190890518&scope=bot+applications.commands&permissions=2184309832';
+                'https://discord.com/oauth2/authorize?client_id=851497395190890518&scope=bot+applications.commands&permissions=2184309832' +
+                activeGuild?.id;
         }
         window.open(inviteLink, '_blank');
         props.addBotdizClicked();
