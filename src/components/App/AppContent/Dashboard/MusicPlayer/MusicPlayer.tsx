@@ -232,7 +232,7 @@ const MusicPlayer = () => {
             ];
 
             if (
-                parsedReply.result === 'rate_limited' ||
+                parsedReply.status === 'rate_limited' ||
                 RpcCommands.includes(parsedReply.command)
             ) {
                 setControlsDisabled(false);

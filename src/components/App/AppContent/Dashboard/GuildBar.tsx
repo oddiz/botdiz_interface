@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { RiAdminFill, RiHeadphoneFill } from 'react-icons/ri';
 import { InterfaceGuildObject } from './Dashboard';
