@@ -167,33 +167,8 @@ const MusicPlayer = () => {
     const musicPlayerListenerSet = useRef(false);
     let queueLock = useRef(false);
 
-    const setupMusicPlayerListener = useCallback(() => {
-        if (musicPlayerListenerSet.current) return;
-
-        const guildId = activeGuild?.id;
-
-        if (!guildId) {
-            console.log('No idle guilds');
-            return;
-        }
-        if (!websocket) {
-            console.log('No websocket');
-            return;
-        }
-        console.log('setting up music player');
-
-        const message = JSON.stringify({
-            type: 'listenMusicPlayer',
-            listenerId: guildId,
-            token: token,
-            command: 'RPC_ListenMusicPlayer',
-            //params guildid
-            guildId: guildId,
-        });
-
-        websocket.send(message);
-
-        websocket.onmessage = (reply) => {
+    const processMusicPlayerUpdate = useCallback(
+        (reply) => {
             let parsedReply;
 
             try {
@@ -256,21 +231,55 @@ const MusicPlayer = () => {
                 'RPC_addSpotifyPlaylist',
             ];
 
-            if (RpcCommands.includes(parsedReply.command)) {
+            if (
+                parsedReply.result === 'rate_limited' ||
+                RpcCommands.includes(parsedReply.command)
+            ) {
                 setControlsDisabled(false);
             }
+        },
+        [
+            setControlsDisabled,
+            setCurrentSong,
+            setPlayerStatus,
+            setQueueState,
+            setSkipVoteData,
+            setStreamTime,
+        ],
+    );
+
+    const setupMusicPlayerListener = useCallback(() => {
+        if (musicPlayerListenerSet.current) return;
+
+        const guildId = activeGuild?.id;
+
+        if (!guildId) {
+            console.log('No idle guilds');
+            return;
+        }
+        if (!websocket) {
+            console.log('No websocket');
+            return;
+        }
+        console.log('setting up music player');
+
+        websocket.addEventListener('message', processMusicPlayerUpdate);
+
+        const message = JSON.stringify({
+            type: 'listenMusicPlayer',
+            listenerId: guildId,
+            token: token,
+            command: 'RPC_ListenMusicPlayer',
+            //params guildid
+            guildId: guildId,
+        });
+
+        websocket.send(message);
+
+        return () => {
+            websocket.removeEventListener('message', processMusicPlayerUpdate);
         };
-    }, [
-        activeGuild?.id,
-        websocket,
-        token,
-        setStreamTime,
-        setSkipVoteData,
-        setCurrentSong,
-        setPlayerStatus,
-        setQueueState,
-        setControlsDisabled,
-    ]);
+    }, [activeGuild?.id, websocket, token, processMusicPlayerUpdate]);
 
     useEffect(() => {
         if (websocket?.readyState === WebSocket.OPEN) {

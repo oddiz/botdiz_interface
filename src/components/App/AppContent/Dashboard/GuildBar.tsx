@@ -124,7 +124,6 @@ interface GuildIconProps {
     iconHash: string;
     guild: InterfaceGuildObject;
     GuildBarOnClick: (event: React.MouseEvent<HTMLDivElement>) => void;
-    guildBarClicked: () => void;
 }
 
 function GuildIcon(props: GuildIconProps) {
@@ -157,7 +156,6 @@ function GuildIcon(props: GuildIconProps) {
 
         eventTarget.parentElement.classList.add('active');
         props.GuildBarOnClick(event);
-        props.guildBarClicked();
     };
     /*
     const onMouseHoverGuildBar = (
@@ -237,15 +235,13 @@ const GuildIconsBar = styled.div`
 
     background-color: #202225;
 `;
-const GuildIcons = styled.div<{ guildActive: boolean }>`
+const GuildIcons = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 100%;
 
     margin-left: 10px;
-    transform: ${(props) =>
-        props.guildActive ? 'translateY(29px)' : 'translateY(0px)'};
 
     transition: ease-in-out 0.2s all;
     &:before {
@@ -265,12 +261,6 @@ interface GuildBarProps {
 }
 export default function GuildBar(props: GuildBarProps) {
     let guildList = props.allGuilds;
-    const activeGuild = useRecoilValue(activeGuildState);
-    const [guildActive, setGuildActive] = useState(!!activeGuild);
-
-    const guildBarClicked = () => {
-        setGuildActive(false);
-    };
 
     const guildListRender = guildList.map((guild) => (
         <GuildIcon
@@ -279,13 +269,12 @@ export default function GuildBar(props: GuildBarProps) {
             iconHash={guild.icon}
             guild={guild}
             GuildBarOnClick={props.GuildBarOnClick}
-            guildBarClicked={guildBarClicked}
         />
     ));
 
     return (
         <GuildIconsBar id="guild_bar">
-            <GuildIcons guildActive={guildActive}>{guildListRender}</GuildIcons>
+            <GuildIcons>{guildListRender}</GuildIcons>
         </GuildIconsBar>
     );
 }

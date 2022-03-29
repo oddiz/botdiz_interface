@@ -9,7 +9,7 @@ import Login from '../Login/Login';
 import { config } from '../../config';
 import styled from 'styled-components';
 import BotdizStats from './AppContent/BotdizStats/BotdizStats';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import { accountData, connectionState } from './Atoms';
 import { Skeleton } from '@mui/material';
@@ -72,6 +72,26 @@ const App = () => {
     const [token, setToken] = useState<string | null>(null);
 
     const setupWebsocket = () => {
+        const processOnMessage = (message: MessageEvent) => {
+            let parsedMessage;
+            try {
+                parsedMessage = JSON.parse(message.data);
+            } catch (error) {
+                console.log('error while trying to parse ws message on App.js');
+            }
+
+            if (
+                parsedMessage.status === 'error' &&
+                parsedMessage.message === 'already connected'
+            ) {
+                setAlreadyConnected(true);
+            }
+
+            if (parsedMessage.result === 'rate_limited') {
+                toast.error('Please slow down', { autoClose: 1000 });
+                console.log('Rate limited');
+            }
+        };
         try {
             setAlreadyConnected(false);
             if (
@@ -100,28 +120,12 @@ const App = () => {
                 token: token,
             });
 
-            ws.onmessage = (message) => {
-                let parsedMessage;
-                try {
-                    parsedMessage = JSON.parse(message.data);
-                } catch (error) {
-                    console.log(
-                        'error while trying to parse ws message on App.js',
-                    );
-                }
-
-                if (
-                    parsedMessage.status === 'error' &&
-                    parsedMessage.message === 'already connected'
-                ) {
-                    setAlreadyConnected(true);
-                }
-            };
+            ws.addEventListener('message', processOnMessage);
         };
 
         ws.onclose = async (data) => {
             console.log('Socket is closed.');
-
+            ws.removeEventListener('message', processOnMessage);
             //check for validation
             //if not validated reload the window so login page shows
 
