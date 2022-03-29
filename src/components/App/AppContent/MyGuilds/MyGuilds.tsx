@@ -120,7 +120,10 @@ const MyGuilds = () => {
             );
         });
     } else {
-        renderGuilds = Array(5).fill(<GuildCardSkeleton />);
+        renderGuilds = [];
+        for (let i = 0; i <= 4; i++) {
+            renderGuilds.push(<GuildCardSkeleton key={i} />);
+        }
     }
 
     return (

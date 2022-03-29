@@ -29,40 +29,39 @@ export const StyledSkeleton = styled(Skeleton)`
 
 let retryCounter = 0;
 
+const AppWrapper = styled.div`
+    width: 100%;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    background-color: #36393f;
+`;
+const AppContentWrapper = styled.div`
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 250px;
+
+    overflow-y: visible;
+    overflow-x: hidden;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+`;
+const WebsocketError = styled.div`
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+`;
 const App = () => {
-    const AppWrapper = styled.div`
-        width: 100%;
-        height: 100vh;
-
-        display: flex;
-        flex-direction: column;
-        background-color: #36393f;
-    `;
-    const AppContentWrapper = styled.div`
-        flex-grow: 1;
-        flex-shrink: 1;
-        min-height: 250px;
-
-        overflow-y: visible;
-        overflow-x: hidden;
-
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    `;
-    const WebsocketError = styled.div`
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-        color: #fff;
-        font-size: 1.5rem;
-        font-weight: bold;
-    `;
-
     const [sessionValidated, setSessionValidated] = useState<boolean | null>(
         null,
     );
@@ -87,7 +86,7 @@ const App = () => {
                 setAlreadyConnected(true);
             }
 
-            if (parsedMessage.result === 'rate_limited') {
+            if (parsedMessage.status === 'rate_limited') {
                 toast.error('Please slow down', { autoClose: 1000 });
                 console.log('Rate limited');
             }
@@ -98,11 +97,9 @@ const App = () => {
                 connection &&
                 connection.websocket?.readyState === WebSocket.OPEN
             ) {
-                connection.websocket.close();
-
+                console.log('Websocket already exists');
                 return;
             }
-            console.log('Closed existing websocket');
         } catch (error) {
             //silently fail
         }
@@ -148,6 +145,8 @@ const App = () => {
     };
 
     const validateSession = async () => {
+        if (sessionValidated) return { isValidated: true };
+        console.log('validating session', sessionValidated);
         const response = await fetch(config.botdiz_server + '/validate', {
             method: 'GET',
             credentials: 'include',
@@ -167,6 +166,7 @@ const App = () => {
     };
 
     useEffect(() => {
+        console.log('useeffect');
         async function run() {
             if (sessionValidated === null) {
                 //haven't tried to validate session yet
@@ -176,18 +176,17 @@ const App = () => {
                 //session is not validated
                 console.log('session is not validated');
                 return;
-            } else if (sessionValidated && connection.websocket) {
-                return;
             } else if (sessionValidated) {
                 console.log('Setting up websocket.');
                 setupWebsocket();
+                return;
             }
             //    .catch(err => console.log(err, "Error while trying to get token."))
         }
         run();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [connection, sessionValidated, token]);
+    }, [sessionValidated]);
 
     //const [token, setToken] = useState();
     if (!sessionValidated) {
