@@ -123,26 +123,28 @@ const Dashboard = () => {
         [allGuilds, setAllGuilds],
     );
 
+    const getGuilds = useCallback(async () => {
+        if (!websocket) {
+            return;
+        }
+
+        if (allGuilds.length > 0) return;
+        if (!token) return;
+
+        const message = {
+            type: 'get',
+            token: token,
+            command: 'RPC_getGuilds',
+            params: [],
+        };
+
+        websocket.send(JSON.stringify(message));
+    }, [allGuilds.length, token, websocket]);
+
     useEffect(() => {
         _isMounted.current = true;
 
         if (!(websocket && token)) return;
-        const getGuilds = async () => {
-            if (!websocket) {
-                return;
-            }
-
-            if (allGuilds.length > 0) return;
-
-            const message = {
-                type: 'get',
-                token: token,
-                command: 'RPC_getGuilds',
-                params: [],
-            };
-
-            websocket.send(JSON.stringify(message));
-        };
         if (websocket?.readyState === WebSocket.OPEN) {
             websocket.addEventListener('message', websocketDashboardListener, {
                 once: true,
@@ -160,7 +162,7 @@ const Dashboard = () => {
                 );
             }
         };
-    }, [websocket, token, websocketDashboardListener, allGuilds.length]);
+    }, [websocket, token, websocketDashboardListener, getGuilds]);
 
     const RenderGuildOptionContent = useCallback(() => {
         switch (activeOption) {

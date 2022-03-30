@@ -120,7 +120,7 @@ const Playlist = () => {
                 lastClickedPlaylist.current.classList.remove('loading');
                 lastClickedPlaylist.current.classList.add('success');
             }
-        } else if (parsedReply.status === 'failed') {
+        } else {
             toast.error('Failed to add playlist');
             if (lastClickedPlaylist.current) {
                 lastClickedPlaylist.current.classList.remove('loading');
@@ -238,9 +238,9 @@ const Playlist = () => {
             clickedElement.classList.remove('failed');
             await new Promise((resolve) => setTimeout(resolve, 50));
             clickedElement.classList.add('failed');
-            setProcessingPlaylist(false);
-            setControlsDisabled(false);
         }
+        setProcessingPlaylist(false);
+        setControlsDisabled(false);
 
         lastClickedPlaylist.current = clickedElement;
     };
