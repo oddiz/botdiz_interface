@@ -311,7 +311,7 @@ const VoiceChannelSection = () => {
     return (
         <VoiceChannelSectionWrapper id="voice_channels_wrapper">
             <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
-                <div style={{ height: '20px', width: '100%' }} />
+                <div style={{ height: '15px', width: '100%' }} />
                 {voiceChannelRender}
             </Scrollbars>
         </VoiceChannelSectionWrapper>

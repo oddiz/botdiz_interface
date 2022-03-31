@@ -3,7 +3,11 @@ import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../../Atoms';
-import { currentSongState, formattedStreamTimeState } from '../Atoms';
+import {
+    audioPlayerStatusState,
+    currentSongState,
+    formattedStreamTimeState,
+} from '../Atoms';
 import Slider from '@mui/material/Slider';
 
 let lastSeekEvent = 0;
@@ -23,6 +27,7 @@ const ProgressBarWrapper = styled.div`
 
 function MuiProgressBar() {
     const { token, websocket } = useRecoilValue(connectionState);
+    const playerInfoStatus = useRecoilValue(audioPlayerStatusState);
     const activeGuild = useRecoilValue(activeGuildState);
     const currentSong = useRecoilValue(currentSongState);
     const formattedTime = useRecoilValue(formattedStreamTimeState);
@@ -77,6 +82,7 @@ function MuiProgressBar() {
                         ? position
                         : parseFloat(formattedTime.percentage) * 1000
                 }
+                disabled={playerInfoStatus !== 'PLAYING'}
                 min={0}
                 step={1}
                 max={100 * 1000}
