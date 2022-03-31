@@ -1,3 +1,4 @@
+import { DISCORD_LOGIN_URL } from 'components/Login/Login';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from '../../config';
@@ -28,8 +29,8 @@ const ErrorText = styled.span`
     font-family: 'Fira Code';
     font-size: 22px;
 
-    padding: 0 10%;
-
+    padding: 0 5%;
+    margin: 10px 0;
     text-align: center;
     word-break: keep-all;
 `;
@@ -104,22 +105,27 @@ export const DiscordCallback: React.FC = () => {
         const parsedResponse = await response.json();
 
         console.log(parsedResponse);
-        if (parsedResponse.result === 'OK') {
+        if (parsedResponse.result === 'success') {
             setSuccess(true);
             setError(false);
             setSuccessMessage('Login successful');
+            window.opener.postMessage({
+                event: 'discord_login',
+                result: 'success',
+                message: 'Login successful',
+            });
+            window.close();
 
-            let botdizUrl;
-            if (process.env.NODE_ENV === 'development') {
-                botdizUrl = 'http://localhost:3000/app';
-            } else {
-                botdizUrl = 'https://botdiz.kaansarkaya.com/app';
-            }
-            window.open(botdizUrl, '_self');
+            //window.open(botdizUrl, '_self');
         } else if (parsedResponse.status === 'error') {
             setSuccess(false);
             setError(true);
             setErrorMessage(parsedResponse.message);
+            window.opener.postMessage({
+                event: 'discord_login',
+                result: 'failed',
+                message: parsedResponse.message,
+            });
         }
     };
     useEffect(() => {
@@ -127,23 +133,16 @@ export const DiscordCallback: React.FC = () => {
     }, []);
 
     const handleSaveMe = async () => {
-        let botdizUrl;
-        if (process.env.NODE_ENV === 'development') {
-            botdizUrl = 'http://localhost:3000/app';
-        } else {
-            botdizUrl = 'https://botdiz.kaansarkaya.com/app';
-        }
-        window.open(botdizUrl, '_self');
+        window.open(DISCORD_LOGIN_URL, '_self');
     };
 
     if (error) {
         return (
             <DiscordCallbackWrapper>
-                <ErrorText>
-                    Failed to login via Discord. Reason: {errorMessage}
-                    <br />
-                    Contact oddiz if issue persists
-                </ErrorText>
+                <ErrorText>Failed to login via Discord.</ErrorText>
+
+                <ErrorText>Contact oddiz if issue persists</ErrorText>
+
                 <SaveMeButton onClick={handleSaveMe}>Retry</SaveMeButton>
             </DiscordCallbackWrapper>
         );
@@ -152,9 +151,7 @@ export const DiscordCallback: React.FC = () => {
     if (success) {
         return (
             <DiscordCallbackWrapper>
-                <SuccessText>
-                    {successMessage} You can now close this window.
-                </SuccessText>
+                <SuccessText>{successMessage}</SuccessText>
             </DiscordCallbackWrapper>
         );
     }

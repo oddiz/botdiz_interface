@@ -37,6 +37,7 @@ const AvatarBorder = styled.div`
 `;
 const AvatarImg = styled.img`
     height: 100%;
+    width: 100%;
 
     border-radius: 9999px;
 `;

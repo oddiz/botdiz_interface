@@ -16,20 +16,29 @@ const LoadingGearIcon = styled.img`
     height: 70px;
     width: 70px;
 `;
-const LoadingText = styled.span`
+
+const Text = styled.span`
+    margin: 0px 10%;
+
+    text-align: center;
+`;
+const LoadingText = styled(Text)`
     color: white;
     font-family: 'Fira Code';
     font-size: 22px;
 `;
-const ErrorText = styled.span`
+const ErrorText = styled(Text)`
     color: var(--red);
     font-family: 'Fira Code';
     font-size: 22px;
 `;
-const SuccessText = styled.span`
+const SuccessText = styled(Text)`
     color: #00b85f;
     font-family: 'Fira Code';
     font-size: 22px;
+    margin: 0px 10%;
+
+    text-align: center;
 `;
 
 const SpotfiyCallback = () => {
@@ -73,9 +82,20 @@ const SpotfiyCallback = () => {
             if (parsedResponse.status === 'success') {
                 setSuccess(true);
                 setSuccessMessage(parsedResponse.message);
+                window.opener.postMessage({
+                    event: 'refresh_spotify_playlists',
+                    status: 'success',
+                });
+                setTimeout(() => {
+                    window.close();
+                }, 1000);
             } else if (parsedResponse.status === 'error') {
                 setError(true);
                 setErrorMessage(parsedResponse.message);
+                window.opener.postMessage({
+                    event: 'refresh_spotify_playlists',
+                    status: 'failed',
+                });
             }
         }
 
@@ -93,9 +113,7 @@ const SpotfiyCallback = () => {
     if (success) {
         return (
             <SpotifyCallbackWrapper>
-                <SuccessText>
-                    {successMessage}. Close this window and refresh dashboard
-                </SuccessText>
+                <SuccessText>{successMessage}</SuccessText>
             </SpotifyCallbackWrapper>
         );
     }

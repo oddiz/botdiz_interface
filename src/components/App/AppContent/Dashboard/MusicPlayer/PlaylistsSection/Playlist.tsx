@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Scrollbars from 'react-custom-scrollbars';
 import { config } from 'config';
@@ -88,14 +88,14 @@ const Playlist = () => {
     );
     const [processingPlaylist, setProcessingPlaylist] =
         useState<boolean>(false);
-    const [playlistRefreshHidden, setPlaylistRefreshHidden] =
-        useState<boolean>(true);
 
     const [, setControlsDisabled] = useRecoilState(controlsDisabledState);
 
     const { websocket, token } = useRecoilValue(connectionState);
     const activeGuild = useRecoilValue(activeGuildState);
     const inVoiceChannel = useRecoilValue(inVoiceChannelState);
+
+    const topOfTheListRef = useRef<HTMLHeadingElement | null>(null);
 
     let lastClickedPlaylist = useRef<HTMLElement | null>(null);
 
@@ -144,7 +144,7 @@ const Playlist = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [websocket]);
 
-    const getPlaylists = async () => {
+    const getPlaylists = useCallback(async () => {
         try {
             const response = await fetch(config.botdiz_server + '/playlists', {
                 method: 'GET',
@@ -164,7 +164,7 @@ const Playlist = () => {
         } catch (error) {
             console.log('error while trying to get playlist: ', error);
         }
-    };
+    }, [setUserPlaylists]);
 
     const playlistClicked = async (event: React.MouseEvent<HTMLDivElement>) => {
         const clickedElement = event.currentTarget;
@@ -245,15 +245,37 @@ const Playlist = () => {
         lastClickedPlaylist.current = clickedElement;
     };
 
+    useEffect(() => {
+        const listenSpotifyPopup = (event: MessageEvent) => {
+            if (event.data.event !== 'refresh_spotify_playlists') return;
+
+            if (event.data.status === 'success') {
+                getPlaylists();
+                if (topOfTheListRef.current) {
+                    topOfTheListRef.current.scrollIntoView();
+                }
+            } else {
+                toast.error('Failed to refresh spotify playlists');
+            }
+        };
+        window.addEventListener('message', listenSpotifyPopup);
+        return () => {
+            window.removeEventListener('message', listenSpotifyPopup);
+        };
+    }, [getPlaylists]);
+
     const handleSpotifyButton = async () => {
         const botdizCallbackUrl = config.botdiz_interface + '/spotifycallback';
         const encodedbotdizCallbackUrl = encodeURIComponent(botdizCallbackUrl);
         const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=e860aedd3a4546819cae9dd390574c69&response_type=code&redirect_uri=${encodedbotdizCallbackUrl}&scope=playlist-read-private`;
 
-        setPlaylistRefreshHidden(false);
         //window.location.href = spotifyAuthUrl
         //window.location.reload()
-        window.open(spotifyAuthUrl);
+        window.open(
+            spotifyAuthUrl,
+            'Refresh Spotify Playlists',
+            'width=600,height=500',
+        );
 
         return;
     };
@@ -274,12 +296,11 @@ const Playlist = () => {
                 autoHideDuration={200}
                 id="spotify_list"
             >
-                {!playlistRefreshHidden && (
-                    <PlaylistRefreshButton
-                        getPlaylists={getPlaylists}
-                        hidden={playlistRefreshHidden}
-                    />
-                )}
+                {
+                    //hacky way to scroll playlists to the top.
+                    //Call scrollIntoView on this element to scroll to top
+                    <span ref={topOfTheListRef} />
+                }
                 <h2
                     style={{
                         color: 'white',
@@ -305,72 +326,5 @@ const Playlist = () => {
         </PlaylistWrapper>
     );
 };
-
-const PlaylistRefreshButtonWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    display: ${(props) => (props.hidden ? 'none' : 'flex')};
-
-    height: 40px;
-    width: 100%;
-`;
-const PlaylistButton = styled.div`
-    width: 60%;
-    height: 100%;
-
-    background: #66cc99;
-
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    color: white;
-    font-size: 20px;
-
-    cursor: pointer;
-`;
-function PlaylistRefreshButton(props: {
-    hidden: boolean;
-    getPlaylists: () => void;
-}) {
-    const [hidden, setHidden] = useState(props.hidden);
-
-    const buttonRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        buttonRef?.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-        });
-    }, [hidden]);
-
-    const refreshClicked = () => {
-        props.getPlaylists();
-        setHidden(true);
-    };
-
-    return (
-        <PlaylistRefreshButtonWrapper hidden={hidden} ref={buttonRef}>
-            <PlaylistButton onClick={refreshClicked}>
-                <IoRefresh />
-                <span
-                    style={{
-                        position: 'relative',
-                        bottom: '2px',
-                        marginLeft: '5px',
-                    }}
-                >
-                    Refresh
-                </span>
-            </PlaylistButton>
-        </PlaylistRefreshButtonWrapper>
-    );
-}
 
 export default Playlist;

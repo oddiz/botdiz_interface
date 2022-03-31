@@ -14,6 +14,11 @@ type ICredentials = {
     reCaptchaToken: string;
 };
 
+export const DISCORD_LOGIN_URL =
+    process.env.NODE_ENV === 'development'
+        ? 'https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds'
+        : 'https://discord.com/api/oauth2/authorize?client_id=851497395190890518&redirect_uri=https%3A%2F%2Fbotdiz.kaansarkaya.com%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds';
+
 async function loginUser(credentials: ICredentials) {
     return fetch(config.botdiz_server + '/login', {
         method: 'POST',
@@ -122,15 +127,11 @@ const Login = () => {
     };
 
     const handleDiscordLogin = async () => {
-        let discordUrl;
-        if (process.env.NODE_ENV === 'development') {
-            discordUrl =
-                'https://discord.com/api/oauth2/authorize?client_id=857957046297034802&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds';
-        } else {
-            discordUrl =
-                'https://discord.com/api/oauth2/authorize?client_id=851497395190890518&redirect_uri=https%3A%2F%2Fbotdiz.kaansarkaya.com%2Fdiscordlogin&response_type=code&scope=identify%20email%20guilds';
-        }
-        window.open(discordUrl, '_self');
+        window.open(
+            DISCORD_LOGIN_URL,
+            'Login with Discord',
+            'width=600,height=1000',
+        );
     };
 
     return (

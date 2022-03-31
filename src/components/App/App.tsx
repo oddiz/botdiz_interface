@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import './App.css';
 import Dashboard from './AppContent/Dashboard/Dashboard';
@@ -13,7 +13,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import { accountData, connectionState } from './Atoms';
 import { Skeleton } from '@mui/material';
-
+import { useNavigate } from 'react-router-dom';
 import { ValidateResponse } from '../../../../botdiz/server_src/routes/validate';
 
 export const StyledSkeleton = styled(Skeleton)`
@@ -33,6 +33,7 @@ const AppWrapper = styled.div`
     width: 100%;
     height: 100vh;
 
+    min-width: 850px;
     display: flex;
     flex-direction: column;
     background-color: #36393f;
@@ -69,6 +70,8 @@ const App = () => {
     const [, setAccountInfo] = useRecoilState(accountData);
     const [alreadyConnected, setAlreadyConnected] = useState(false);
     const [token, setToken] = useState<string | null>(null);
+    const navigate = useNavigate();
+    let [websocketErrored, setWebsocketErrored] = useState(false);
 
     const setupWebsocket = () => {
         const processOnMessage = (message: MessageEvent) => {
@@ -92,6 +95,7 @@ const App = () => {
             }
         };
         try {
+            if (websocketErrored) return;
             setAlreadyConnected(false);
             if (
                 connection &&
@@ -108,10 +112,15 @@ const App = () => {
             return;
         }
         const ws = new WebSocket(config.botdiz_websocket_server);
-
+        ws.onerror = (error) => {
+            console.log('ws error', error);
+            //websocket error occured so no automatic retries
+            setWebsocketErrored(true);
+            return;
+        };
         ws.onopen = () => {
             retryCounter = 0;
-            console.log('Connected to websocket');
+            console.log('Connected to websocket', ws);
             setConnection({
                 websocket: ws,
                 token: token,
@@ -144,7 +153,7 @@ const App = () => {
         };
     };
 
-    const validateSession = async () => {
+    const validateSession = useCallback(async () => {
         if (sessionValidated) return { isValidated: true };
         console.log('validating session', sessionValidated);
         const response = await fetch(config.botdiz_server + '/validate', {
@@ -163,10 +172,9 @@ const App = () => {
         }
 
         return responseBody;
-    };
+    }, [sessionValidated, setAccountInfo]);
 
     useEffect(() => {
-        console.log('useeffect');
         async function run() {
             if (sessionValidated === null) {
                 //haven't tried to validate session yet
@@ -187,6 +195,28 @@ const App = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sessionValidated]);
+
+    useEffect(() => {
+        const handleWindowMessage = (message: MessageEvent<any>) => {
+            try {
+                if (!message.data) return;
+
+                if (
+                    message.data.event === 'discord_login' &&
+                    message.data.result === 'success'
+                ) {
+                    //force session validation
+                    validateSession();
+                }
+            } catch (error) {}
+        };
+
+        window.addEventListener('message', handleWindowMessage);
+
+        return () => {
+            window.removeEventListener('message', handleWindowMessage);
+        };
+    }, [validateSession]);
 
     //const [token, setToken] = useState();
     if (!sessionValidated) {
