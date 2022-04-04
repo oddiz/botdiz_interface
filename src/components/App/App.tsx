@@ -70,7 +70,6 @@ const App = () => {
     const [, setAccountInfo] = useRecoilState(accountData);
     const [alreadyConnected, setAlreadyConnected] = useState(false);
     const [token, setToken] = useState<string | null>(null);
-    const navigate = useNavigate();
     let [websocketErrored, setWebsocketErrored] = useState(false);
 
     const setupWebsocket = () => {

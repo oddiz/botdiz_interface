@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import './Navbar.css';
@@ -10,60 +10,14 @@ import { activePageState } from '../Atoms';
 //STATUS SECTION
 
 //NAVBAR ITEMS SECTION
-function getTextWidth(text: string, font: string) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
 
-    if (!context) return 0;
-
-    context.font = font || getComputedStyle(document.body).font;
-
-    return context.measureText(text).width || 0;
-}
-
-function calculateIndicator(props: {
-    activeIndex: number | null;
-    activeName: string | null;
-    menuItems: { value: string; link: string }[];
-}) {
-    //console.log(props)
-    const font = '20px Whitney Semibold Regular';
-    const activeName = props.activeName;
-    const activeIndex = props.activeIndex || 0;
-    const menuItems = props.menuItems;
-
-    if (!menuItems || !activeName || activeIndex === null) return;
-
-    const itemMargin = 20;
-
-    let totalWidth = 0;
-    let totalDistanceFromLeft = 20;
-
-    for (let i = 0; i < menuItems.length; i++) {
-        const textWidth = getTextWidth(menuItems[i].value, font);
-        const itemWidth = itemMargin + textWidth + itemMargin;
-        if (i < activeIndex) {
-            totalDistanceFromLeft += itemWidth;
-        }
-        totalWidth += itemWidth;
-    }
-
-    //console.log("Total distance from left :", totalDistanceFromLeft)
-
-    const activeWidth = getTextWidth(activeName, font);
-
-    //console.log("Active width: ",activeWidth)
-
-    return {
-        left: totalDistanceFromLeft + activeWidth / 2,
-        width: activeWidth,
-        totalWidth: totalWidth,
-    };
-}
-
-const NavbarSelectedIndicator = styled.div.attrs(calculateIndicator)`
+const NavbarSelectedIndicator = styled.div<{
+    totalWidthProp: number;
+    widthProp: number;
+    translateXProp: number;
+}>`
     height: 5px;
-    width: ${(props) => props.totalWidth}px;
+    width: ${(props) => props.totalWidthProp}px;
     background: linear-gradient(
         90deg,
         rgba(120, 107, 201, 1) 0%,
@@ -77,8 +31,13 @@ const NavbarSelectedIndicator = styled.div.attrs(calculateIndicator)`
         rgba(120, 107, 201, 1) 100%
     );
 
+    transform: translateX(
+        ${(props) => props.translateXProp - props.widthProp / 2}px
+    );
+
     clip-path: ellipse(
-        ${(props) => props.width / 2}px 4px at ${(props) => props.left}px 0px
+        ${(props) => props.widthProp / 2}px 4px at
+            ${(props) => props.widthProp / 2}px 0px
     );
 
     transition: cubic-bezier(0.47, 0.17, 0.23, 1.33) all 0.4s, linear width 0.1s;
@@ -128,16 +87,92 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
             link: '/app/stats',
         },
     ]);
+    const calculateIndicator = useCallback(
+        (props: {
+            activeIndex: number | null;
+            activeName: string | null;
+            menuItems: { value: string; link: string }[];
+        }) => {
+            const getTextWidth = (text: string, font: string) => {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
 
-    let initialLocation = window.location.pathname;
+                if (!context) return 0;
 
-    if (initialLocation === '/app') {
-        initialLocation = '/app/dashboard';
-    }
+                context.font = font || getComputedStyle(document.body).font;
+
+                return context.measureText(text).width || 0;
+            };
+            //console.log(props)
+            const font = '20px Whitney Semibold Regular';
+            const activeName = props.activeName;
+            const activeIndex = props.activeIndex || 0;
+            const menuItems = props.menuItems;
+
+            if (!menuItems || !activeName || activeIndex === null) return;
+
+            const itemMargin = 20;
+
+            let totalWidth = 0;
+            let totalDistanceFromLeft = 20;
+
+            for (let i = 0; i < menuItems.length; i++) {
+                const textWidth = getTextWidth(menuItems[i].value, font);
+                const itemWidth = itemMargin + textWidth + itemMargin;
+                if (i < activeIndex) {
+                    totalDistanceFromLeft += itemWidth;
+                }
+                totalWidth += itemWidth;
+            }
+
+            //console.log("Total distance from left :", totalDistanceFromLeft)
+
+            const activeWidth = getTextWidth(activeName, font);
+
+            //console.log("Active width: ",activeWidth)
+
+            return {
+                left: totalDistanceFromLeft + activeWidth / 2,
+                width: activeWidth,
+                totalWidth: totalWidth,
+            };
+        },
+        [],
+    );
 
     const [activePage, setActivePageState] = useRecoilState(activePageState);
+    // const [activePage, setActivePageState] = useState<{
+    //     index: number | null;
+    //     name: string | null;
+    // }>({
+    //     index: null,
+    //     name: null,
+    // });
+
+    const [indicatorInfo, setIndicatorInfo] = useState(
+        calculateIndicator({
+            activeIndex: activePage.index,
+            activeName: activePage.name,
+            menuItems: menuItems.current,
+        }),
+    );
 
     useEffect(() => {
+        if (activePage.index || activePage.name) {
+            const calculatedIndicatorInfo = calculateIndicator({
+                activeIndex: activePage.index,
+                activeName: activePage.name,
+                menuItems: menuItems.current,
+            });
+
+            setIndicatorInfo(calculatedIndicatorInfo);
+        }
+
+        let initialLocation = window.location.pathname;
+
+        if (initialLocation === '/app') {
+            initialLocation = '/app/dashboard';
+        }
         let initialIndex = null,
             initialMenuItem = null;
         for (const [index, menuItem] of menuItems.current.entries()) {
@@ -151,7 +186,12 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
             index: initialIndex,
             name: initialMenuItem?.value || null,
         });
-    }, [initialLocation, setActivePageState]);
+    }, [
+        activePage.index,
+        activePage.name,
+        calculateIndicator,
+        setActivePageState,
+    ]);
 
     const handleClick = async (event: React.MouseEvent<HTMLElement>) => {
         const clickedElement = event.target as HTMLElement;
@@ -173,6 +213,7 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
             to={item.link}
             onClick={(event) => handleClick(event)}
             draggable={false}
+            style={{ left: '' }}
         >
             {item.value}
         </NavLink>
@@ -185,14 +226,24 @@ const Navbar = (props: { setupWebsocket: () => void }) => {
                 <div className="navbar_items" draggable={false}>
                     {navbarItems}
                 </div>
-                <NavbarSelectedIndicator
-                    className={
-                        typeof activePage.index === 'number' ? '' : 'hide'
-                    }
-                    activeIndex={activePage.index}
-                    activeName={activePage.name}
-                    menuItems={menuItems.current}
-                />
+                {indicatorInfo && (
+                    <NavbarSelectedIndicator
+                        className={
+                            typeof activePage.index === 'number' ? '' : 'hide'
+                        }
+                        translateXProp={indicatorInfo?.left}
+                        widthProp={indicatorInfo?.width}
+                        totalWidthProp={indicatorInfo?.totalWidth}
+                        style={{
+                            transform: indicatorInfo
+                                ? `translateX(${
+                                      indicatorInfo.left -
+                                      indicatorInfo.width / 2
+                                  }px )`
+                                : '',
+                        }}
+                    />
+                )}
             </div>
             <Status setupWebsocket={props.setupWebsocket} />
         </div>

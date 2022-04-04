@@ -37,47 +37,6 @@ const SubscriptionsContent = (props: { guildId: string }) => {
 
     const guildId = props.guildId;
 
-    const getSubscriptions = useCallback(async () => {
-        try {
-            const reply = await fetch(
-                config.botdiz_server + '/botdizguild/subscriptions/' + guildId,
-                {
-                    method: 'GET',
-                    credentials: 'include',
-                },
-            ).then((reply) => reply.json());
-
-            if (reply.status === 'failed') return;
-
-            const guildSubs: DbGuildSubscriptions[] = reply.result;
-            let epicSubActive = false;
-            let epicSubChannelId = null;
-            let epicSubChannelName = 'default';
-
-            for (const sub of guildSubs) {
-                if (sub.type === 'epic_deals') {
-                    epicSubActive = sub.active || false;
-                    epicSubChannelId = sub.subscribed_channel;
-                    for (const textChannel of textChannels) {
-                        if (
-                            parseInt(sub.subscribed_channel) ===
-                            parseInt(textChannel.id)
-                        ) {
-                            epicSubChannelName = textChannel.name;
-                        }
-                    }
-                    break;
-                }
-            }
-
-            setEpicSubActive(epicSubActive);
-            setEpicSubChannelName(epicSubChannelName);
-            setEpicSubChannelId(epicSubChannelId);
-            setEpicSelectReady(true);
-        } catch (error) {
-            console.log(error);
-        }
-    }, [guildId, textChannels]);
     type unauthorizedResponse = {
         status: 'unauthorized';
     };
@@ -94,33 +53,83 @@ const SubscriptionsContent = (props: { guildId: string }) => {
         | getTextChannelsFailed
         | unauthorizedResponse;
 
-    const listenWebsocket = useCallback(
-        async (reply: MessageEvent) => {
-            let parsedReply;
+    useEffect(() => {
+        const getSubscriptions = async () => {
             try {
-                parsedReply = JSON.parse(reply.data);
+                const reply = await fetch(
+                    config.botdiz_server +
+                        '/botdizguild/subscriptions/' +
+                        guildId,
+                    {
+                        method: 'GET',
+                        credentials: 'include',
+                    },
+                ).then((reply) => reply.json());
+
+                if (
+                    reply.status === 'failed' ||
+                    reply.status === 'unauthorised' ||
+                    reply.status === 'rate_limited'
+                )
+                    return;
+
+                const guildSubs: DbGuildSubscriptions[] = reply.result;
+
+                let epicSubActive = false;
+                let epicSubChannelId = null;
+                let epicSubChannelName = 'default';
+
+                for (const sub of guildSubs) {
+                    if (sub.type === 'epic_deals') {
+                        epicSubActive = sub.active || false;
+                        epicSubChannelId = sub.subscribed_channel;
+                        for (const textChannel of textChannels) {
+                            if (
+                                parseInt(sub.subscribed_channel) ===
+                                parseInt(textChannel.id)
+                            ) {
+                                epicSubChannelName = textChannel.name;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                setEpicSubActive(epicSubActive);
+                setEpicSubChannelName(epicSubChannelName);
+                setEpicSubChannelId(epicSubChannelId);
+                setEpicSelectReady(true);
             } catch (error) {
-                console.log('Unable to parse reply');
-
-                return;
+                console.log(error);
             }
+        };
+        if (textChannels.length > 0) {
+            getSubscriptions();
+        }
+    }, [guildId, textChannels]);
 
-            if (parsedReply.command !== 'RPC_getTextChannels') return;
+    const listenWebsocket = useCallback(async (reply: MessageEvent) => {
+        let parsedReply;
+        try {
+            parsedReply = JSON.parse(reply.data);
+        } catch (error) {
+            console.log('Unable to parse reply');
 
-            const textChannelsReply: getTextChannelsReturn = parsedReply.result;
+            return;
+        }
 
-            if (textChannelsReply.status === 'unauthorized') {
-                console.error('Unauthorized');
-                return;
-            }
-            if (textChannelsReply.status === 'success') {
-                setTextChannels(textChannelsReply.channels);
-            }
+        if (parsedReply.command !== 'RPC_getTextChannels') return;
 
-            await getSubscriptions();
-        },
-        [getSubscriptions],
-    );
+        const textChannelsReply: getTextChannelsReturn = parsedReply.result;
+
+        if (textChannelsReply.status === 'unauthorized') {
+            console.error('Unauthorized');
+            return;
+        }
+        if (textChannelsReply.status === 'success') {
+            setTextChannels(textChannelsReply.channels);
+        }
+    }, []);
     const getTextChannels = useCallback(async () => {
         if (!guildId) {
             return;

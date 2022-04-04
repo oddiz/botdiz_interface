@@ -50,7 +50,6 @@ export const accountSectionVisible = atom({
 export default function AccountSection() {
     const [menuVisible, setMenuVisible] = useRecoilState(accountSectionVisible);
     const accountInfo = useRecoilValue(accountData);
-
     /**
      * props.account={
      *      avatarURL: "",

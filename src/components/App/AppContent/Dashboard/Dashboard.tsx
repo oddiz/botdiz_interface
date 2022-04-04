@@ -75,8 +75,6 @@ const Dashboard = () => {
     const { websocket, token } = useRecoilValue(connectionState);
     let _isMounted = useRef(false);
 
-    useEffect(() => {}, [activeGuild]);
-
     const websocketDashboardListener = useCallback(
         (reply: MessageEvent<any>) => {
             if ((allGuilds && allGuilds.length > 0) || allGuilds === null)

@@ -134,7 +134,9 @@ const GuildsContent = (props: {
     const [djRoles, setDjRoles] = useState<string[]>([]);
     const [MPSubmitButtonDisabled, setMPSubmitButtonDisabled] = useState(true);
     const [saveStatus, setSaveStatus] = useState<string | null>(null);
-
+    const [checkboxes, setCheckboxes] = useState<JSX.Element | JSX.Element[]>(
+        <></>,
+    );
     const getGuildDetails = useCallback(async (guildId: string) => {
         try {
             const reply: DiscordGuildReply = await fetch(
@@ -218,29 +220,32 @@ const GuildsContent = (props: {
         }
     };
 
-    const djRoleCheckBoxChanged = (roleId: string, value: boolean) => {
-        const newDjRoles = djRoles;
-        /* 
+    const djRoleCheckBoxChanged = useCallback(
+        (roleId: string, value: boolean) => {
+            const newDjRoles = djRoles;
+            /* 
         djRoles = [
             "123123123",
             "3223232232"
             ...
         ]
         */
-        if (value === true) {
-            if (!djRoles.includes(roleId)) {
-                newDjRoles.push(roleId);
+            if (value === true) {
+                if (!djRoles.includes(roleId)) {
+                    newDjRoles.push(roleId);
+                }
+            } else if (value === false) {
+                if (djRoles.includes(roleId)) {
+                    const roleIndex = djRoles.indexOf(roleId);
+                    newDjRoles.splice(roleIndex, 1);
+                }
             }
-        } else if (value === false) {
-            if (djRoles.includes(roleId)) {
-                const roleIndex = djRoles.indexOf(roleId);
-                newDjRoles.splice(roleIndex, 1);
-            }
-        }
-        setDjRoles(newDjRoles);
-        setMPSubmitButtonDisabled(false);
-        setSaveStatus(null);
-    };
+            setDjRoles(newDjRoles);
+            setMPSubmitButtonDisabled(false);
+            setSaveStatus(null);
+        },
+        [djRoles],
+    );
 
     const handleMPAccessButton = async () => {
         if (!activeGuild) return;
@@ -288,6 +293,31 @@ const GuildsContent = (props: {
         window.open(inviteLink, '_blank');
         props.addBotdizClicked();
     };
+
+    useEffect(() => {
+        const parseCheckboxes = () => {
+            if (!activeGuildDetails?.roles) return <></>;
+            const parsed = activeGuildDetails.roles.map((role, index) => {
+                const defaultChecked = djRoles.includes(role.id);
+                return (
+                    <RoleCheckBox
+                        key={index + (defaultChecked ? 'true' : 'false')}
+                        roleColor={
+                            role.color === '0' ? '#FFFFFF' : `#${role.color}`
+                        }
+                        roleId={role.id}
+                        roleName={role.name}
+                        defaultChecked={defaultChecked}
+                        roleOnChange={djRoleCheckBoxChanged}
+                    />
+                );
+            });
+
+            return parsed;
+        };
+        setCheckboxes(parseCheckboxes());
+        return () => {};
+    }, [activeGuildDetails?.roles, djRoleCheckBoxChanged, djRoles]);
 
     if (!activeGuild?.id) {
         return <div />;
@@ -372,24 +402,6 @@ const GuildsContent = (props: {
         );
     }
 
-    let parseRoleCheckboxes;
-    if (activeGuildDetails?.roles) {
-        parseRoleCheckboxes = activeGuildDetails.roles.map((role, index) => {
-            const defaultChecked = djRoles.includes(role.id);
-            return (
-                <RoleCheckBox
-                    key={index}
-                    roleColor={
-                        role.color === '0' ? '#FFFFFF' : `#${role.color}`
-                    }
-                    roleId={role.id}
-                    roleName={role.name}
-                    defaultChecked={defaultChecked}
-                    roleOnChange={djRoleCheckBoxChanged}
-                />
-            );
-        });
-    }
     return (
         <GuildsContentWrapper>
             <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
@@ -410,7 +422,7 @@ const GuildsContent = (props: {
                         </SettingHeader>
                         <SettingContentWrapper>
                             <SettingSubtitle>Allowed Roles:</SettingSubtitle>
-                            <Roles>{parseRoleCheckboxes}</Roles>
+                            <Roles>{checkboxes}</Roles>
                         </SettingContentWrapper>
 
                         <SubmitButtonWrapper>

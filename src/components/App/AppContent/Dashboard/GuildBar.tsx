@@ -157,23 +157,7 @@ function GuildIcon(props: GuildIconProps) {
         eventTarget.parentElement.classList.add('active');
         props.GuildBarOnClick(event);
     };
-    /*
-    const onMouseHoverGuildBar = (
-        event: React.MouseEvent<HTMLDivElement, MouseEvent>
-    ) => {
-        switch (event.type) {
-            case 'mouseenter':
-                setShowTooltip(true);
-                break;
-            case 'mouseleave':
-                setShowTooltip(false);
-                break;
 
-            default:
-                break;
-        }
-    };
-    */
     if (!guildIconRef) return <></>;
 
     return (
