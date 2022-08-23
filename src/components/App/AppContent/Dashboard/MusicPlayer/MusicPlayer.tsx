@@ -168,7 +168,7 @@ const MusicPlayer = () => {
     let queueLock = useRef(false);
 
     const processMusicPlayerUpdate = useCallback(
-        (reply) => {
+        (reply: { data: string; }) => {
             let parsedReply;
 
             try {
@@ -182,7 +182,9 @@ const MusicPlayer = () => {
                 case 'playerUpdate':
                     const updateReply = parsedReply as PlayerUpdate;
 
-                    setStreamTime(updateReply.state.position);
+                    if (updateReply?.state?.position)
+                        setStreamTime(updateReply?.state?.position);
+
                     break;
 
                 case 'skipVoteUpdate':

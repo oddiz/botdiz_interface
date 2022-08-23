@@ -1,7 +1,7 @@
 import { formatStreamTime } from 'components/helpers';
 import { GuildMember, User } from 'discord.js';
 import { atom, selector } from 'recoil';
-import { ShoukakuTrack } from 'shoukaku';
+import { Track } from 'shoukaku';
 
 export interface BotdizTrack {
     info: {
@@ -12,7 +12,7 @@ export interface BotdizTrack {
     isSpotify: boolean;
     recommendedSong?: boolean;
 }
-export interface BotdizShoukakuTrack extends ShoukakuTrack {
+export interface BotdizShoukakuTrack extends Track {
     recommendedSong?: boolean;
     thumbnail?: string;
 }
