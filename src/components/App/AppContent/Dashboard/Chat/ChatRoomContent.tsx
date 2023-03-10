@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import Scrollbars from 'react-custom-scrollbars';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { activeGuildState } from '../Atoms';
 import { activeTextChannelState } from './Atoms';
 import { connectionState } from 'components/App/Atoms';
 
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 const ChatContentWrapper = styled.div`
     flex-grow: 1;
     display: flex;
@@ -191,17 +192,10 @@ function ChatRoom(props: { activeChannelMessages: ChatRoomMessage[] | null }) {
     });
     return (
         <ChatRoomWrapper className="" key={messages.length}>
-            <Scrollbars
-                autoHide
-                autoHideTimeout={1500}
-                autoHideDuration={200}
-                renderView={({ style, ...props }) => (
-                    <div {...props} style={{ ...style, overflowX: 'hidden' }} />
-                )}
-            >
+            <SimpleBar style={{ overflowX: 'hidden' }} autoHide>
                 {mappedMessages.reverse()}
                 <AlwaysScrollToBottom />
-            </Scrollbars>
+            </SimpleBar>
         </ChatRoomWrapper>
     );
 }

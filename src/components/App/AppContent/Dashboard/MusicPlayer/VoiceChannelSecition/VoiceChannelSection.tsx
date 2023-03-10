@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from 'config';
-import Scrollbars from 'react-custom-scrollbars';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../../Atoms';
 import { inVoiceChannelState } from '../Atoms';
 import { GuildMember } from 'discord.js';
 import { ReactComponent as VolumeIcon } from './VolumeIcon.svg';
+
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
+
 const ChannelName = styled.div`
     padding-bottom: 6px;
     margin-left: 6px;
@@ -310,10 +313,9 @@ const VoiceChannelSection = () => {
 
     return (
         <VoiceChannelSectionWrapper id="voice_channels_wrapper">
-            <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
-                <div style={{ height: '15px', width: '100%' }} />
+            <SimpleBar autoHide style={{ height: '15px', width: '100%' }}>
                 {voiceChannelRender}
-            </Scrollbars>
+            </SimpleBar>
         </VoiceChannelSectionWrapper>
     );
 };

@@ -13,7 +13,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useRecoilState } from 'recoil';
 import { accountData, connectionState } from './Atoms';
 import { Skeleton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { ValidateResponse } from '../../../../botdiz/server_src/routes/validate';
 
 export const StyledSkeleton = styled(Skeleton)`
