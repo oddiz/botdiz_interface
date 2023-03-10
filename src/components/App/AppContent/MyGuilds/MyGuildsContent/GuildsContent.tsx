@@ -2,15 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Switch from 'react-switch';
 import { config } from 'config';
+import Scrollbars from 'react-custom-scrollbars';
 import { Button } from '@dracula/dracula-ui';
 import { useRecoilValue } from 'recoil';
 import { accountData } from 'components/App/Atoms';
 import { Guild } from 'discord.js';
 import SubscriptionsContent from './SubscriptionsContent';
 import { BotdizGuild } from '../MyGuilds';
-
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
 
 const GuildsContentWrapper = styled.div`
     flex-grow: 1;
@@ -406,7 +404,7 @@ const GuildsContent = (props: {
 
     return (
         <GuildsContentWrapper>
-            <SimpleBar autoHide>
+            <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
                 <Header>
                     <GuildIcon>
                         <img src={activeGuild.iconUrl} alt="Guild Icon" />
@@ -452,7 +450,7 @@ const GuildsContent = (props: {
                         <SubscriptionsContent guildId={activeGuild.id} />
                     </Setting>
                 </SettingsWrapper>
-            </SimpleBar>
+            </Scrollbars>
         </GuildsContentWrapper>
     );
 };

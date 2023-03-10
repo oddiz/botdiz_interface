@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { IoPlaySkipForward } from 'react-icons/io5';
 import styled from 'styled-components';
+import Scrollbars from 'react-custom-scrollbars';
 import { ItemInterface, ReactSortable } from 'react-sortablejs';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
@@ -13,10 +14,6 @@ import {
 } from './Atoms';
 import { connectionState } from 'components/App/Atoms';
 import { activeGuildState } from '../Atoms';
-
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
-
 
 const QueueWrapper = styled.div`
     padding-top: 0px;
@@ -44,7 +41,7 @@ const QueueWrapper = styled.div`
 
 export const Queue = () => {
     return (
-        <SimpleBar autoHide>
+        <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
             <QueueWrapper>
                 <h2>Queue</h2>
                 <h4>Current Song</h4>
@@ -52,7 +49,7 @@ export const Queue = () => {
                 <h4>Next Up</h4>
                 <NextUp />
             </QueueWrapper>
-        </SimpleBar>
+        </Scrollbars>
     );
 };
 

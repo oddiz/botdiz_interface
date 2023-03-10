@@ -77,7 +77,7 @@ export const DiscordCallback: React.FC = () => {
     const [success, setSuccess] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState(false);
-    const [, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const DiscordCallbackInit = async () => {
         const authCode = new URLSearchParams(window.location.search).get(

@@ -78,7 +78,7 @@ const SearchInput = styled.input`
     }
 `;
 
-class Modal extends React.Component<any, any> {
+class Modal extends React.Component {
     el: HTMLDivElement;
     modalRoot: HTMLElement | null;
 

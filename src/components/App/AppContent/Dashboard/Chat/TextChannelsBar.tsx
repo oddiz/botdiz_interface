@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { connectionState } from 'components/App/Atoms';
+import Scrollbars from 'react-custom-scrollbars';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { activeGuildState } from '../Atoms';
@@ -8,9 +9,6 @@ import {
     ChatPageErrorMessageState,
     guildTextChannelsState,
 } from './Atoms';
-
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
 
 const TextChannelWrapper = styled.div`
     display: flex;
@@ -251,9 +249,9 @@ const ChannelsBar = () => {
 
     return (
         <ChannelsBarWrapper id="channels_bar">
-            <SimpleBar autoHide>
+            <Scrollbars autoHide autoHideTimeout={1500} autoHideDuration={200}>
                 {textChannelRender}
-            </SimpleBar>
+            </Scrollbars>
         </ChannelsBarWrapper>
     );
 };
