@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from 'config';
-import Scrollbars from 'react-custom-scrollbars';
 import { IoRefresh } from 'react-icons/io5';
 
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -9,6 +8,9 @@ import { connectionState } from 'components/App/Atoms';
 import { discordGuildsState } from './Atoms';
 import GuildCard, { GuildCardSkeleton } from './MyGuildsList/GuildCard';
 import GuildsContent from './MyGuildsContent/GuildsContent';
+
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
 const GuildsWrapper = styled.div`
     box-sizing: border-box;
@@ -129,13 +131,7 @@ const MyGuilds = () => {
     return (
         <GuildsWrapper>
             <GuildsListWrapper>
-                <Scrollbars
-                    autoHide
-                    autoHideTimeout={1500}
-                    autoHideDuration={200}
-                >
-                    {renderGuilds}
-                </Scrollbars>
+                <SimpleBar autoHide>{renderGuilds}</SimpleBar>
                 <RefreshButton
                     key={refreshButtonKey}
                     hidden={refreshButtonHidden}
