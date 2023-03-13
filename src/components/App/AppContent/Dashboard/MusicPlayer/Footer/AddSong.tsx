@@ -78,11 +78,12 @@ const SearchInput = styled.input`
     }
 `;
 
-class Modal extends React.Component<any, any> {
+
+class Modal extends React.Component<PropsWithChildren, any> {
     el: HTMLDivElement;
     modalRoot: HTMLElement | null;
 
-    constructor(props: PropsWithChildren<{}>) {
+    constructor(props: PropsWithChildren) {
         super(props);
         this.modalRoot = document.getElementById('modal') as HTMLElement;
         this.el = document.createElement('div');
