@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import GuildBar from './GuildBar';
-import ChatPage from './Chat/ChatPage';
-import MusicPlayer from './MusicPlayer/MusicPlayer';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { connectionState } from 'components/App/Atoms';
-import NoGuilds from './NoGuilds';
-import { activeGuildState, allGuildsState } from './Atoms';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+import GuildBar from "./GuildBar";
+import ChatPage from "./Chat/ChatPage";
+import MusicPlayer from "./MusicPlayer/MusicPlayer";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { connectionState } from "components/App/Atoms";
+import NoGuilds from "./NoGuilds";
+import { activeGuildState, allGuildsState } from "./Atoms";
 
 const DashboardWrapper = styled.div`
     width: 100%;
@@ -67,18 +67,14 @@ export interface DbSpotifyData {
 const Dashboard = () => {
     const [allGuilds, setAllGuilds] = useRecoilState(allGuildsState);
 
-    const [activeGuild, setActiveGuild] =
-        useRecoilState<InterfaceGuildObject | null>(activeGuildState);
-    const [activeOption, setActiveOption] = useState(
-        activeGuild ? 'Music Player' : '',
-    );
+    const [activeGuild, setActiveGuild] = useRecoilState<InterfaceGuildObject | null>(activeGuildState);
+    const [activeOption, setActiveOption] = useState(activeGuild ? "Music Player" : "");
     const { websocket, token } = useRecoilValue(connectionState);
     let _isMounted = useRef(false);
 
     const websocketDashboardListener = useCallback(
         (reply: MessageEvent<any>) => {
-            if ((allGuilds && allGuilds.length > 0) || allGuilds === null)
-                return;
+            if ((allGuilds && allGuilds.length > 0) || allGuilds === null) return;
             //console.log("reply recieved" ,reply)
             let parsedReply;
 
@@ -90,11 +86,11 @@ const Dashboard = () => {
             }
 
             if (!parsedReply.result) {
-                console.log('Reply is not valid or empty: ', parsedReply);
+                console.log("Reply is not valid or empty: ", parsedReply);
                 return;
             }
             //get Guild command
-            if (parsedReply.command === 'RPC_getGuilds') {
+            if (parsedReply.command === "RPC_getGuilds") {
                 if (parsedReply.result.length === 0) {
                     setAllGuilds([]);
 
@@ -115,10 +111,10 @@ const Dashboard = () => {
                     setAllGuilds(mappedGuilds);
                 }
             } else {
-                console.log('Reply is not recognized', parsedReply);
+                console.log("Reply is not recognized", parsedReply);
             }
         },
-        [allGuilds, setAllGuilds],
+        [allGuilds, setAllGuilds]
     );
 
     const getGuilds = useCallback(async () => {
@@ -130,9 +126,9 @@ const Dashboard = () => {
         if (!token) return;
 
         const message = {
-            type: 'get',
+            type: "get",
             token: token,
-            command: 'RPC_getGuilds',
+            command: "RPC_getGuilds",
             params: [],
         };
 
@@ -144,7 +140,7 @@ const Dashboard = () => {
 
         if (!(websocket && token)) return;
         if (websocket?.readyState === WebSocket.OPEN) {
-            websocket.addEventListener('message', websocketDashboardListener, {
+            websocket.addEventListener("message", websocketDashboardListener, {
                 once: true,
             });
 
@@ -154,20 +150,17 @@ const Dashboard = () => {
         return () => {
             _isMounted.current = false;
             if (websocket) {
-                websocket.removeEventListener(
-                    'message',
-                    websocketDashboardListener,
-                );
+                websocket.removeEventListener("message", websocketDashboardListener);
             }
         };
     }, [websocket, token, websocketDashboardListener, getGuilds]);
 
     const RenderGuildOptionContent = useCallback(() => {
         switch (activeOption) {
-            case 'Chat':
+            case "Chat":
                 return <ChatPage />;
 
-            case 'Music Player':
+            case "Music Player":
                 return <MusicPlayer />;
 
             default:
@@ -177,16 +170,13 @@ const Dashboard = () => {
 
     const GuildBarOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const clickedElement = event.target as HTMLElement;
-        const parentOfParentClicked =
-            clickedElement.parentElement?.parentElement;
+        const parentOfParentClicked = clickedElement.parentElement?.parentElement;
         if (!parentOfParentClicked) return;
-        const activeIndex = [...parentOfParentClicked.children].indexOf(
-            clickedElement.parentElement,
-        );
+        const activeIndex = [...parentOfParentClicked.children].indexOf(clickedElement.parentElement);
         if (allGuilds) {
             console.log(allGuilds[activeIndex]);
             setActiveGuild(allGuilds[activeIndex]);
-            setActiveOption('Music Player');
+            setActiveOption("Music Player");
         }
     };
 
@@ -200,7 +190,10 @@ const Dashboard = () => {
 
     return (
         <DashboardWrapper id="dashboard_wrapper">
-            <GuildBar allGuilds={allGuilds} GuildBarOnClick={GuildBarOnClick} />
+            <GuildBar
+                allGuilds={allGuilds}
+                GuildBarOnClick={GuildBarOnClick}
+            />
 
             <DashboardContent>
                 <GuildOptionsContent

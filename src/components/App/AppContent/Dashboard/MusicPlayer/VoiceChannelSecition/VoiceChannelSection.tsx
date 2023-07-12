@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { config } from 'config';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { connectionState } from 'components/App/Atoms';
-import { activeGuildState } from '../../Atoms';
-import { inVoiceChannelState } from '../Atoms';
-import { GuildMember } from 'discord.js';
-import { ReactComponent as VolumeIcon } from './VolumeIcon.svg';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { config } from "config";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { connectionState } from "components/App/Atoms";
+import { activeGuildState } from "../../Atoms";
+import { inVoiceChannelState } from "../Atoms";
+import { GuildMember } from "discord.js";
+import { ReactComponent as VolumeIcon } from "./VolumeIcon.svg";
 
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
 const ChannelName = styled.div`
     padding-bottom: 6px;
@@ -59,7 +59,7 @@ const ChannelMember = styled.span`
     &.emphasis {
         color: transparent;
         font-weight: 600;
-        font-family: 'Fira Code';
+        font-family: "Fira Code";
 
         background-clip: text;
         -webkit-background-clip: text;
@@ -69,7 +69,7 @@ const ChannelMember = styled.span`
 interface VoiceChannelProps {
     voiceChannelClicked: (event: React.MouseEvent<HTMLDivElement>) => void;
     channelName: string;
-    channelMembers: IVoiceChannel['members'];
+    channelMembers: IVoiceChannel["members"];
 }
 const VoiceChannel = (props: VoiceChannelProps) => {
     const botdizDiscordId = config.botdiz_discordId;
@@ -80,11 +80,7 @@ const VoiceChannel = (props: VoiceChannelProps) => {
             return (
                 <ChannelMember
                     key={index}
-                    className={
-                        member.userId === botdizDiscordId
-                            ? 'emphasis drac-bg-animated'
-                            : ''
-                    }
+                    className={member.userId === botdizDiscordId ? "emphasis drac-bg-animated" : ""}
                 >
                     {member.displayName}
                 </ChannelMember>
@@ -92,17 +88,15 @@ const VoiceChannel = (props: VoiceChannelProps) => {
         });
 
     function getTextWidth(text: string) {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
         if (!context) return null;
 
-        const VSWrapperElement = document.getElementById(
-            'voice_channels_wrapper',
-        );
+        const VSWrapperElement = document.getElementById("voice_channels_wrapper");
         if (!VSWrapperElement) return null;
 
         const element = getComputedStyle(VSWrapperElement);
-        const font = element.fontSize + ' ' + element.fontFamily;
+        const font = element.fontSize + " " + element.fontFamily;
         context.font = font;
 
         return context.measureText(text).width;
@@ -116,12 +110,12 @@ const VoiceChannel = (props: VoiceChannelProps) => {
     if (channelNameWidth && channelNameWidth > maxWidth) {
         let counter = 5;
 
-        let newChannelName = channelName.substring(0, counter) + '...';
+        let newChannelName = channelName.substring(0, counter) + "...";
         let newChannelWidth = getTextWidth(newChannelName);
 
         while (newChannelWidth && newChannelWidth < maxWidth) {
             counter++;
-            newChannelName = channelName.substring(0, counter) + '...';
+            newChannelName = channelName.substring(0, counter) + "...";
             newChannelWidth = getTextWidth(newChannelName);
         }
 
@@ -136,9 +130,7 @@ const VoiceChannel = (props: VoiceChannelProps) => {
                 </HashtagDiv>
                 <ChannelName>{channelName}</ChannelName>
             </VoiceChannelTitleWrapper>
-            <ChannelMembersWrapper>
-                {renderChannelMembers}
-            </ChannelMembersWrapper>
+            <ChannelMembersWrapper>{renderChannelMembers}</ChannelMembersWrapper>
         </VoiceChannelWrapper>
     );
 };
@@ -175,14 +167,11 @@ const VoiceChannelSection = () => {
             try {
                 let parsedReply = JSON.parse(reply.data);
                 const result = parsedReply.result;
-                if (
-                    parsedReply.command === 'RPC_getVoiceChannels' &&
-                    result.status === 'success'
-                ) {
+                if (parsedReply.command === "RPC_getVoiceChannels" && result.status === "success") {
                     setVoiceChannels(result.voiceChannels);
                 }
 
-                if (parsedReply.event === 'voicechannel_update') {
+                if (parsedReply.event === "voicechannel_update") {
                     /* Reply format
                     {
                         event: "voicechannel_change",
@@ -193,32 +182,27 @@ const VoiceChannelSection = () => {
                     getVoiceChannels();
                 }
             } catch (error) {
-                console.log(
-                    error,
-                    ' Error while trying to process voice channel command',
-                );
+                console.log(error, " Error while trying to process voice channel command");
             }
         };
 
         const getVoiceChannels = () => {
             if (!websocket) {
-                console.log(
-                    'Tried to get voice channels but there was no websocket',
-                );
+                console.log("Tried to get voice channels but there was no websocket");
                 return;
             }
             if (!token) {
-                console.log('No token');
+                console.log("No token");
                 return;
             }
             if (!guildId) {
-                console.log('No guildId');
+                console.log("No guildId");
                 return;
             }
             const message = JSON.stringify({
-                type: 'get',
+                type: "get",
                 token: token,
-                command: 'RPC_getVoiceChannels',
+                command: "RPC_getVoiceChannels",
                 params: [guildId],
             });
 
@@ -227,9 +211,7 @@ const VoiceChannelSection = () => {
 
         const setupChannelListener = () => {
             if (!websocket) {
-                console.log(
-                    'Tried to setup channel listener but there was no websocket',
-                );
+                console.log("Tried to setup channel listener but there was no websocket");
                 return;
             }
 
@@ -243,15 +225,12 @@ const VoiceChannelSection = () => {
             websocket.send(messageSubVoiceUpdates);
         };
 
-        websocket?.addEventListener('message', voiceChannelSectionListener);
+        websocket?.addEventListener("message", voiceChannelSectionListener);
         getVoiceChannels();
         setupChannelListener();
 
         return () => {
-            websocket?.removeEventListener(
-                'message',
-                voiceChannelSectionListener,
-            );
+            websocket?.removeEventListener("message", voiceChannelSectionListener);
         };
     }, [guildId, token, websocket]);
 
@@ -261,9 +240,7 @@ const VoiceChannelSection = () => {
         let botFound = false;
         for (const voiceChannel of voiceChannels) {
             if (!voiceChannel.members) continue;
-            const botMember = voiceChannel.members.find(
-                (member) => member.userId === botdizDiscordId,
-            );
+            const botMember = voiceChannel.members.find((member) => member.userId === botdizDiscordId);
             if (botMember) {
                 botFound = true;
             }
@@ -272,9 +249,7 @@ const VoiceChannelSection = () => {
         setInvoiceChannel(botFound);
     }, [setInvoiceChannel, voiceChannels]);
 
-    const voiceChannelClickHandler = (
-        event: React.MouseEvent<HTMLDivElement>,
-    ) => {
+    const voiceChannelClickHandler = (event: React.MouseEvent<HTMLDivElement>) => {
         const clickedElement = event.currentTarget;
         const clickedEleParent = clickedElement.parentElement;
 
@@ -282,15 +257,14 @@ const VoiceChannelSection = () => {
 
         if (!websocket) return;
         //index of song in queue array
-        const channelIndex =
-            [...clickedEleParent.children].indexOf(clickedElement) - 1;
+        const channelIndex = [...clickedEleParent.children].indexOf(clickedElement);
 
         const clickedChannel = voiceChannels[channelIndex];
 
         const message = JSON.stringify({
-            type: 'exec',
+            type: "exec",
             token: token,
-            command: 'RPC_joinVoiceChannel',
+            command: "RPC_joinVoiceChannel",
             params: [guildId, clickedChannel.id],
         });
 
@@ -313,7 +287,10 @@ const VoiceChannelSection = () => {
 
     return (
         <VoiceChannelSectionWrapper id="voice_channels_wrapper">
-            <SimpleBar autoHide style={{ height: '15px', width: '100%' }}>
+            <SimpleBar
+                autoHide
+                style={{ width: "100%" }}
+            >
                 {voiceChannelRender}
             </SimpleBar>
         </VoiceChannelSectionWrapper>

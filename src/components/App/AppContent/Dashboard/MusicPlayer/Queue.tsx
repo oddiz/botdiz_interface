@@ -1,22 +1,16 @@
 /* eslint-disable no-extend-native */
-import { useState } from 'react';
-import { RiDeleteBin5Fill } from 'react-icons/ri';
-import { IoPlaySkipForward } from 'react-icons/io5';
-import styled from 'styled-components';
-import { ItemInterface, ReactSortable } from 'react-sortablejs';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import {
-    audioPlayerQueueState,
-    controlsDisabledState,
-    currentSongState,
-    QueueTrack,
-} from './Atoms';
-import { connectionState } from 'components/App/Atoms';
-import { activeGuildState } from '../Atoms';
+import { useState } from "react";
+import { RiDeleteBin5Fill } from "react-icons/ri";
+import { IoPlaySkipForward } from "react-icons/io5";
+import styled from "styled-components";
+import { ItemInterface, ReactSortable } from "react-sortablejs";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { audioPlayerQueueState, controlsDisabledState, currentSongState, QueueTrack } from "./Atoms";
+import { connectionState } from "components/App/Atoms";
+import { activeGuildState } from "../Atoms";
 
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
-
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
 const QueueWrapper = styled.div`
     padding-top: 0px;
@@ -44,7 +38,10 @@ const QueueWrapper = styled.div`
 
 export const Queue = () => {
     return (
-        <SimpleBar autoHide>
+        <SimpleBar
+            style={{ height: "100%", width: "100%" }}
+            autoHide
+        >
             <QueueWrapper>
                 <h2>Queue</h2>
                 <h4>Current Song</h4>
@@ -65,7 +62,7 @@ const SongWrapper = styled.div<{ recommended?: boolean }>`
 
     align-items: center;
 
-    background: ${(props) => (props.recommended ? '#0538064f' : '')};
+    background: ${(props) => (props.recommended ? "#0538064f" : "")};
 
     border-radius: 10px;
 
@@ -146,9 +143,7 @@ const SkipIcon = styled(IoPlaySkipForward)`
 function NextUp() {
     const [queueState, setQueueState] = useRecoilState(audioPlayerQueueState);
     const { token, websocket } = useRecoilValue(connectionState);
-    const [controlsDisabled, setControlsDisabled] = useRecoilState(
-        controlsDisabledState,
-    );
+    const [controlsDisabled, setControlsDisabled] = useRecoilState(controlsDisabledState);
     const activeGuild = useRecoilValue(activeGuildState);
 
     const [sortableQueue, setSortableQueue] = useState<QueueTrack[] | null>([]);
@@ -161,12 +156,12 @@ function NextUp() {
 
         if (!websocket) {
             //only possible if websocket connection is lost somehow
-            console.log('No websocket');
+            console.log("No websocket");
             return;
         }
 
         if (!activeGuild) {
-            console.log('No active guild');
+            console.log("No active guild");
             return;
         }
         setControlsDisabled(true);
@@ -175,14 +170,12 @@ function NextUp() {
         const clickedElementParent = clickedElement?.parentElement;
         if (!clickedElementParent) return;
         //index of song in queue array
-        const songIndex = [...clickedElementParent.children].indexOf(
-            clickedElement,
-        );
+        const songIndex = [...clickedElementParent.children].indexOf(clickedElement);
 
         const RPCMessage = JSON.stringify({
             token: token,
-            type: 'exec',
-            command: 'RPC_deleteQueueSong',
+            type: "exec",
+            command: "RPC_deleteQueueSong",
             //should take 2 params: guildid, index of to be deleted song
             params: [activeGuild.id, songIndex],
         });
@@ -198,12 +191,12 @@ function NextUp() {
 
         if (!websocket) {
             //only possible if websocket connection is lost somehow
-            console.log('No websocket');
+            console.log("No websocket");
             return;
         }
 
         if (!activeGuild) {
-            console.log('No active guild');
+            console.log("No active guild");
             return;
         }
         setControlsDisabled(true);
@@ -212,14 +205,12 @@ function NextUp() {
         const clickedElementParent = clickedElement?.parentElement;
         if (!clickedElementParent) return;
         //index of song in queue array
-        const activeIndex = [...clickedElementParent.children].indexOf(
-            clickedElement,
-        );
+        const activeIndex = [...clickedElementParent.children].indexOf(clickedElement);
 
         const RPCMessage = JSON.stringify({
             token: token,
-            type: 'exec',
-            command: 'RPC_skipSong',
+            type: "exec",
+            command: "RPC_skipSong",
             //should take 2 params: guildid, skip amount
             //skip amount should be +1 accounting the current song
             params: [activeGuild.id, activeIndex + 1],
@@ -251,9 +242,9 @@ function NextUp() {
             guildId: activeGuild.id,
         });
         const message = JSON.stringify({
-            type: 'exec',
+            type: "exec",
             token: token,
-            command: 'RPC_updateQueue',
+            command: "RPC_updateQueue",
             params: [activeGuild.id, sortableQueue],
         });
 
@@ -273,14 +264,12 @@ function NextUp() {
     */
     type InterfaceQueueItem = ItemInterface & QueueTrack;
 
-    const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map(
-        (song, index) => {
-            return {
-                ...song,
-                id: index,
-            };
-        },
-    );
+    const parsedQueueSongs: InterfaceQueueItem[] = queueState.queue.map((song, index) => {
+        return {
+            ...song,
+            id: index,
+        };
+    });
     if (queueState.guildId === activeGuild?.id) {
     }
     const queueSongs = parsedQueueSongs.map((song, index) => {
@@ -293,24 +282,25 @@ function NextUp() {
                 key={index}
             >
                 <ListIndex>{index + 2}</ListIndex>
-                {thumbnailUrl && <StyledThumbnail src={thumbnailUrl} alt="" />}
+                {thumbnailUrl && (
+                    <StyledThumbnail
+                        src={thumbnailUrl}
+                        alt=""
+                    />
+                )}
                 <SongTitle>
                     {song.info?.title}
                     <i>
-                        <em>
-                            {song.recommendedSong
-                                ? ' - Botdiz Recommended'
-                                : ''}
-                        </em>
+                        <em>{song.recommendedSong ? " - Botdiz Recommended" : ""}</em>
                     </i>
                 </SongTitle>
                 <DeleteIcon
                     onClick={queueDeleteClicked}
-                    className={controlsDisabled ? 'disabled' : ''}
+                    className={controlsDisabled ? "disabled" : ""}
                 />
                 <SkipIcon
                     onClick={queueSkipClicked}
-                    className={controlsDisabled ? 'disabled' : ''}
+                    className={controlsDisabled ? "disabled" : ""}
                 />
             </SongWrapper>
         );

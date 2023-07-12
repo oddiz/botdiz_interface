@@ -281,6 +281,9 @@ const Playlist = () => {
     return (
         <PlaylistWrapper>
             <SimpleBar
+                style={{
+                    height: "100%",
+                }}
                 autoHide
                 id="spotify_list"
             >
@@ -298,16 +301,13 @@ const Playlist = () => {
                 >
                     Playlists
                 </h2>
-                <PlaylistItemsWrapper className="hide_scrollbar">
-                    {processedPlaylists}
-
-                    <ImportSpotifyButton onClick={handleSpotifyButton}>
-                        <SpotifyLogo />
-                        <ButtonText>
-                            {userPlaylists && userPlaylists.items.length > 0 ? "Refresh Playlists" : "Import Playlists"}
-                        </ButtonText>
-                    </ImportSpotifyButton>
-                </PlaylistItemsWrapper>
+                <PlaylistItemsWrapper className="hide_scrollbar">{processedPlaylists}</PlaylistItemsWrapper>
+                <ImportSpotifyButton onClick={handleSpotifyButton}>
+                    <SpotifyLogo />
+                    <ButtonText>
+                        {userPlaylists && userPlaylists.items.length > 0 ? "Refresh Playlists" : "Import Playlists"}
+                    </ButtonText>
+                </ImportSpotifyButton>
             </SimpleBar>
         </PlaylistWrapper>
     );
